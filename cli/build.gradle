@@ -3,6 +3,7 @@ apply plugin: 'kotlin'
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     compile project(':lib')
+    testCompile 'junit:junit:4.12'
 }
 
 apply from: '../ktlint.gradle'

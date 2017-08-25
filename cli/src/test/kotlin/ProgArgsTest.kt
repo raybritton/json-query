@@ -1,6 +1,4 @@
-package com.raybritton.jsonquery
-
-import com.raybritton.jsonquery.models.ProgArgs
+import com.raybritton.jsonquery.ProgArgs
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Rule

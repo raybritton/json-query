@@ -5,7 +5,7 @@ import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.utils.describe
 
 class JsonQuery {
-    lateinit var map: Map<String, Any>
+    private lateinit var map: Map<String, Any>
 
     fun loadJson(path: String) {
         val json = JsonLoader().load(path)

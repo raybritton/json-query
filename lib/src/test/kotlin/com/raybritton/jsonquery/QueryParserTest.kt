@@ -19,12 +19,11 @@ class QueryParserTest {
         val queryStmt5 = "GET \".items.id\""
 
         //When processed
-        val parser = QueryParser()
-        val query1 = parser.parse(queryStmt1)
-        val query2 = parser.parse(queryStmt2)
-        val query3 = parser.parse(queryStmt3)
-        val query4 = parser.parse(queryStmt4)
-        val query5 = parser.parse(queryStmt5)
+        val query1 = queryStmt1.toQuery()
+        val query2 = queryStmt2.toQuery()
+        val query3 = queryStmt3.toQuery()
+        val query4 = queryStmt4.toQuery()
+        val query5 = queryStmt5.toQuery()
 
         //Then check it matches
         assertEquals("query1 method", Query.Method.DESCRIBE, query1.method)
@@ -77,11 +76,10 @@ class QueryParserTest {
         val bothRev = "LIST \".id\" LIMIT 2 SKIP 3"
 
         //When processed
-        val parser = QueryParser()
-        val resultSkip = parser.parse(skip)
-        val resultLimit = parser.parse(limit)
-        val resultBoth = parser.parse(both)
-        val resultBothRev = parser.parse(bothRev)
+        val resultSkip = skip.toQuery()
+        val resultLimit = limit.toQuery()
+        val resultBoth = both.toQuery()
+        val resultBothRev = bothRev.toQuery()
 
         //Then check it matches
         assertEquals("skip method", Query.Method.GET, resultSkip.method)
@@ -123,15 +121,14 @@ class QueryParserTest {
         val query = "LIST VALUES \".items.id\" WHERE \".items.title\" == \"Hello\" SKIP 1 LIMIT 10 AS JSON WITH KEYS"
 
         //When processed
-        val parser = QueryParser()
-        val result = parser.parse(query)
+        val result = query.toQuery()
 
         //Then it's correct
         assertEquals("method", Query.Method.LIST, result.method)
         assertEquals("target", "VALUES .items.id", result.target)
         assertEquals("where target", ".items.title", result.where!!.target)
-        assertEquals("where operator", Query.Where.Operator.EQUAL, result.where!!.operator)
-        assertEquals("where compare", "Hello", result.where!!.compare)
+        assertEquals("where operator", Query.Where.Operator.EQUAL, result.where.operator)
+        assertEquals("where compare", "Hello", result.where.compare)
         assertEquals("skip count", 1, result.skip)
         assertEquals("limit count", 10, result.limit)
         assertEquals("as json", true, result.asJson)
