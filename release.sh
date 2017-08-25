@@ -1,1 +1,1 @@
-./gradlew clean check assemble install bintrayUpload
+./gradlew clean check assemble lib:install lib:bintrayUpload

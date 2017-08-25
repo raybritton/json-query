@@ -1,1 +1,1 @@
-gradlew.bat clean check assemble install bintrayUpload
+gradlew.bat clean check assemble lib:install lib:bintrayUpload

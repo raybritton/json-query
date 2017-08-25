@@ -9,10 +9,9 @@ buildscript {
     }
 }
 
-group 'com.raybritton'
-version '0.0.1'
-
 allprojects {
+    ext.jqVer = '0.0.1'
+
     repositories {
         jcenter()
     }
