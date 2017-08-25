@@ -1,0 +1,38 @@
+plugins {
+    id "com.jfrog.bintray" version "1.7.1"
+    id "com.github.dcendents.android-maven" version "1.5"
+}
+
+apply plugin: 'kotlin'
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile group: 'com.google.code.gson', name: 'gson', version: gson_version
+    testCompile group: 'com.google.code.gson', name: 'gson', version: gson_version
+    testCompile 'junit:junit:4.12'
+}
+
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'JsonQueryLib'
+
+    publishedGroupId = "com.raybritton.jsonquery"
+    libraryName = bintrayName
+    artifact = 'lib'
+
+    libraryVersion = version
+    siteUrl = 'https://github.com/raybritton/json-query-lib'
+    gitUrl = 'git@github.com:raybritton/json-query-lib.git'
+    developerId = 'raybritton'
+    developerName = 'Ray Britton'
+    developerEmail = 'raybritton@gmail.com'
+
+    licenseName = ' Apache License Version 2.0'
+    licenseUrl = 'https://www.apache.org/licenses/LICENSE-2.0'
+    allLicenses = ["Apache-2.0"]
+
+    libraryDescription = ''
+}
+
+apply from: '../bintray.gradle'
+apply from: '../ktlint.gradle'

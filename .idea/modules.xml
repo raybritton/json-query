@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cli/cli.iml" filepath="$PROJECT_DIR$/.idea/modules/cli/cli.iml" group="cli" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cli/cli_main.iml" filepath="$PROJECT_DIR$/.idea/modules/cli/cli_main.iml" group="cli" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cli/cli_test.iml" filepath="$PROJECT_DIR$/.idea/modules/cli/cli_test.iml" group="cli" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/json-query.iml" filepath="$PROJECT_DIR$/.idea/modules/json-query.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lib/lib.iml" filepath="$PROJECT_DIR$/.idea/modules/lib/lib.iml" group="lib" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lib/lib_main.iml" filepath="$PROJECT_DIR$/.idea/modules/lib/lib_main.iml" group="lib" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lib/lib_test.iml" filepath="$PROJECT_DIR$/.idea/modules/lib/lib_test.iml" group="lib" />
+    </modules>
+  </component>
+</project>
