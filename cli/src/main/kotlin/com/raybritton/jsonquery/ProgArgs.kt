@@ -1,4 +1,4 @@
-package com.raybritton.jsonquery.models
+package com.raybritton.jsonquery
 
 data class ProgArgs(val input: String,
             val output: String?,

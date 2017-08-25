@@ -2,7 +2,7 @@ package com.raybritton.jsonquery.utils
 
 import com.google.gson.internal.LinkedTreeMap
 
-fun Any?.describe(): String {
+internal fun Any?.describe(): String {
     if (this == null) {
         return "NULL"
     }
@@ -19,7 +19,7 @@ fun Any?.describe(): String {
     }
 }
 
-fun LinkedTreeMap<*, *>.describe(): String {
+internal fun LinkedTreeMap<*, *>.describe(): String {
     val builder = StringBuilder("OBJECT(")
     for (value in values) {
         builder.append(value.describe())
@@ -29,7 +29,7 @@ fun LinkedTreeMap<*, *>.describe(): String {
     return builder.append(")").toString()
 }
 
-fun ArrayList<*>.describe(): String {
+internal fun ArrayList<*>.describe(): String {
     val map = mutableMapOf<String, Int>()
     for (i in 0 until size) {
         val desc = this[i].describe()

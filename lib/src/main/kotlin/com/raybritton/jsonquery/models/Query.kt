@@ -1,6 +1,6 @@
 package com.raybritton.jsonquery.models
 
-data class Query(val method: Method,
+internal data class Query(val method: Method,
                  val target: String,
                  val skip: Int = 0,
                  val limit: Int = 0,
