@@ -21,7 +21,7 @@ internal data class Query(val method: Method,
                      val operator: Operator,
                      val compare: String) {
         enum class Operator(val symbol: String) {
-            EQUAL("=="), NOT_EQUAL("!="), LESS_THAN("<"), GREATER_THAN(">")
+            EQUAL("=="), NOT_EQUAL("!="), LESS_THAN("<"), GREATER_THAN(">"), CONTAINS("#"), NOT_CONTAINS("!#")
         }
 
         companion object {
