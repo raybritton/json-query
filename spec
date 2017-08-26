@@ -29,78 +29,78 @@
 	}
 }
 
->DESCRIBE '.count'
+>DESCRIBE ".count"
 INTEGER
 
->DESCRIBE '.items'
+>DESCRIBE ".items"
 ARRAY(OBJECT[4](INTEGER, STRING))
 
->DESCRIBE '.attrs'
+>DESCRIBE ".attrs"
 OBJECT(STRING, STRING)
 
->DESCRIBE '.'
+>DESCRIBE "."
 OBJECT(INTEGER, ARRAY(OBJECT[4](INTEGER, STRING)), OBJECT(STRING, STRING))
 
->GET '.items[0].id'
+>GET ".items[0].id"
 0
 
->GET '.attrs[1]'
+>GET ".attrs[1]"
 value2
 
->GET '.attrs.key2'
+>GET ".attrs.key2"
 value2
 
->GET '.attrs.key2' AS JSON
+>GET ".attrs.key2" AS JSON
 "value2"
 
->GET '.attrs.key2' AS JSON WITH KEYS
+>GET ".attrs.key2" AS JSON WITH KEYS
 { "key2": "value2" }
 
->GET '.attrs.key2' WITH KEYS
+>GET ".attrs.key2" WITH KEYS
 key2 -> value2
 
->LIST '.count'
+>LIST ".count"
 5
 
->GET '.count'
+>GET ".count"
 5
 
->GET '.items.id'
+>GET ".items.id"
 0
 
->GET '.items.id' SKIP 1
+>GET ".items.id" SKIP 1
 1
 
->LIST '.items.id'
+>LIST ".items.id"
 0
 1
 2
 3
 4
 
->LIST '.items.id' LIMIT 2
+>LIST ".items.id" LIMIT 2
 0
 1
 
->LIST '.items.id' LIMIT 2
+>LIST ".items.id" LIMIT 2
 0
 1
 
->LIST '.items.title' WHERE '.items.id' > 2
+>LIST ".items.title" WHERE ".items.id" > 2
 Item 4
 Item 5
 
->GET '.attrs' AS JSON
+>GET ".attrs" AS JSON
 {
 	"key1": "value1",
 	"key2": "value2"
 }
 
->GET '.attrs'
+>GET ".attrs"
 key1 -> value1
 key2 -> value2
 
->LIST '.items' AS JSON
+>LIST ".items" AS JSON
 [
 	{
 		"id": 0,
@@ -125,7 +125,7 @@ key2 -> value2
 	}
 ]
 
->LIST '.items[id, title]' AS JSON
+>LIST ".items" VALUES("it", "title") AS JSON
 [
 	{
 		"id": 0,
@@ -149,7 +149,7 @@ key2 -> value2
 	}
 ]
 
->LIST '.items(id, title)'
+>LIST ".items" VALUES("it", "title")
 id, title
 0, Item 1
 1, Item 2
@@ -157,17 +157,17 @@ id, title
 3, Item 4
 4, Item 5
 
->LIST KEYS '.attrs'
+>LIST ".attrs" KEYS
 key1
 key2
 
->LIST VALUES '.attrs' AS JSON
+>LIST ".attrs" VALUES AS JSON
 ["value1", "value2"]
 
->LIST VALUES '.attrs' AS JSON WITH KEYS
+>LIST ".attrs" VALUES AS JSON WITH KEYS
 {"key1": "value1", "key2": "value2"}
 
->GET '.attrs' AS JSON WITH KEYS
+>GET ".attrs" AS JSON WITH KEYS
 {
 	"attrs" : {
 		"key1": "value1",
@@ -175,7 +175,7 @@ key2
 	}
 }
 
->GET '.attrs' WITH KEYS
+>GET ".attrs" WITH KEYS
 "attrs" : {
 	"key1": "value1",
 	"key2": "value2"
