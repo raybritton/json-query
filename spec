@@ -86,7 +86,7 @@ key2 -> value2
 0
 1
 
->LIST ".items.title" WHERE ".items.id" > 2
+>LIST ".items.title" WHERE "id" IN ".items" > 2
 Item 4
 Item 5
 

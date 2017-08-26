@@ -22,8 +22,20 @@ See spec file for possible usage
 * VALUES("id", "title")
 
 ##### WHERE_EXPR:
-* WHERE "id" > 0
-* WHERE "title" == "New"
+`WHERE target IN array OPERATOR value`
+* WHERE "name" IN ".people" # "John"
+* WHERE "meta.key1" IN ".people" !# "VALID"
+* WHERE "id" IN "." > 0
+* WHERE "title" IN "." == "New"
+* WHERE ELEMENT IN ".grade.ages" < 20
+
+###### OPERATORS
+* == EQUAL
+* != NOT EQUAL
+* < LESS THAN
+* \> GREATER THAN
+* \# CONTAINS
+* !# NOT CONTAINS
 
 ##### SKIP:
 * SKIP 1
