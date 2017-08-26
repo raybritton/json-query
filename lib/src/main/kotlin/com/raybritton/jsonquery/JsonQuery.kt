@@ -3,6 +3,7 @@ package com.raybritton.jsonquery
 import com.google.gson.Gson
 import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.utils.describe
+import com.raybritton.jsonquery.utils.navigate
 
 class JsonQuery {
     private lateinit var map: Map<String, Any>
@@ -19,7 +20,7 @@ class JsonQuery {
     fun query(queryStr: String): String {
         val query = queryStr.toQuery()
         when (query.method) {
-            Query.Method.DESCRIBE -> return map.describe()
+            Query.Method.DESCRIBE -> return map.navigate(query.target).describe()
             Query.Method.LIST -> TODO()
             Query.Method.GET -> TODO()
         }

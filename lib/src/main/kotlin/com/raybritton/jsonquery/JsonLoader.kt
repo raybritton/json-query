@@ -4,6 +4,7 @@ import java.io.File
 
 internal class JsonLoader() {
     fun load(input: String): String {
+        val input = input.trim()
         when {
             input.startsWith("{") -> { return input }
             input.startsWith("file") -> { return loadFromFile(input) }
