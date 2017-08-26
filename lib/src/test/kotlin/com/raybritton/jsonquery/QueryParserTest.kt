@@ -14,7 +14,7 @@ class QueryParserTest {
         //Given sample queries
         val queryStmt1 = "DESCRIBE \".\""
         val queryStmt2 = "DESCRIBE      \".items\""
-        val queryStmt3 = "LIST VALUES \".items.id\""
+        val queryStmt3 = "LIST \".items.id\" VALUES"
         val queryStmt4 = "LIST \".items.id\""
         val queryStmt5 = "GET \".items.id\""
 
@@ -28,6 +28,8 @@ class QueryParserTest {
         //Then check it matches
         assertEquals("query1 method", Query.Method.DESCRIBE, query1.method)
         assertEquals("query1 target", ".", query1.target)
+        assertEquals("query1 target extras", null, query1.targetExtra)
+        assertEquals("query1 target keys size", 0, query1.targetKeys.size)
         assertEquals("query1 isjson", false, query1.asJson)
         assertEquals("query1 withKeys", false, query1.withKeys)
         assertEquals("query1 skip", 0, query1.skip)
@@ -36,6 +38,8 @@ class QueryParserTest {
 
         assertEquals("query2 method", Query.Method.DESCRIBE, query2.method)
         assertEquals("query2 target", ".items", query2.target)
+        assertEquals("query2 target extras", null, query2.targetExtra)
+        assertEquals("query2 target keys size", 0, query2.targetKeys.size)
         assertEquals("query2 isjson", false, query2.asJson)
         assertEquals("query2 withKeys", false, query2.withKeys)
         assertEquals("query2 skip", 0, query2.skip)
@@ -43,7 +47,9 @@ class QueryParserTest {
         assertEquals("query2 where", null, query2.where)
 
         assertEquals("query3 method", Query.Method.LIST, query3.method)
-        assertEquals("query3 target", "VALUES .items.id", query3.target)
+        assertEquals("query3 target", ".items.id", query3.target)
+        assertEquals("query3 target extras", Query.TargetExtra.VALUES, query3.targetExtra)
+        assertEquals("query3 target keys size", 0, query3.targetKeys.size)
         assertEquals("query3 isjson", false, query3.asJson)
         assertEquals("query3 withKeys", false, query3.withKeys)
         assertEquals("query3 skip", 0, query3.skip)
@@ -52,6 +58,8 @@ class QueryParserTest {
 
         assertEquals("query4 method", Query.Method.LIST, query4.method)
         assertEquals("query4 target", ".items.id", query4.target)
+        assertEquals("query4 target extras", null, query4.targetExtra)
+        assertEquals("query4 target keys size", 0, query4.targetKeys.size)
         assertEquals("query4 isjson", false, query4.asJson)
         assertEquals("query4 withKeys", false, query4.withKeys)
         assertEquals("query4 skip", 0, query4.skip)
@@ -60,6 +68,8 @@ class QueryParserTest {
 
         assertEquals("query5 method", Query.Method.GET, query5.method)
         assertEquals("query5 target", ".items.id", query5.target)
+        assertEquals("query5 target extras", null, query5.targetExtra)
+        assertEquals("query5 target keys size", 0, query5.targetKeys.size)
         assertEquals("query5 isjson", false, query5.asJson)
         assertEquals("query5 withKeys", false, query5.withKeys)
         assertEquals("query5 skip", 0, query5.skip)
@@ -84,6 +94,8 @@ class QueryParserTest {
         //Then check it matches
         assertEquals("skip method", Query.Method.GET, resultSkip.method)
         assertEquals("skip target", ".id", resultSkip.target)
+        assertEquals("skip target extras", null, resultSkip.targetExtra)
+        assertEquals("skip target keys size", 0, resultSkip.targetKeys.size)
         assertEquals("skip isjson", false, resultSkip.asJson)
         assertEquals("skip withKeys", false, resultSkip.withKeys)
         assertEquals("skip skip", 1, resultSkip.skip)
@@ -92,6 +104,8 @@ class QueryParserTest {
 
         assertEquals("limit method", Query.Method.LIST, resultLimit.method)
         assertEquals("limit target", ".id", resultLimit.target)
+        assertEquals("limit target extras", null, resultLimit.targetExtra)
+        assertEquals("limit target keys size", 0, resultLimit.targetKeys.size)
         assertEquals("limit isjson", false, resultLimit.asJson)
         assertEquals("limit withKeys", false, resultLimit.withKeys)
         assertEquals("limit skip", 0, resultLimit.skip)
@@ -100,6 +114,8 @@ class QueryParserTest {
 
         assertEquals("both method", Query.Method.LIST, resultBoth.method)
         assertEquals("both target", ".id", resultBoth.target)
+        assertEquals("both target extras", null, resultBoth.targetExtra)
+        assertEquals("both target keys size", 0, resultBoth.targetKeys.size)
         assertEquals("both isjson", false, resultBoth.asJson)
         assertEquals("both withKeys", false, resultBoth.withKeys)
         assertEquals("both skip", 3, resultBoth.skip)
@@ -108,6 +124,8 @@ class QueryParserTest {
 
         assertEquals("bothrev method", Query.Method.LIST, resultBothRev.method)
         assertEquals("bothrev target", ".id", resultBothRev.target)
+        assertEquals("bothrev target extras", null, resultBothRev.targetExtra)
+        assertEquals("bothrev target keys size", 0, resultBothRev.targetKeys.size)
         assertEquals("bothrev isjson", false, resultBothRev.asJson)
         assertEquals("bothrev withKeys", false, resultBothRev.withKeys)
         assertEquals("bothrev skip", 3, resultBothRev.skip)
@@ -118,14 +136,16 @@ class QueryParserTest {
     @Test
     fun testFullStatement() {
         //Given a full query
-        val query = "LIST VALUES \".items.id\" WHERE \".items.title\" == \"Hello\" SKIP 1 LIMIT 10 AS JSON WITH KEYS"
+        val query = "LIST \".items.id\" VALUES WHERE \".items.title\" == \"Hello\" SKIP 1 LIMIT 10 AS JSON WITH KEYS"
 
         //When processed
         val result = query.toQuery()
 
         //Then it's correct
         assertEquals("method", Query.Method.LIST, result.method)
-        assertEquals("target", "VALUES .items.id", result.target)
+        assertEquals("target", ".items.id", result.target)
+        assertEquals("target extras", Query.TargetExtra.VALUES, result.targetExtra)
+        assertEquals("target keys size", 0, result.targetKeys.size)
         assertEquals("where target", ".items.title", result.where!!.target)
         assertEquals("where operator", Query.Where.Operator.EQUAL, result.where.operator)
         assertEquals("where compare", "Hello", result.where.compare)

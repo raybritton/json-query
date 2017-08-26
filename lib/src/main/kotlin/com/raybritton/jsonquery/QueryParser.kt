@@ -4,7 +4,9 @@ import com.raybritton.jsonquery.models.Query
 import java.util.Locale
 import java.util.regex.Pattern
 
-private val METHOD_TARGET = "([a-zA-Z]{1,8})\\s+(VALUES\\s+|KEYS\\s+)?\"((?:\\\\\"|[^\"])*)\"(.*)".toPattern(Pattern.CASE_INSENSITIVE)
+private val METHOD = "(DESCRIBE|GET|LIST)(.*)".toPattern(Pattern.CASE_INSENSITIVE)
+private val TARGET = "\"((?:\\\\\"|[^\"])*)\"\\s*(KEYS|VALUES\\(.+\\)|VALUES)?(.*)".toPattern(Pattern.CASE_INSENSITIVE)
+private val TARGET_KEYS = "\"((?:\\\\\"|[^\"])*)\"\\s*,?\\s*".toPattern(Pattern.CASE_INSENSITIVE)
 private val WHERE = "WHERE\\s+\"((?:\\\\\"|[^\"])*)\"\\s+([<>!=]+)\\s+(\\d+|\".+\")(.*)".toPattern(Pattern.CASE_INSENSITIVE)
 private val SKIP = ".*SKIP (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE)
 private val LIMIT = ".*LIMIT (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE)
@@ -13,9 +15,11 @@ private val AS_JSON = "AS JSON"
 
 internal fun String.toQuery(): Query {
     var query = this.trim()
-    val methodMatcher = METHOD_TARGET.matcher(query)
+    val methodMatcher = METHOD.matcher(query)
     val method: Query.Method
     val target: String
+    val targetExtra: Query.TargetExtra?
+    val targetKeys = mutableListOf<String>()
     var withKeys = false
     var isJson = false
     var where: Query.Where? = null
@@ -24,16 +28,37 @@ internal fun String.toQuery(): Query {
 
     if (methodMatcher.matches()) {
         method = Query.Method.valueOf(methodMatcher.group(1).toUpperCase(Locale.US))
-        if (methodMatcher.group(2) != null) {
-            target = methodMatcher.group(2).trim() + " " + methodMatcher.group(3)
-        } else {
-            target = methodMatcher.group(3)
-        }
     } else {
-        error("Unable to parse query method and/or target")
+        throw IllegalArgumentException("Unable to parse query method")
     }
 
-    query = methodMatcher.group(4).trim()
+    query = methodMatcher.group(2).trim()
+
+    val targetMatcher = TARGET.matcher(query)
+    if (targetMatcher.matches()) {
+        target = targetMatcher.group(1)
+        if (targetMatcher.group(2) != null) {
+            val extras = targetMatcher.group(2)
+            if (extras == "KEYS") {
+                targetExtra = Query.TargetExtra.KEY
+            } else if (extras == "VALUES") {
+                targetExtra = Query.TargetExtra.VALUES
+            } else {
+                targetExtra = Query.TargetExtra.SPECIFIC
+                val keys = extras.substring(7, extras.length - 1)
+                val keyMatchers = TARGET_KEYS.matcher(keys)
+                while (keyMatchers.find()) {
+                    targetKeys.add(keyMatchers.group())
+                }
+            }
+        } else {
+            targetExtra = null
+        }
+    } else {
+        throw IllegalArgumentException("Unable to parse query targets")
+    }
+
+    query = targetMatcher.group(3).trim() ?: ""
 
     val whereMatcher = WHERE.matcher(query)
     if (whereMatcher.matches()) {
@@ -72,13 +97,15 @@ internal fun String.toQuery(): Query {
             builder.append("Can't use WHERE with DESCRIBE")
         }
         if (builder.isNotEmpty()) {
-            error(builder.toString())
+            throw IllegalArgumentException(builder.toString())
         }
     }
 
     return Query(
             method = method,
             target = target,
+            targetExtra = targetExtra,
+            targetKeys = targetKeys,
             withKeys = withKeys,
             asJson = isJson,
             skip = skip,

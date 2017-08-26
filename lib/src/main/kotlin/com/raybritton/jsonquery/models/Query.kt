@@ -1,14 +1,20 @@
 package com.raybritton.jsonquery.models
 
 internal data class Query(val method: Method,
-                 val target: String,
-                 val skip: Int = 0,
-                 val limit: Int = 0,
-                 val where: Where? = null,
-                 val asJson: Boolean = false,
-                 val withKeys: Boolean = false) {
+                          val target: String,
+                          val targetExtra: TargetExtra? = null,
+                          val targetKeys: List<String> = listOf(),
+                          val skip: Int = 0,
+                          val limit: Int = 0,
+                          val where: Where? = null,
+                          val asJson: Boolean = false,
+                          val withKeys: Boolean = false) {
     enum class Method {
         DESCRIBE, LIST, GET
+    }
+
+    enum class TargetExtra {
+        KEY, VALUES, SPECIFIC
     }
 
     data class Where(val target: String,
@@ -25,7 +31,7 @@ internal data class Query(val method: Method,
                         return op
                     }
                 }
-                error("Operator $symbol not supported")
+                throw IllegalArgumentException("Operator $symbol not supported")
             }
         }
     }
