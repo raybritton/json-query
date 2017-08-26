@@ -4,12 +4,12 @@ import com.raybritton.jsonquery.models.Query
 import java.util.Locale
 import java.util.regex.Pattern
 
-private val METHOD = "(DESCRIBE|GET|LIST)(.*)".toPattern(Pattern.CASE_INSENSITIVE)
-private val TARGET = "\"((?:\\\\\"|[^\"])*)\"\\s*(KEYS|VALUES\\(.+\\)|VALUES)?(.*)".toPattern(Pattern.CASE_INSENSITIVE)
-private val TARGET_KEYS = "\"((?:\\\\\"|[^\"])*)\"\\s*,?\\s*".toPattern(Pattern.CASE_INSENSITIVE)
-private val WHERE = "WHERE\\s+\"((?:\\\\\"|[^\"])*)\"\\s+([<>!=]+)\\s+(\\d+|\".+\")(.*)".toPattern(Pattern.CASE_INSENSITIVE)
-private val SKIP = ".*SKIP (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE)
-private val LIMIT = ".*LIMIT (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE)
+private val METHOD = "(DESCRIBE|GET|LIST)(.*)".toPattern(Pattern.CASE_INSENSITIVE) //Gets the method
+private val TARGET = "\"((?:\\\\\"|[^\"])*)\"\\s*(KEYS|VALUES\\(.+\\)|VALUES)?(.*)".toPattern(Pattern.CASE_INSENSITIVE) //Gets the target and target modifiers
+private val TARGET_KEYS = "\"((?:\\\\\"|[^\"])*)\"\\s*,?\\s*".toPattern(Pattern.CASE_INSENSITIVE) //Gets the keys from the VALUES target modifier
+private val WHERE = "WHERE\\s+\"((?:\\\\\"|[^\"])*)\"\\s+([<>!=]+)\\s+(\\d+|\".+\")(.*)".toPattern(Pattern.CASE_INSENSITIVE) //Gets the where expression
+private val SKIP = ".*SKIP (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets skip count
+private val LIMIT = ".*LIMIT (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets limit count
 private val WITH_KEYS = "WITH KEYS"
 private val AS_JSON = "AS JSON"
 

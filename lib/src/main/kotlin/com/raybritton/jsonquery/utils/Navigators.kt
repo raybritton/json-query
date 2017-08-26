@@ -2,8 +2,8 @@ package com.raybritton.jsonquery.utils
 
 import com.google.gson.internal.LinkedTreeMap
 
-private val FIRST_SEGMENT = ".((?:\\\\.|[^.])*)(.*)".toPattern()
-private val INDEX_ACCESS = "\"((?:\\\\\"|[^\"])*)(?<!\\\\)\\[(\\d)\\]\"".toPattern()
+private val FIRST_SEGMENT = ".((?:\\\\.|[^.])*)(.*)".toPattern() //Gets the first part of the path
+private val INDEX_ACCESS = "\"((?:\\\\\"|[^\"])*)(?<!\\\\)\\[(\\d)\\]\"".toPattern() //Used to check if segment has unescaped array access notation
 
 internal fun Any?.navigate(path: String): Any {
     if (this == null) {
