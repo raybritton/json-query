@@ -17,9 +17,10 @@ internal data class Query(val method: Method,
         KEY, VALUES, SPECIFIC
     }
 
-    data class Where(val target: String,
+    data class Where(val fields: String,
+                     val target: String,
                      val operator: Operator,
-                     val compare: String) {
+                     val compare: Any) {
         enum class Operator(val symbol: String) {
             EQUAL("=="), NOT_EQUAL("!="), LESS_THAN("<"), GREATER_THAN(">"), CONTAINS("#"), NOT_CONTAINS("!#")
         }

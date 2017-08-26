@@ -7,7 +7,7 @@ import java.util.regex.Pattern
 private val METHOD = "(DESCRIBE|GET|LIST)(.*)".toPattern(Pattern.CASE_INSENSITIVE) //Gets the method
 private val TARGET = "\"((?:\\\\\"|[^\"])*)\"\\s*(KEYS|VALUES\\(.+\\)|VALUES)?(.*)".toPattern(Pattern.CASE_INSENSITIVE) //Gets the target and target modifiers
 private val TARGET_KEYS = "\"((?:\\\\\"|[^\"])*)\"\\s*,?\\s*".toPattern(Pattern.CASE_INSENSITIVE) //Gets the keys from the VALUES target modifier
-private val WHERE = "WHERE\\s+\"((?:\\\\\"|[^\"])*)\"\\s+([<>!=#]+)\\s+(\\d+|\".+\")(.*)".toPattern(Pattern.CASE_INSENSITIVE) //Gets the where expression
+private val WHERE = "WHERE\\s+(\"(?:\\\\\"|[^\"])*\"|ELEMENT)\\s+IN\\s+\"((?:\\\\\"|[^\"])*)\"\\s+([<>!=#]+)\\s+(\\d+|\".+\")(.*)".toPattern(Pattern.CASE_INSENSITIVE) //Gets the where expression
 private val SKIP = ".*SKIP (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets skip count
 private val LIMIT = ".*LIMIT (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets limit count
 private val WITH_KEYS = "WITH KEYS"
@@ -62,44 +62,35 @@ internal fun String.toQuery(): Query {
 
     val whereMatcher = WHERE.matcher(query)
     if (whereMatcher.matches()) {
-        var compare = whereMatcher.group(3)
+        var compare = whereMatcher.group(4)
         if (compare[0] == '"') {
             compare = compare.substring(1, compare.length - 1)
         }
         where = Query.Where(whereMatcher.group(1),
-                Query.Where.getOperatorBySymbol(whereMatcher.group(2)),
+                whereMatcher.group(2),
+                Query.Where.getOperatorBySymbol(whereMatcher.group(3)),
                 compare)
-        query = whereMatcher.group(4).trim()
+        query = whereMatcher.group(5).trim()
     }
 
     val skipMatcher = SKIP.matcher(query)
     if (skipMatcher.matches()) {
         skip = skipMatcher.group(1).toInt()
+        if (skip < 0) {
+            throw IllegalArgumentException("Skip must be greater than 0")
+        }
     }
 
     val limitMatcher = LIMIT.matcher(query)
     if (limitMatcher.matches()) {
         limit = limitMatcher.group(1).toInt()
+        if (limit < 0) {
+            throw IllegalArgumentException("Limit must be greater than 0")
+        }
     }
 
     withKeys = query.contains(WITH_KEYS, true)
     isJson = query.contains(AS_JSON, true)
-
-    if (method == Query.Method.DESCRIBE) {
-        val builder = StringBuilder()
-        if (withKeys || isJson) {
-            builder.append("Can't use WITH KEYS or IS JSON with DESCRIBE\n")
-        }
-        if (skip > 0 || limit > 0) {
-            builder.append("Can't use SKIP or LIMIT with DESCRIBE\n")
-        }
-        if (where != null) {
-            builder.append("Can't use WHERE with DESCRIBE")
-        }
-        if (builder.isNotEmpty()) {
-            throw IllegalArgumentException(builder.toString())
-        }
-    }
 
     return Query(
             method = method,
