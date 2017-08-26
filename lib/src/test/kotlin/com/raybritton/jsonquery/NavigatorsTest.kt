@@ -87,4 +87,29 @@ class NavigatorsTest {
         assertEquals("innerObj size", 1, (innerObj as LinkedTreeMap<String, Any>).size)
         assertEquals("innerObj key and value", "iival1", innerObj.get("iikey1"))
     }
+
+    @Test
+    fun testArrayAccess() {
+        //Given json with objects within an arrray
+        val gson = Gson()
+        val json1 = """[{"k1":"v1"},{"k2":"v2"},{"k3":"v3"}]"""
+        val json2 = """{"list":[1,2,3], "list[2]":true}"""
+        val map1 = gson.fromJson<Any>(json1, Any::class.java)
+        val map2 = gson.fromJson<Any>(json2, Any::class.java)
+
+        //When navigated to second object
+        val resultParent1 = map1.navigate(".[1]")
+        val resultChild1 = map1.navigate(".[1].k2")
+        val resultChild2 = map2.navigate(".list[2]")
+        val resultChild3 = map2.navigate(".list\\[2]")
+
+
+        //Then check the correct values
+        assertEquals("second obj", "", "")
+        assertEquals("result 1 size", 1, (resultParent1 as LinkedTreeMap<String, Any>).size)
+        assertEquals("result 1 key and value", "v2", resultParent1.get("k2"))
+        assertEquals("result 1 child", "v2", resultChild1)
+        assertEquals("result 2", 3.0, resultChild2)
+        assertEquals("result 3", true, resultChild3)
+    }
 }

@@ -1,6 +1,7 @@
 package com.raybritton.jsonquery
 
-import com.raybritton.jsonquery.utils.unescape
+import com.raybritton.jsonquery.utils.unescapeArrayNotation
+import com.raybritton.jsonquery.utils.unescapeDotNotation
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,16 +25,16 @@ class StringTest {
         val input10 = ".items\\\\[0]"
 
         //When unescaped
-        val result1 = input1.unescape()
-        val result2 = input2.unescape()
-        val result3 = input3.unescape()
-        val result4 = input4.unescape()
-        val result5 = input5.unescape()
-        val result6 = input6.unescape()
-        val result7 = input7.unescape()
-        val result8 = input8.unescape()
-        val result9 = input9.unescape()
-        val result10 = input10.unescape()
+        val result1 = input1.unescapeDotNotation().unescapeArrayNotation()
+        val result2 = input2.unescapeDotNotation().unescapeArrayNotation()
+        val result3 = input3.unescapeDotNotation().unescapeArrayNotation()
+        val result4 = input4.unescapeDotNotation().unescapeArrayNotation()
+        val result5 = input5.unescapeDotNotation().unescapeArrayNotation()
+        val result6 = input6.unescapeDotNotation().unescapeArrayNotation()
+        val result7 = input7.unescapeDotNotation().unescapeArrayNotation()
+        val result8 = input8.unescapeDotNotation().unescapeArrayNotation()
+        val result9 = input9.unescapeDotNotation().unescapeArrayNotation()
+        val result10 = input10.unescapeDotNotation().unescapeArrayNotation()
 
         //Check they are valid
         assertEquals("input 1", ".items", result1)
