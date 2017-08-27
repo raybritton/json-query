@@ -5,10 +5,32 @@ import com.raybritton.jsonquery.models.Query
 import java.util.Locale
 import java.util.regex.Pattern
 
-private val METHOD = "(DESCRIBE|GET|LIST)(.*)".toPattern(Pattern.CASE_INSENSITIVE) //Gets the method
-private val TARGET = "\"((?:\\\\\"|[^\"])*)\"\\s*(KEYS|VALUES\\(.+\\)|VALUES)?(.*)".toPattern(Pattern.CASE_INSENSITIVE) //Gets the target and target modifiers
-private val TARGET_KEYS = "\"((?:\\\\\"|[^\"])*)\"\\s*,?\\s*".toPattern(Pattern.CASE_INSENSITIVE) //Gets the keys from the VALUES target modifier
-private val WHERE = "WHERE\\s+(\"(?:\\\\\"|[^\"])*\"|ELEMENT)\\s+IN\\s+\"((?:\\\\\"|[^\"])*)\"\\s+([<>!=#]+)\\s+(NULL|-?\\d+(?:\\.)?e?(?:\\d+)?|\".+\")(.*)".toPattern(Pattern.CASE_INSENSITIVE) //Gets the where expression
+/**
+ * Gets the method
+ * Group 1: Method
+ * Group 2: Remaining
+ */
+private val METHOD = "(DESCRIBE|GET|LIST)(.*)".toPattern(Pattern.CASE_INSENSITIVE)
+/**
+ * Gets the target, keys and target extras
+ * Group 1: Keys or extras
+ * Group 2: Target
+ * Group 3: Remaining
+ */
+private val TARGET = "(?:((?:KEYS|VALUES|(?:\\(.+\\)|\".+\")))\\s+IN\\s+)?\"((?:\\\\\"|[^\"])*)\"(.*)".toPattern(Pattern.CASE_INSENSITIVE)
+/**
+ * Gets the keys from the keys in TARGET
+ * Call find() repeatedly on group 1 from TARGET
+ */
+private val TARGET_KEYS = "\"((?:\\\\\"|[^\"])*)\".+".toPattern(Pattern.CASE_INSENSITIVE)
+/**
+ * Gets the where expression
+ * Group 1: target
+ * Group 2: operator
+ * Group 3: compare
+ * Group 4: remaining
+ */
+private val WHERE = "WHERE\\s+(\"(?:\\\\\"|[^\"])*\"|ELEMENT)\\s+([<>!=#]+)\\s+(NULL|-?\\d+(?:\\.)?e?(?:\\d+)?|\".+\")(.*)".toPattern(Pattern.CASE_INSENSITIVE)
 private val SKIP = ".*SKIP (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets skip count
 private val LIMIT = ".*LIMIT (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets limit count
 private val WITH_KEYS = "WITH KEYS"
@@ -37,17 +59,16 @@ internal fun String.toQuery(): Query {
 
     val targetMatcher = TARGET.matcher(query)
     if (targetMatcher.matches()) {
-        target = targetMatcher.group(1)
-        if (targetMatcher.group(2) != null) {
-            val extras = targetMatcher.group(2)
+        target = targetMatcher.group(2)
+        if (targetMatcher.group(1) != null) {
+            val extras = targetMatcher.group(1)
             if (extras == "KEYS") {
                 targetExtra = Query.TargetExtra.KEY
             } else if (extras == "VALUES") {
                 targetExtra = Query.TargetExtra.VALUES
             } else {
                 targetExtra = Query.TargetExtra.SPECIFIC
-                val keys = extras.substring(7, extras.length - 1)
-                val keyMatchers = TARGET_KEYS.matcher(keys)
+                val keyMatchers = TARGET_KEYS.matcher(extras)
                 while (keyMatchers.find()) {
                     targetKeys.add(keyMatchers.group())
                 }
@@ -63,7 +84,7 @@ internal fun String.toQuery(): Query {
 
     val whereMatcher = WHERE.matcher(query)
     if (whereMatcher.matches()) {
-        val compare = whereMatcher.group(4)
+        val compare = whereMatcher.group(3)
         var boolCompare: Boolean? = null
         var strCompare: String? = null
         var numCompare: Double? = null
@@ -81,26 +102,19 @@ internal fun String.toQuery(): Query {
             field = field.substring(1, field.length - 1)
         }
         where = Query.Where(field,
-                whereMatcher.group(2),
-                Query.Where.getOperatorBySymbol(whereMatcher.group(3)),
+                Query.Where.getOperatorBySymbol(whereMatcher.group(2)),
                 strCompare ?: boolCompare ?: numCompare ?: NullCompare())
-        query = whereMatcher.group(5)?.trim() ?: ""
+        query = whereMatcher.group(4)?.trim() ?: ""
     }
 
     val skipMatcher = SKIP.matcher(query)
     if (skipMatcher.matches()) {
         skip = skipMatcher.group(1).toInt()
-        if (skip < 0) {
-            throw IllegalArgumentException("Skip must be greater than 0")
-        }
     }
 
     val limitMatcher = LIMIT.matcher(query)
     if (limitMatcher.matches()) {
         limit = limitMatcher.group(1).toInt()
-        if (limit < 0) {
-            throw IllegalArgumentException("Limit must be greater than 0")
-        }
     }
 
     withKeys = query.contains(WITH_KEYS, true)

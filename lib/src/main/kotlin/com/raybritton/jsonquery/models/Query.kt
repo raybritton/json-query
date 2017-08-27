@@ -18,7 +18,6 @@ internal data class Query(val method: Method,
     }
 
     data class Where(val field: String,
-                     val target: String,
                      val operator: Operator,
                      val compare: Any) {
         enum class Operator(val symbol: String) {

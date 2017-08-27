@@ -161,10 +161,10 @@ id, title
 key1
 key2
 
->LIST ".attrs" VALUES AS JSON
+>LIST VALUES IN ".attrs" AS JSON
 ["value1", "value2"]
 
->LIST ".attrs" VALUES AS JSON WITH KEYS
+>LIST VALUES IN ".attrs" AS JSON WITH KEYS
 {"key1": "value1", "key2": "value2"}
 
 >GET ".attrs" AS JSON WITH KEYS
