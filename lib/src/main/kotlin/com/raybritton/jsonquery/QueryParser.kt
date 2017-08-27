@@ -1,6 +1,5 @@
 package com.raybritton.jsonquery
 
-import com.raybritton.jsonquery.models.NullCompare
 import com.raybritton.jsonquery.models.Query
 import java.util.Locale
 import java.util.regex.Pattern
@@ -103,7 +102,7 @@ internal fun String.toQuery(): Query {
         }
         where = Query.Where(field,
                 Query.Where.getOperatorBySymbol(whereMatcher.group(2)),
-                strCompare ?: boolCompare ?: numCompare ?: NullCompare())
+                strCompare ?: boolCompare ?: numCompare)
         query = whereMatcher.group(4)?.trim() ?: ""
     }
 

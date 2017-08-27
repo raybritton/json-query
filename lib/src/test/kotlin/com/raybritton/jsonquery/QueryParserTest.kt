@@ -1,6 +1,5 @@
 package com.raybritton.jsonquery
 
-import com.raybritton.jsonquery.models.NullCompare
 import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.utils.ELEMENT
 import org.junit.Assert.assertEquals
@@ -255,9 +254,9 @@ class QueryParserTest {
         assertEquals("n4q operator", Query.Where.Operator.EQUAL, number_4_query.where.operator)
         assertEquals("n4q compare", 1000000.0, number_4_query.where.compare)
 
-        assertEquals("n1 result", "ARRAY(OBJECT(NUMBER, STRING)[2], OBJECT(NUMBER, NULL), OBJECT(NUMBER, OBJECT(ARRAY(STRING[6]))))", number_1_result)
-        assertEquals("n2 result", "ARRAY(OBJECT(NUMBER, STRING)[3], OBJECT(NUMBER, NULL), OBJECT(NUMBER, OBJECT(ARRAY(STRING[6]))))", number_2_result)
-        assertEquals("n3 result", "ARRAY(OBJECT(NUMBER, STRING)[2], OBJECT(NUMBER, NULL), OBJECT(NUMBER, OBJECT(ARRAY(STRING[6]))))", number_3_result)
+        assertEquals("n1 result", "ARRAY(OBJECT(NUMBER, STRING)[3], OBJECT(NUMBER, NULL), OBJECT(NUMBER, OBJECT(OBJECT(NUMBER, ARRAY(STRING[6])))))", number_1_result)
+        assertEquals("n2 result", "ARRAY(OBJECT(NUMBER, STRING)[4], OBJECT(NUMBER, NULL), OBJECT(NUMBER, OBJECT(OBJECT(NUMBER, ARRAY(STRING[6])))))", number_2_result)
+        assertEquals("n3 result", "ARRAY(OBJECT(NUMBER, STRING)[4], OBJECT(NUMBER, NULL), OBJECT(NUMBER, OBJECT(OBJECT(NUMBER, ARRAY(STRING[6])))))", number_3_result)
         assertEquals("n4 result", "ARRAY()", number_4_result)
     }
 
@@ -307,14 +306,14 @@ class QueryParserTest {
         //Then check they're correct
         assertEquals("n1q field", "title", null_1_query.where!!.field)
         assertEquals("n1q operator", Query.Where.Operator.EQUAL, null_1_query.where.operator)
-        assertEquals("n1q compare", NullCompare(), null_1_query.where.compare)
+        assertEquals("n1q compare", null, null_1_query.where.compare)
 
         assertEquals("n2q field", "title", null_2_query.where!!.field)
         assertEquals("n2q operator", Query.Where.Operator.NOT_EQUAL, null_2_query.where.operator)
-        assertEquals("n2q compare", NullCompare(), null_2_query.where.compare)
+        assertEquals("n2q compare", null, null_2_query.where.compare)
 
         assertEquals("n1 result", "ARRAY(OBJECT(NUMBER, NULL), OBJECT(NUMBER, OBJECT(OBJECT(NUMBER, ARRAY(STRING[6])))))", null_1_result)
-        assertEquals("n2 result", "ARRAY(OBJECT(NUMBER, STRING)[3])", null_2_result)
+        assertEquals("n2 result", "ARRAY(OBJECT(NUMBER, STRING)[4])", null_2_result)
     }
 
     @Test

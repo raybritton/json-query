@@ -83,7 +83,7 @@ class IntegrationTest {
         assertEquals("output 3", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING))[3], OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING))[2])", output3)
         assertEquals("output 4", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING)), OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)))", output4)
         assertEquals("output 5", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING)))", output5)
-        assertEquals("output 6", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING))[2], OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)[2]))", output6)
+        assertEquals("output 6", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING))[2], OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING))[2])", output6)
         assertEquals("output 7", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)))", output7)
     }
 
@@ -104,7 +104,7 @@ class IntegrationTest {
     @Test
     fun testSimple2() {
         //Given sample json
-        val json1 = """{"key1":"value1", "key1":0}"""
+        val json1 = """{"key1":"value1", "key2":0}"""
 
         //When processed
         val jsonQuery = JsonQuery()

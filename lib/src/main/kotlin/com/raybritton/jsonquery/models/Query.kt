@@ -19,7 +19,7 @@ internal data class Query(val method: Method,
 
     data class Where(val field: String,
                      val operator: Operator,
-                     val compare: Any) {
+                     val compare: Any?) {
         enum class Operator(val symbol: String) {
             EQUAL("=="), NOT_EQUAL("!="), LESS_THAN("<"), GREATER_THAN(">"), CONTAINS("#"), NOT_CONTAINS("!#")
         }

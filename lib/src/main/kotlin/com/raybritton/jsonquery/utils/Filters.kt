@@ -1,7 +1,6 @@
 package com.raybritton.jsonquery.utils
 
 import com.google.gson.internal.LinkedTreeMap
-import com.raybritton.jsonquery.models.NullCompare
 import com.raybritton.jsonquery.models.Query
 
 internal fun Any?.filter(query: Query): Any {
@@ -68,7 +67,7 @@ private fun ArrayList<*>.limit(query: Query): ArrayList<*> {
 private fun Any?.matches(where: Query.Where): Boolean {
     when (where.operator) {
         Query.Where.Operator.EQUAL -> {
-            if (this == where.compare || (this == null && where.compare.javaClass == NullCompare::class.java)) {
+            if (this == where.compare) {
                 return true
             }
         }
