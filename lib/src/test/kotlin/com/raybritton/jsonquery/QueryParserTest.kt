@@ -1,6 +1,8 @@
 package com.raybritton.jsonquery
 
+import com.raybritton.jsonquery.models.NullCompare
 import com.raybritton.jsonquery.models.Query
+import com.raybritton.jsonquery.utils.ELEMENT
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -8,6 +10,66 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class QueryParserTest {
+
+    val testJson = """
+        {
+  "items": [
+    {
+      "id": 0,
+      "title": "null"
+    },
+    {
+      "id": 1,
+      "title": "example"
+    },
+    {
+      "id": 2,
+      "title": "example with extras"
+    },
+    {
+      "id": 3,
+      "title": null
+    },
+    {
+      "id": 4
+    },
+    {
+      "id": 5,
+      "title": "something different"
+    }
+  ],
+  "attr": {
+    "history": {
+      "pageCount": 6,
+      "pages": [
+        "grsadfdfsa",
+        "dsafasfs",
+        "hthtrsdgf",
+        "rthaetnfhs",
+        "getrgeth",
+        "htehtrsfd"
+      ]
+    }
+  },
+  "ages": [
+    32,
+    58,
+    37,
+    10,
+    24,
+    67
+  ],
+  "user": {
+    "usageIds": [
+      343,
+      345,
+      832,
+      646,
+      732
+    ]
+  }
+}
+    """
 
     @Test
     fun testSimple() {
@@ -136,22 +198,144 @@ class QueryParserTest {
     @Test
     fun testFullStatement() {
         //Given a full query
-        val query = "LIST \".items.id\" VALUES WHERE \".items.title\" == \"Hello\" SKIP 1 LIMIT 10 AS JSON WITH KEYS"
+        val query = "LIST \".items.id\" VALUES WHERE \"title\" IN \".items\" == \"Hello\" SKIP 1 LIMIT 10 AS JSON WITH KEYS"
 
         //When processed
         val result = query.toQuery()
 
-        //Then it's correct
+        //Then check it's correct
         assertEquals("method", Query.Method.LIST, result.method)
         assertEquals("target", ".items.id", result.target)
         assertEquals("target extras", Query.TargetExtra.VALUES, result.targetExtra)
         assertEquals("target keys size", 0, result.targetKeys.size)
-        assertEquals("where target", ".items.title", result.where!!.target)
+        assertEquals("where target", ".items", result.where!!.target)
+        assertEquals("where field", "title", result.where.field)
         assertEquals("where operator", Query.Where.Operator.EQUAL, result.where.operator)
         assertEquals("where compare", "Hello", result.where.compare)
         assertEquals("skip count", 1, result.skip)
         assertEquals("limit count", 10, result.limit)
         assertEquals("as json", true, result.asJson)
         assertEquals("with keys", true, result.withKeys)
+    }
+
+    @Test
+    fun testWhereNumber() {
+        //Given a range of where queries
+        val number_1 = "DESCRIBE \".\" WHERE \"id\" IN \".items\" > 0.0"
+        val number_2 = "DESCRIBE \".\" WHERE \"id\" IN \".items\" < 10"
+        val number_3 = "DESCRIBE \".\" WHERE \"id\" IN \".items\" != -10"
+        val number_4 = "DESCRIBE \".\" WHERE \"id\" IN \".items\" == 1e6"
+
+        //When process
+        val jsonQuery = JsonQuery()
+        jsonQuery.loadJson(testJson)
+        val number_1_query = number_1.toQuery()
+        val number_2_query = number_2.toQuery()
+        val number_3_query = number_3.toQuery()
+        val number_4_query = number_4.toQuery()
+
+        val number_1_result = jsonQuery.query(number_1)
+
+        //Then check they're correct
+        assertEquals("n1q field", "id", number_1_query.where!!.field)
+        assertEquals("n1q target", ".items", number_1_query.where.target)
+        assertEquals("n1q operator", Query.Where.Operator.GREATER_THAN, number_1_query.where.operator)
+        assertEquals("n1q compare", 0.0, number_1_query.where.compare)
+
+        assertEquals("n2q field", "id", number_2_query.where!!.field)
+        assertEquals("n2q target", ".items", number_2_query.where.target)
+        assertEquals("n2q operator", Query.Where.Operator.LESS_THAN, number_2_query.where.operator)
+        assertEquals("n2q compare", 10.0, number_2_query.where.compare)
+
+        assertEquals("n3q field", "id", number_3_query.where!!.field)
+        assertEquals("n3q target", ".items", number_3_query.where.target)
+        assertEquals("n3q operator", Query.Where.Operator.NOT_EQUAL, number_3_query.where.operator)
+        assertEquals("n3q compare", -10.0, number_3_query.where.compare)
+
+        assertEquals("n4q field", "id", number_4_query.where!!.field)
+        assertEquals("n4q target", ".items", number_4_query.where.target)
+        assertEquals("n4q operator", Query.Where.Operator.EQUAL, number_4_query.where.operator)
+        assertEquals("n4q compare", 1000000.0, number_4_query.where.compare)
+
+//        assertEquals("n1 result", "ARRAY(OBJECT(NUMBER, STRING)[2], OBJECT(NUMBER, NULL)[2])", number_1_result)
+    }
+
+    @Test
+    fun testWhereString() {
+        //Given a range of where queries
+        val string_1 = "DESCRIBE \".\" WHERE \"title\" IN \".items\" # \"example\""
+        val string_2 = "DESCRIBE \".\" WHERE \"title\" IN \".items\" !# \"example\""
+
+        //When process
+        val jsonQuery = JsonQuery()
+        jsonQuery.loadJson(testJson)
+        val string_1_query = string_1.toQuery()
+        val string_2_query = string_2.toQuery()
+
+        //Then check they're correct
+        assertEquals("s1q field", "title", string_1_query.where!!.field)
+        assertEquals("s1q target", ".items", string_1_query.where.target)
+        assertEquals("s1q operator", Query.Where.Operator.CONTAINS, string_1_query.where.operator)
+        assertEquals("s1q compare", "example", string_1_query.where.compare)
+
+        assertEquals("s2q field", "title", string_2_query.where!!.field)
+        assertEquals("s2q target", ".items", string_2_query.where.target)
+        assertEquals("s2q operator", Query.Where.Operator.NOT_CONTAINS, string_2_query.where.operator)
+        assertEquals("s2q compare", "example", string_2_query.where.compare)
+    }
+
+    @Test
+    fun testWhereNull() {
+        //Given a range of where queries
+        val null_1 = "DESCRIBE \".\" WHERE \"title\" IN \".items\" == NULL"
+        val null_2 = "DESCRIBE \".\" WHERE \"title\" IN \".items\" != NULL"
+
+        //When process
+        val jsonQuery = JsonQuery()
+        jsonQuery.loadJson(testJson)
+        val null_1_query = null_1.toQuery()
+        val null_2_query = null_2.toQuery()
+
+        //Then check they're correct
+        assertEquals("n1q field", "title", null_1_query.where!!.field)
+        assertEquals("n1q target", ".items", null_1_query.where.target)
+        assertEquals("n1q operator", Query.Where.Operator.EQUAL, null_1_query.where.operator)
+        assertEquals("n1q compare", NullCompare(), null_1_query.where.compare)
+
+        assertEquals("n2q field", "title", null_2_query.where!!.field)
+        assertEquals("n2q target", ".items", null_2_query.where.target)
+        assertEquals("n2q operator", Query.Where.Operator.NOT_EQUAL, null_2_query.where.operator)
+        assertEquals("n2q compare", NullCompare(), null_2_query.where.compare)
+    }
+
+    @Test
+    fun testWhereMisc() {
+        //Given a range of where queries
+        val fields = "DESCRIBE \".\" WHERE \"attr.history.pageCount\" IN \".items\" > 0"
+        val element = "DESCRIBE \".\" WHERE ELEMENT IN \".ages\" < 50"
+        val target = "DESCRIBE \".\" WHERE ELEMENT IN \".user.usageIds\" > 10"
+
+        //When process
+        val jsonQuery = JsonQuery()
+        jsonQuery.loadJson(testJson)
+        val fields_query = fields.toQuery()
+        val element_query = element.toQuery()
+        val target_query = target.toQuery()
+
+        //Then check they're correct
+        assertEquals("fq field", "attr.history.pageCount", fields_query.where!!.field)
+        assertEquals("fq target", ".items", fields_query.where.target)
+        assertEquals("fq operator", Query.Where.Operator.GREATER_THAN, fields_query.where.operator)
+        assertEquals("fq compare", 0.0, fields_query.where.compare)
+
+        assertEquals("eq field", ELEMENT, element_query.where!!.field)
+        assertEquals("eq target", ".ages", element_query.where.target)
+        assertEquals("eq operator", Query.Where.Operator.LESS_THAN, element_query.where.operator)
+        assertEquals("eq compare", 50.0, element_query.where.compare)
+
+        assertEquals("tq field", ELEMENT, target_query.where!!.field)
+        assertEquals("tq target", ".user.usageIds", target_query.where.target)
+        assertEquals("tq operator", Query.Where.Operator.GREATER_THAN, target_query.where.operator)
+        assertEquals("tq compare", 10.0, target_query.where.compare)
     }
 }

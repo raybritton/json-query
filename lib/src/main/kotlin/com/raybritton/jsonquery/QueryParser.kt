@@ -1,5 +1,6 @@
 package com.raybritton.jsonquery
 
+import com.raybritton.jsonquery.models.NullCompare
 import com.raybritton.jsonquery.models.Query
 import java.util.Locale
 import java.util.regex.Pattern
@@ -7,7 +8,7 @@ import java.util.regex.Pattern
 private val METHOD = "(DESCRIBE|GET|LIST)(.*)".toPattern(Pattern.CASE_INSENSITIVE) //Gets the method
 private val TARGET = "\"((?:\\\\\"|[^\"])*)\"\\s*(KEYS|VALUES\\(.+\\)|VALUES)?(.*)".toPattern(Pattern.CASE_INSENSITIVE) //Gets the target and target modifiers
 private val TARGET_KEYS = "\"((?:\\\\\"|[^\"])*)\"\\s*,?\\s*".toPattern(Pattern.CASE_INSENSITIVE) //Gets the keys from the VALUES target modifier
-private val WHERE = "WHERE\\s+(\"(?:\\\\\"|[^\"])*\"|ELEMENT)\\s+IN\\s+\"((?:\\\\\"|[^\"])*)\"\\s+([<>!=#]+)\\s+(\\d+|\".+\")(.*)".toPattern(Pattern.CASE_INSENSITIVE) //Gets the where expression
+private val WHERE = "WHERE\\s+(\"(?:\\\\\"|[^\"])*\"|ELEMENT)\\s+IN\\s+\"((?:\\\\\"|[^\"])*)\"\\s+([<>!=#]+)\\s+(NULL|-?\\d+(?:\\.)?e?(?:\\d+)?|\".+\")(.*)".toPattern(Pattern.CASE_INSENSITIVE) //Gets the where expression
 private val SKIP = ".*SKIP (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets skip count
 private val LIMIT = ".*LIMIT (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets limit count
 private val WITH_KEYS = "WITH KEYS"
@@ -62,15 +63,28 @@ internal fun String.toQuery(): Query {
 
     val whereMatcher = WHERE.matcher(query)
     if (whereMatcher.matches()) {
-        var compare = whereMatcher.group(4)
-        if (compare[0] == '"') {
-            compare = compare.substring(1, compare.length - 1)
+        val compare = whereMatcher.group(4)
+        var boolCompare: Boolean? = null
+        var strCompare: String? = null
+        var numCompare: Double? = null
+        if (compare == null || compare.equals("NULL", true)) {
+            //nothing
+        } else if (compare[0] == '"') {
+            strCompare = compare.substring(1, compare.length - 1)
+        } else if (compare.equals("true", true) || compare.equals("false", true)) {
+            boolCompare = compare.toBoolean()
+        } else {
+            numCompare = compare.toDouble()
         }
-        where = Query.Where(whereMatcher.group(1),
+        var field = whereMatcher.group(1)
+        if (field.startsWith("\"")) {
+            field = field.substring(1, field.length - 1)
+        }
+        where = Query.Where(field,
                 whereMatcher.group(2),
                 Query.Where.getOperatorBySymbol(whereMatcher.group(3)),
-                compare)
-        query = whereMatcher.group(5).trim()
+                strCompare ?: boolCompare ?: numCompare ?: NullCompare())
+        query = whereMatcher.group(5)?.trim() ?: ""
     }
 
     val skipMatcher = SKIP.matcher(query)

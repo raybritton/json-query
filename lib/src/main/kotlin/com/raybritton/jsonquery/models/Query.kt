@@ -17,7 +17,7 @@ internal data class Query(val method: Method,
         KEY, VALUES, SPECIFIC
     }
 
-    data class Where(val fields: String,
+    data class Where(val field: String,
                      val target: String,
                      val operator: Operator,
                      val compare: Any) {
