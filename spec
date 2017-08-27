@@ -86,7 +86,7 @@ key2 -> value2
 0
 1
 
->LIST ".items.title" WHERE "id" IN ".items" > 2
+>LIST "title" IN ".items" WHERE "id" > 2
 Item 4
 Item 5
 
@@ -125,7 +125,7 @@ key2 -> value2
 	}
 ]
 
->LIST ".items" VALUES("it", "title") AS JSON
+>LIST ("it", "title") IN ".items" AS JSON
 [
 	{
 		"id": 0,
