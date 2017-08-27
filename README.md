@@ -51,12 +51,12 @@ See spec file for possible usage
 
 Examples:
 
-`DESCRIBE '.'`
+`DESCRIBE "."`
 
-`LIST '.items' WHERE '.items.id' > 5 AS JSON`
+`LIST ".items" WHERE ".items.id" > 5 AS JSON`
 
-`GET '.records' WITH KEYS`
+`GET ".records" WITH KEYS`
 
-`LIST '.people' VALUES("name") LIMIT 10`
+`LIST "name" IN ".people" LIMIT 10`
 
-`LIST '.people' KEYS SKIP 6`
+`LIST ".people2 KEYS SKIP 6`
