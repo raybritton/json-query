@@ -102,16 +102,21 @@ class IntegrationTest {
     }
 
     @Test
-    fun testSimple2() {
-        //Given sample json
-        val json1 = """{"key1":"value1", "key2":0}"""
-
-        //When processed
+    fun testMultipleListers() {
+        //Given json above
         val jsonQuery = JsonQuery()
-        jsonQuery.loadJson(json1)
-        val result1 = jsonQuery.query("DESCRIBE \".\"")
+        jsonQuery.loadJson(json)
 
-        //Then check description is accurate
-        assertEquals("json1", "OBJECT(STRING, NUMBER)", result1)
+        //When several describe queries are run
+        val output1 = jsonQuery.query("LIST \".data\"")
+        val output2 = jsonQuery.query("LIST (\"id\") IN \".data\"")
+        val output3 = jsonQuery.query("LIST (\"id\") IN \".data\" WHERE \"name\" # \"B\"")
+        val output4 = jsonQuery.query("LIST (\"id\", \"name\") IN \".data\" WHERE \"name\" # \"B\"")
+
+        //Then check results
+        assertEquals("output 1", "[{0.0, Person A, 20.0, {value1, value2}}, {1.0, Person B, 20.0, {value1, value2}}, {2.0, Person C, 20.0, {value1}}, {3.0, Person D, 20.0, {value1, value2}}, {4.0, Person E, 20.0, {value1}}]", output1)
+        assertEquals("output 2", "[0.0, 1.0, 2.0, 3.0, 4.0]", output2)
+        assertEquals("output 3", "[1.0]", output3)
+        assertEquals("output 4", "[{1.0, Person B}]", output4)
     }
 }

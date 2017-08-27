@@ -78,6 +78,8 @@ class QueryParserTest {
         val queryStmt3 = "LIST VALUES IN \".items.id\""
         val queryStmt4 = "LIST \".items.id\""
         val queryStmt5 = "GET \".items.id\""
+        val queryStmt6 = "LIST \"id\" IN \".items\""
+        val queryStmt7 = "LIST (\"id\", \"title\") IN \".items\""
 
         //When processed
         val query1 = queryStmt1.toQuery()
@@ -85,6 +87,8 @@ class QueryParserTest {
         val query3 = queryStmt3.toQuery()
         val query4 = queryStmt4.toQuery()
         val query5 = queryStmt5.toQuery()
+        val query6 = queryStmt6.toQuery()
+        val query7 = queryStmt7.toQuery()
 
         //Then check it matches
         assertEquals("query1 method", Query.Method.DESCRIBE, query1.method)
@@ -136,6 +140,29 @@ class QueryParserTest {
         assertEquals("query5 skip", null, query5.skip)
         assertEquals("query5 limit", null, query5.limit)
         assertEquals("query5 where", null, query5.where)
+
+        assertEquals("query6 method", Query.Method.LIST, query6.method)
+        assertEquals("query6 target", ".items", query6.target)
+        assertEquals("query6 target extras", Query.TargetExtra.SPECIFIC, query6.targetExtra)
+        assertEquals("query6 target keys size", 1, query6.targetKeys.size)
+        assertEquals("query6 target key", "id", query6.targetKeys[0])
+        assertEquals("query6 isjson", false, query6.asJson)
+        assertEquals("query6 withKeys", false, query6.withKeys)
+        assertEquals("query6 skip", null, query6.skip)
+        assertEquals("query6 limit", null, query6.limit)
+        assertEquals("query6 where", null, query6.where)
+
+        assertEquals("query7 method", Query.Method.LIST, query7.method)
+        assertEquals("query7 target", ".items", query7.target)
+        assertEquals("query7 target extras", Query.TargetExtra.SPECIFIC, query7.targetExtra)
+        assertEquals("query7 target keys size", 2, query7.targetKeys.size)
+        assertEquals("query7 target key 1", "id", query7.targetKeys[0])
+        assertEquals("query7 target key 2", "title", query7.targetKeys[1])
+        assertEquals("query7 isjson", false, query7.asJson)
+        assertEquals("query7 withKeys", false, query7.withKeys)
+        assertEquals("query7 skip", null, query7.skip)
+        assertEquals("query7 limit", null, query7.limit)
+        assertEquals("query7 where", null, query7.where)
     }
 
     @Test

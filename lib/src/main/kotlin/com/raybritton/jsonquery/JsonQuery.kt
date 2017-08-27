@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.utils.describe
 import com.raybritton.jsonquery.utils.filter
+import com.raybritton.jsonquery.utils.list
 import com.raybritton.jsonquery.utils.navigate
 
 class JsonQuery {
@@ -20,7 +21,7 @@ class JsonQuery {
         val filtered = jsonObj.navigate(query.target).filter(query)
         when (query.method) {
             Query.Method.DESCRIBE -> return filtered.describe()
-            Query.Method.LIST -> TODO()
+            Query.Method.LIST -> return filtered.list(query)
             Query.Method.GET -> TODO()
         }
     }

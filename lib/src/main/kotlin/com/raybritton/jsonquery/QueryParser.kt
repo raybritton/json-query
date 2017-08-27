@@ -21,7 +21,7 @@ private val TARGET = "(?:((?:KEYS|VALUES|(?:\\(.+\\)|\".+\")))\\s+IN\\s+)?\"((?:
  * Gets the keys from the keys in TARGET
  * Call find() repeatedly on group 1 from TARGET
  */
-private val TARGET_KEYS = "\"((?:\\\\\"|[^\"])*)\".+".toPattern(Pattern.CASE_INSENSITIVE)
+private val TARGET_KEYS = "\"((?:\\\\\"|[^\"])*)\"\\s*,?\\s*".toPattern(Pattern.CASE_INSENSITIVE)
 /**
  * Gets the where expression
  * Group 1: target
@@ -69,7 +69,8 @@ internal fun String.toQuery(): Query {
                 targetExtra = Query.TargetExtra.SPECIFIC
                 val keyMatchers = TARGET_KEYS.matcher(extras)
                 while (keyMatchers.find()) {
-                    targetKeys.add(keyMatchers.group())
+                    val key = keyMatchers.group(1)
+                    targetKeys.add(key)
                 }
             }
         } else {
