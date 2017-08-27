@@ -72,18 +72,18 @@ class IntegrationTest {
         val output1 = jsonQuery.query("DESCRIBE \".\"")
         val output2 = jsonQuery.query("DESCRIBE \".title\"")
         val output3 = jsonQuery.query("DESCRIBE \".data\"")
-//        val output4 = jsonQuery.query("DESCRIBE \".data\" WHERE \".data.id\" > 2")
-//        val output5 = jsonQuery.query("DESCRIBE \".data\" LIMIT 1")
-//        val output6 = jsonQuery.query("DESCRIBE \".data\" SKIP 1")
-//        val output7 = jsonQuery.query("DESCRIBE \".data\" WHERE \".data.name\" == \"Person E\" ")
+        val output4 = jsonQuery.query("DESCRIBE \".data\" WHERE \"id\" > 2")
+        val output5 = jsonQuery.query("DESCRIBE \".data\" LIMIT 1")
+        val output6 = jsonQuery.query("DESCRIBE \".data\" SKIP 1")
+        val output7 = jsonQuery.query("DESCRIBE \".data\" WHERE \"name\" == \"Person E\" ")
 
         //Then check results
         assertEquals("output 1", "OBJECT(STRING, NUMBER, NUMBER, ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING))[3], OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING))[2]))", output1)
         assertEquals("output 2", "STRING", output2)
         assertEquals("output 3", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING))[3], OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING))[2])", output3)
-//        assertEquals("output 4", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING)),OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)))", output4)
-//        assertEquals("output 5", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING)))", output5)
-//        assertEquals("output 6", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING))[2],OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)[2]))", output6)
-//        assertEquals("output 7", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)))", output7)
+        assertEquals("output 4", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING)),OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)))", output4)
+        assertEquals("output 5", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING)))", output5)
+        assertEquals("output 6", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING))[2],OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)[2]))", output6)
+        assertEquals("output 7", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)))", output7)
     }
 }
