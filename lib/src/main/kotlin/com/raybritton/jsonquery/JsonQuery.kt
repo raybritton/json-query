@@ -17,9 +17,9 @@ class JsonQuery {
 
     fun query(queryStr: String): String {
         val query = queryStr.toQuery()
-        val filtered = jsonObj.filter(query)
+        val filtered = jsonObj.navigate(query.target).filter(query)
         when (query.method) {
-            Query.Method.DESCRIBE -> return filtered.navigate(query.target).describe()
+            Query.Method.DESCRIBE -> return filtered.describe()
             Query.Method.LIST -> TODO()
             Query.Method.GET -> TODO()
         }

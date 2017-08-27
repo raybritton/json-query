@@ -51,6 +51,8 @@ internal fun ArrayList<*>.describe(): String {
         }
         builder.append(", ")
     }
-    builder.setLength(builder.length - 2)
+    if (map.isNotEmpty()) {
+        builder.setLength(builder.length - 2)
+    }
     return builder.append(")").toString()
 }

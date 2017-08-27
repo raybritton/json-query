@@ -1,6 +1,7 @@
 package com.raybritton.jsonquery.utils
 
 import com.google.gson.internal.LinkedTreeMap
+import com.raybritton.jsonquery.models.NullCompare
 import com.raybritton.jsonquery.models.Query
 
 internal fun Any?.filter(query: Query): Any {
@@ -20,7 +21,7 @@ internal fun LinkedTreeMap<*, *>.filter(query: Query): Any {
 
 internal fun ArrayList<*>.filter(query: Query): ArrayList<*> {
     val list = where(query)
-    return list.skipLimit(query)
+    return list.skip(query).limit(query)
 }
 
 private fun ArrayList<*>.where(query: Query): ArrayList<*> {
@@ -46,15 +47,28 @@ private fun ArrayList<*>.where(query: Query): ArrayList<*> {
     }
 }
 
-private fun ArrayList<*>.skipLimit(query: Query): ArrayList<*> {
-    val to = Math.min(query.skip + query.limit, size)
-    return ArrayList(this.subList(query.skip, to))
+private fun ArrayList<*>.skip(query: Query): ArrayList<*> {
+    if (query.skip == null) {
+        return this
+    } else {
+        val from = Math.min(query.skip, size)
+        return ArrayList(this.subList(from, size))
+    }
+}
+
+private fun ArrayList<*>.limit(query: Query): ArrayList<*> {
+    if (query.limit == null) {
+        return this
+    } else {
+        val to = Math.min(query.limit, size)
+        return ArrayList(this.subList(0, to))
+    }
 }
 
 private fun Any?.matches(where: Query.Where): Boolean {
     when (where.operator) {
         Query.Where.Operator.EQUAL -> {
-            if (this == where.compare) {
+            if (this == where.compare || (this == null && where.compare.javaClass == NullCompare::class.java)) {
                 return true
             }
         }
@@ -64,22 +78,22 @@ private fun Any?.matches(where: Query.Where): Boolean {
             }
         }
         Query.Where.Operator.LESS_THAN -> {
-            if ((this as Double) < (where.compare as Double)) {
+            if (this != null && (this as Double) < (where.compare as Double)) {
                 return true
             }
         }
         Query.Where.Operator.GREATER_THAN -> {
-            if ((this as Double) > (where.compare as Double)) {
+            if (this != null && (this as Double) > (where.compare as Double)) {
                 return true
             }
         }
         Query.Where.Operator.CONTAINS -> {
-            if ((this as String).contains(where.compare as String)) {
+            if (this != null && (this as String).contains(where.compare as String)) {
                 return true
             }
         }
         Query.Where.Operator.NOT_CONTAINS -> {
-            if (!(this as String).contains(where.compare as String)) {
+            if (this == null || !(this as String).contains(where.compare as String)) {
                 return true
             }
         }

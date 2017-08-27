@@ -81,9 +81,37 @@ class IntegrationTest {
         assertEquals("output 1", "OBJECT(STRING, NUMBER, NUMBER, ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING))[3], OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING))[2]))", output1)
         assertEquals("output 2", "STRING", output2)
         assertEquals("output 3", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING))[3], OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING))[2])", output3)
-        assertEquals("output 4", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING)),OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)))", output4)
+        assertEquals("output 4", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING)), OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)))", output4)
         assertEquals("output 5", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING)))", output5)
-        assertEquals("output 6", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING))[2],OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)[2]))", output6)
+        assertEquals("output 6", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING))[2], OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)[2]))", output6)
         assertEquals("output 7", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)))", output7)
+    }
+
+    @Test
+    fun testSimple() {
+        //Given sample json
+        val json1 = """{"key1":"value1"}"""
+
+        //When processed
+        val jsonQuery = JsonQuery()
+        jsonQuery.loadJson(json1)
+        val result1 = jsonQuery.query("DESCRIBE \".\"")
+
+        //Then check description is accurate
+        assertEquals("json1", "OBJECT(STRING)", result1)
+    }
+
+    @Test
+    fun testSimple2() {
+        //Given sample json
+        val json1 = """{"key1":"value1", "key1":0}"""
+
+        //When processed
+        val jsonQuery = JsonQuery()
+        jsonQuery.loadJson(json1)
+        val result1 = jsonQuery.query("DESCRIBE \".\"")
+
+        //Then check description is accurate
+        assertEquals("json1", "OBJECT(STRING, NUMBER)", result1)
     }
 }

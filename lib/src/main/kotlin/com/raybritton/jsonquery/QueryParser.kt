@@ -46,8 +46,8 @@ internal fun String.toQuery(): Query {
     var withKeys = false
     var isJson = false
     var where: Query.Where? = null
-    var skip = 0
-    var limit = 0
+    var skip: Int? = null
+    var limit: Int? = null
 
     if (methodMatcher.matches()) {
         method = Query.Method.valueOf(methodMatcher.group(1).toUpperCase(Locale.US))

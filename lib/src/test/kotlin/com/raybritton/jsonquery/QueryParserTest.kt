@@ -94,8 +94,8 @@ class QueryParserTest {
         assertEquals("query1 target keys size", 0, query1.targetKeys.size)
         assertEquals("query1 isjson", false, query1.asJson)
         assertEquals("query1 withKeys", false, query1.withKeys)
-        assertEquals("query1 skip", 0, query1.skip)
-        assertEquals("query1 limit", 0, query1.limit)
+        assertEquals("query1 skip", null, query1.skip)
+        assertEquals("query1 limit", null, query1.limit)
         assertEquals("query1 where", null, query1.where)
 
         assertEquals("query2 method", Query.Method.DESCRIBE, query2.method)
@@ -104,8 +104,8 @@ class QueryParserTest {
         assertEquals("query2 target keys size", 0, query2.targetKeys.size)
         assertEquals("query2 isjson", false, query2.asJson)
         assertEquals("query2 withKeys", false, query2.withKeys)
-        assertEquals("query2 skip", 0, query2.skip)
-        assertEquals("query2 limit", 0, query2.limit)
+        assertEquals("query2 skip", null, query2.skip)
+        assertEquals("query2 limit", null, query2.limit)
         assertEquals("query2 where", null, query2.where)
 
         assertEquals("query3 method", Query.Method.LIST, query3.method)
@@ -114,8 +114,8 @@ class QueryParserTest {
         assertEquals("query3 target keys size", 0, query3.targetKeys.size)
         assertEquals("query3 isjson", false, query3.asJson)
         assertEquals("query3 withKeys", false, query3.withKeys)
-        assertEquals("query3 skip", 0, query3.skip)
-        assertEquals("query3 limit", 0, query3.limit)
+        assertEquals("query3 skip", null, query3.skip)
+        assertEquals("query3 limit", null, query3.limit)
         assertEquals("query3 where", null, query3.where)
 
         assertEquals("query4 method", Query.Method.LIST, query4.method)
@@ -124,8 +124,8 @@ class QueryParserTest {
         assertEquals("query4 target keys size", 0, query4.targetKeys.size)
         assertEquals("query4 isjson", false, query4.asJson)
         assertEquals("query4 withKeys", false, query4.withKeys)
-        assertEquals("query4 skip", 0, query4.skip)
-        assertEquals("query4 limit", 0, query4.limit)
+        assertEquals("query4 skip", null, query4.skip)
+        assertEquals("query4 limit", null, query4.limit)
         assertEquals("query4 where", null, query4.where)
 
         assertEquals("query5 method", Query.Method.GET, query5.method)
@@ -134,8 +134,8 @@ class QueryParserTest {
         assertEquals("query5 target keys size", 0, query5.targetKeys.size)
         assertEquals("query5 isjson", false, query5.asJson)
         assertEquals("query5 withKeys", false, query5.withKeys)
-        assertEquals("query5 skip", 0, query5.skip)
-        assertEquals("query5 limit", 0, query5.limit)
+        assertEquals("query5 skip", null, query5.skip)
+        assertEquals("query5 limit", null, query5.limit)
         assertEquals("query5 where", null, query5.where)
     }
 
@@ -161,7 +161,7 @@ class QueryParserTest {
         assertEquals("skip isjson", false, resultSkip.asJson)
         assertEquals("skip withKeys", false, resultSkip.withKeys)
         assertEquals("skip skip", 1, resultSkip.skip)
-        assertEquals("skip limit", 0, resultSkip.limit)
+        assertEquals("skip limit", null, resultSkip.limit)
         assertEquals("skip where", null, resultSkip.where)
 
         assertEquals("limit method", Query.Method.LIST, resultLimit.method)
@@ -170,7 +170,7 @@ class QueryParserTest {
         assertEquals("limit target keys size", 0, resultLimit.targetKeys.size)
         assertEquals("limit isjson", false, resultLimit.asJson)
         assertEquals("limit withKeys", false, resultLimit.withKeys)
-        assertEquals("limit skip", 0, resultLimit.skip)
+        assertEquals("limit skip", null, resultLimit.skip)
         assertEquals("limit limit", 9, resultLimit.limit)
         assertEquals("limit where", null, resultLimit.where)
 
@@ -286,7 +286,7 @@ class QueryParserTest {
         assertEquals("s2q compare", "example", string_2_query.where.compare)
 
         assertEquals("s1 result", "ARRAY(OBJECT(NUMBER, STRING)[2])", string_1_result)
-        assertEquals("s2 result", "ARRAY(OBJECT(NUMBER, STRING), OBJECT(NUMBER, NULL), OBJECT(NUMBER, OBJECT(ARRAY(STRING[6]))))", string_2_result)
+        assertEquals("s2 result", "ARRAY(OBJECT(NUMBER, STRING)[2], OBJECT(NUMBER, NULL), OBJECT(NUMBER, OBJECT(OBJECT(NUMBER, ARRAY(STRING[6])))))", string_2_result)
     }
 
     @Test
@@ -313,7 +313,7 @@ class QueryParserTest {
         assertEquals("n2q operator", Query.Where.Operator.NOT_EQUAL, null_2_query.where.operator)
         assertEquals("n2q compare", NullCompare(), null_2_query.where.compare)
 
-        assertEquals("n1 result", "ARRAY(OBJECT(NUMBER, NULL))", null_1_result)
+        assertEquals("n1 result", "ARRAY(OBJECT(NUMBER, NULL), OBJECT(NUMBER, OBJECT(OBJECT(NUMBER, ARRAY(STRING[6])))))", null_1_result)
         assertEquals("n2 result", "ARRAY(OBJECT(NUMBER, STRING)[3])", null_2_result)
     }
 
@@ -332,8 +332,8 @@ class QueryParserTest {
         val target_query = target.toQuery()
 
         val fields_result = jsonQuery.query(fields)
-        val element_result = jsonQuery.query(fields)
-        val target_result = jsonQuery.query(fields)
+        val element_result = jsonQuery.query(element)
+        val target_result = jsonQuery.query(target)
 
         //Then check they're correct
         assertEquals("fq field", "attr.history.pageCount", fields_query.where!!.field)
@@ -348,7 +348,7 @@ class QueryParserTest {
         assertEquals("tq operator", Query.Where.Operator.GREATER_THAN, target_query.where.operator)
         assertEquals("tq compare", 10.0, target_query.where.compare)
 
-        assertEquals("f result", "ARRAY(OBJECT(NUMBER, OBJECT(OBJECT(NUMBER, ARRAY(STRING[6]))))", fields_result)
+        assertEquals("f result", "ARRAY(OBJECT(NUMBER, OBJECT(OBJECT(NUMBER, ARRAY(STRING[6])))))", fields_result)
         assertEquals("e result", "ARRAY(NUMBER[4])", element_result)
         assertEquals("t result", "ARRAY(NUMBER[5])", target_result)
     }
