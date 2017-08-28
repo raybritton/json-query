@@ -9,15 +9,15 @@ import com.raybritton.jsonquery.tools.navigate
 import com.raybritton.jsonquery.tools.toQuery
 
 class JsonQuery {
-    private lateinit var jsonObj: Any
+    private lateinit var json: String
 
     fun loadJson(path: String) {
-        val json = JsonLoader().load(path)
-        @Suppress("UNCHECKED_CAST") //This is ok as long as Gson doesn't change it's implementation
-        jsonObj = Gson().fromJson(json, Any::class.java)
+        json = JsonLoader().load(path)
     }
 
     fun query(queryStr: String): String {
+        @Suppress("UNCHECKED_CAST") //This is ok as long as Gson doesn't change it's implementation
+        val jsonObj = Gson().fromJson(json, Any::class.java)
         val query = queryStr.toQuery()
         val filtered = jsonObj.navigate(query.target).filter(query)
         when (query.method) {
