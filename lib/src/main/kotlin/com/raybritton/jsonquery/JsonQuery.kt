@@ -1,6 +1,5 @@
 package com.raybritton.jsonquery
 
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.printer.describe
