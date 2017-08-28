@@ -5,10 +5,21 @@ import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.tools.navigate
 
 internal fun Any?.list(query: Query): String {
-    if (!(this is ArrayList<*>)) {
-        throw IllegalStateException("Tried to list $this")
+    return when (this) {
+        is ArrayList<*> -> this.list(query)
+        is LinkedTreeMap<*, *> -> this.print(query)
+        else -> {
+            if (query.withKeys) { //use the key from the query as the actual key has been lost by this point
+                if (query.targetKeys.isNotEmpty()) {
+                    "${query.targetKeys[0]}: $this"
+                } else {
+                    "${query.target.substring(1)}: $this"
+                }
+            } else {
+                this.print(query)
+            }
+        }
     }
-    return this.list(query)
 }
 
 private fun Any?.print(query: Query): String {
@@ -24,6 +35,10 @@ private fun Any?.print(query: Query): String {
 private fun LinkedTreeMap<*, *>.print(query: Query): String {
     val builder = StringBuilder("{")
     for (key in keys) {
+        if (query.withKeys) {
+            builder.append(key)
+            builder.append(": ")
+        }
         builder.append(get(key).print(query))
         builder.append(", ")
     }

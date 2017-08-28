@@ -12,12 +12,28 @@ internal fun Any?.filter(query: Query): Any {
     return when (this) {
         is LinkedTreeMap<*, *> -> this.filter(query)
         is ArrayList<*> -> this.filter(query)
-        else -> "UNKNOWN"
+        else -> this
     }
 }
 
 internal fun LinkedTreeMap<*, *>.filter(query: Query): Any {
-    return this
+    return when (query.targetExtra) {
+        Query.TargetExtra.KEY -> ArrayList(keys)
+        Query.TargetExtra.VALUES -> ArrayList(values)
+        Query.TargetExtra.SPECIFIC -> {
+            keys.forEach { key ->
+                if (!query.targetKeys.contains(key)) {
+                    remove(key)
+                }
+            }
+            if (size == 1) {
+                return this[keys.first()]!!
+            } else {
+                this
+            }
+        }
+        null -> this
+    }
 }
 
 internal fun ArrayList<*>.filter(query: Query): ArrayList<*> {
