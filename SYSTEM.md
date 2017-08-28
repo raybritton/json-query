@@ -1,7 +1,7 @@
 
 See spec file for possible usage
 
-`METHOD TARGET TARGET_MODIFIER WHERE_EXPR SKIP LIMIT WITH_KEYS AS_JSON`
+`METHOD TARGET TARGET_MODIFIER WHERE_EXPR SKIP LIMIT WITH_KEYS AS_JSON PRETTY`
 
 ##### METHOD:
 * DESCRIBE
@@ -46,6 +46,9 @@ See spec file for possible usage
 
 ##### AS_JSON:
 * AS JSON
+
+##### PRETTY:
+* PRETTY
 
 Examples:
 

@@ -8,6 +8,7 @@ internal data class Query(val method: Method,
                           val limit: Int? = null,
                           val where: Where? = null,
                           val asJson: Boolean = false,
+                          val pretty: Boolean = false,
                           val withKeys: Boolean = false) {
     enum class Method {
         DESCRIBE, SELECT

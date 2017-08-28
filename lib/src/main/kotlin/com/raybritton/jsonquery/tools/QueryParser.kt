@@ -34,6 +34,7 @@ private val SKIP = ".*SKIP (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets 
 private val LIMIT = ".*LIMIT (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets limit count
 private val WITH_KEYS = "WITH KEYS"
 private val AS_JSON = "AS JSON"
+private val PRETTY = "PRETTY"
 
 internal fun String.toQuery(): Query {
     var query = this.trim()
@@ -44,6 +45,7 @@ internal fun String.toQuery(): Query {
     val targetKeys = mutableListOf<String>()
     var withKeys = false
     var isJson = false
+    var pretty = false
     var where: Query.Where? = null
     var skip: Int? = null
     var limit: Int? = null
@@ -119,6 +121,7 @@ internal fun String.toQuery(): Query {
 
     withKeys = query.contains(WITH_KEYS, true)
     isJson = query.contains(AS_JSON, true)
+    pretty = query.contains(PRETTY, true)
 
     return Query(
             method = method,
@@ -128,6 +131,7 @@ internal fun String.toQuery(): Query {
             withKeys = withKeys,
             asJson = isJson,
             skip = skip,
+            pretty = pretty,
             limit = limit,
             where = where
     )

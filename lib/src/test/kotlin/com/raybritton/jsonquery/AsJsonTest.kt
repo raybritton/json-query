@@ -34,4 +34,41 @@ class AsJsonTest {
         assertEquals("result 3", origJson3, result3)
         assertEquals("result 4", origJson4, result4)
     }
+
+    @Test
+    fun testPretty() {
+        //Given json to be converted
+        val origJson1 = """{"key1":"value1"}"""
+        val origJson2 = """{"key1":"value1","key2":"value2"}"""
+        val origJson3 = """["a","b","c"]"""
+
+        //When converted to obj and back to json
+        val jsonQuery = JsonQuery()
+        jsonQuery.loadJson(origJson1)
+        val result1 = jsonQuery.query("SELECT \".\" AS JSON PRETTY")
+        jsonQuery.loadJson(origJson2)
+        val result2 = jsonQuery.query("SELECT \".\" AS JSON PRETTY")
+        jsonQuery.loadJson(origJson3)
+        val result3 = jsonQuery.query("SELECT \".\" AS JSON PRETTY")
+
+        //Then check it's as expected
+        assertEquals("result 1", """
+        {
+          "key1": "value1"
+        }
+        """.trimIndent(), result1)
+        assertEquals("result 2", """
+        {
+          "key1": "value1",
+          "key2": "value2"
+        }
+        """.trimIndent(), result2)
+        assertEquals("result 3", """
+        [
+          "a",
+          "b",
+          "c"
+        ]
+        """.trimIndent(), result3)
+    }
 }
