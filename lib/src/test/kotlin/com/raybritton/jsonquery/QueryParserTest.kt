@@ -1,6 +1,7 @@
 package com.raybritton.jsonquery
 
 import com.raybritton.jsonquery.models.Query
+import com.raybritton.jsonquery.tools.toQuery
 import com.raybritton.jsonquery.utils.ELEMENT
 import org.junit.Assert.assertEquals
 import org.junit.Test

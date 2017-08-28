@@ -1,4 +1,4 @@
-package com.raybritton.jsonquery.utils
+package com.raybritton.jsonquery.ext
 
 import com.google.gson.internal.LinkedTreeMap
 

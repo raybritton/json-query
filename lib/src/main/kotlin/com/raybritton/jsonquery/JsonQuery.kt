@@ -2,10 +2,11 @@ package com.raybritton.jsonquery
 
 import com.google.gson.Gson
 import com.raybritton.jsonquery.models.Query
-import com.raybritton.jsonquery.utils.describe
-import com.raybritton.jsonquery.utils.filter
-import com.raybritton.jsonquery.utils.list
-import com.raybritton.jsonquery.utils.navigate
+import com.raybritton.jsonquery.printer.describe
+import com.raybritton.jsonquery.tools.filter
+import com.raybritton.jsonquery.printer.list
+import com.raybritton.jsonquery.tools.navigate
+import com.raybritton.jsonquery.tools.toQuery
 
 class JsonQuery {
     private lateinit var jsonObj: Any

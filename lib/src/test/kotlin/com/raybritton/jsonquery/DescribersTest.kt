@@ -1,7 +1,7 @@
 package com.raybritton.jsonquery
 
 import com.google.gson.Gson
-import com.raybritton.jsonquery.utils.describe
+import com.raybritton.jsonquery.printer.describe
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

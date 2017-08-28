@@ -1,7 +1,7 @@
 package com.raybritton.jsonquery
 
-import com.raybritton.jsonquery.utils.unescapeArrayNotation
-import com.raybritton.jsonquery.utils.unescapeDotNotation
+import com.raybritton.jsonquery.ext.unescapeArrayNotation
+import com.raybritton.jsonquery.ext.unescapeDotNotation
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

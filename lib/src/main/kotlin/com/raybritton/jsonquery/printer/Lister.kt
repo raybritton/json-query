@@ -1,7 +1,8 @@
-package com.raybritton.jsonquery.utils
+package com.raybritton.jsonquery.printer
 
 import com.google.gson.internal.LinkedTreeMap
 import com.raybritton.jsonquery.models.Query
+import com.raybritton.jsonquery.tools.navigate
 
 internal fun Any?.list(query: Query): String {
     if (!(this is ArrayList<*>)) {

@@ -1,4 +1,4 @@
-package com.raybritton.jsonquery
+package com.raybritton.jsonquery.tools
 
 import com.raybritton.jsonquery.models.Query
 import java.util.Locale

@@ -1,6 +1,8 @@
-package com.raybritton.jsonquery.utils
+package com.raybritton.jsonquery.tools
 
 import com.google.gson.internal.LinkedTreeMap
+import com.raybritton.jsonquery.ext.unescapeArrayNotation
+import com.raybritton.jsonquery.ext.unescapeDotNotation
 
 /**
  * Gets the first part of the path
@@ -20,7 +22,7 @@ internal fun Any?.navigate(path: String): Any? {
     if (this == null) {
         throw IllegalStateException("Tried to navigate on null with $path")
     }
-    if (path.isEmpty() || path == ".") {
+    if (path.isEmpty() || path == "") {
         return this
     }
     return when (this) {

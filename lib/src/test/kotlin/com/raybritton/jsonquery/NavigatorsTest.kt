@@ -2,11 +2,9 @@ package com.raybritton.jsonquery
 
 import com.google.gson.Gson
 import com.google.gson.internal.LinkedTreeMap
-import com.raybritton.jsonquery.utils.describe
-import com.raybritton.jsonquery.utils.getFirstSegment
-import com.raybritton.jsonquery.utils.navigate
+import com.raybritton.jsonquery.tools.getFirstSegment
+import com.raybritton.jsonquery.tools.navigate
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

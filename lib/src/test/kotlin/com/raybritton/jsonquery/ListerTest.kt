@@ -2,8 +2,7 @@ package com.raybritton.jsonquery
 
 import com.google.gson.Gson
 import com.raybritton.jsonquery.models.Query
-import com.raybritton.jsonquery.utils.describe
-import com.raybritton.jsonquery.utils.list
+import com.raybritton.jsonquery.printer.list
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith

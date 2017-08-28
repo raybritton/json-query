@@ -1,7 +1,7 @@
-package com.raybritton.jsonquery.utils
+package com.raybritton.jsonquery.ext
 
 internal fun String.unescapeDotNotation(): String {
-    return this.replace("\\.", ".")
+    return this.replace("\\.", "")
 }
 
 internal fun String.unescapeArrayNotation(): String {

@@ -1,7 +1,9 @@
-package com.raybritton.jsonquery.utils
+package com.raybritton.jsonquery.tools
 
 import com.google.gson.internal.LinkedTreeMap
+import com.raybritton.jsonquery.ext.isValue
 import com.raybritton.jsonquery.models.Query
+import com.raybritton.jsonquery.utils.ELEMENT
 
 internal fun Any?.filter(query: Query): Any {
     if (this == null) {
