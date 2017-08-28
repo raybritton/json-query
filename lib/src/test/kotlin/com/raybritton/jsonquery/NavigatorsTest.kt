@@ -65,7 +65,7 @@ class NavigatorsTest {
         val innerObj = map.navigate(".inner")
 
         //Then check the correct object remains
-        assertEquals("type",innerObj!!.javaClass.typeName,"com.google.gson.internal.LinkedTreeMap")
+        assertEquals("type", innerObj!!.javaClass.typeName, "com.google.gson.internal.LinkedTreeMap")
         assertEquals("innerObj size", 1, (innerObj as LinkedTreeMap<String, Any>).size)
         assertEquals("innerObj key and value", "iValue", innerObj.get("iKey"))
     }
@@ -81,7 +81,7 @@ class NavigatorsTest {
         val innerObj = map1.navigate(".inner2.inner2\\.1")
 
         //Then check the correct object remains
-        assertEquals("type", innerObj!!.javaClass.typeName,"com.google.gson.internal.LinkedTreeMap")
+        assertEquals("type", innerObj!!.javaClass.typeName, "com.google.gson.internal.LinkedTreeMap")
         assertEquals("innerObj size", 1, (innerObj as LinkedTreeMap<String, Any>).size)
         assertEquals("innerObj key and value", "iival1", innerObj.get("iikey1"))
     }
@@ -100,7 +100,6 @@ class NavigatorsTest {
         val resultChild1 = map1.navigate(".[1].k2")
         val resultChild2 = map2.navigate(".list[2]")
         val resultChild3 = map2.navigate(".list\\[2]")
-
 
         //Then check the correct values
         assertEquals("second obj", "", "")

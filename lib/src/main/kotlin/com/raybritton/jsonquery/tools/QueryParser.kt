@@ -80,7 +80,7 @@ internal fun String.toQuery(): Query {
         throw IllegalArgumentException("Unable to parse query targets")
     }
 
-    query = targetMatcher.group(3).trim() ?: ""
+    query = targetMatcher.group(3)?.trim() ?: ""
 
     val whereMatcher = WHERE.matcher(query)
     if (whereMatcher.matches()) {

@@ -22,7 +22,7 @@ internal fun Any?.navigate(path: String): Any? {
     if (this == null) {
         throw IllegalStateException("Tried to navigate on null with $path")
     }
-    if (path.isEmpty() || path == "") {
+    if (path.isEmpty() || path == ".") {
         return this
     }
     return when (this) {
