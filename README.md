@@ -10,7 +10,7 @@ For example:
 * To list person object from a list of people name contains "Dr"
     * `LIST ELEMENT IN ".people" WHERE "full_name" # "Dr"`
     
-See [SYSTEM](https://github.com/raybritton/json-query/blob/0.2.0/SYSTEM.md) for more information
+See [SYSTEM](https://github.com/raybritton/json-query/blob/master/SYSTEM.md) for more information
 
 ### CLI
 
