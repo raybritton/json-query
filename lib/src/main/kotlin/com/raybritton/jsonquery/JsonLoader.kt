@@ -8,7 +8,7 @@ internal class JsonLoader() {
     fun load(input: String): String {
         val input = input.trim()
         when {
-            input.startsWith("{") -> { return input }
+            input.startsWith("{") || input.startsWith("[") -> { return input }
             input.startsWith("http") -> { return loadFromUrl(input) }
             else -> { return loadFromFile(input) }
         }
