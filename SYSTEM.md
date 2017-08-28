@@ -5,8 +5,7 @@ See spec file for possible usage
 
 ##### METHOD:
 * DESCRIBE
-* GET
-* LIST
+* SELECT
 
 ##### TARGET:
 * '.'
@@ -52,10 +51,8 @@ Examples:
 
 `DESCRIBE "."`
 
-`LIST ".items" WHERE ".items.id" > 5 AS JSON`
+`SELECT ".items" WHERE ".items.id" > 5 AS JSON`
 
-`GET ".records" WITH KEYS`
+`SELECT "name" IN ".people" LIMIT 10 WITH KEYS`
 
-`LIST "name" IN ".people" LIMIT 10`
-
-`LIST ".people2 KEYS SKIP 6`
+`SELECT KEYS IN ".people2 SKIP 6`

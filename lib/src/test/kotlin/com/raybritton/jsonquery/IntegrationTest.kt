@@ -107,10 +107,10 @@ class IntegrationTest {
         jsonQuery.loadJson(json)
 
         //When several describe queries are run
-        val output1 = jsonQuery.query("LIST \".data\"")
-        val output2 = jsonQuery.query("LIST (\"id\") IN \".data\"")
-        val output3 = jsonQuery.query("LIST (\"id\") IN \".data\" WHERE \"name\" # \"B\"")
-        val output4 = jsonQuery.query("LIST (\"id\", \"name\") IN \".data\" WHERE \"name\" # \"B\"")
+        val output1 = jsonQuery.query("SELECT \".data\"")
+        val output2 = jsonQuery.query("SELECT (\"id\") IN \".data\"")
+        val output3 = jsonQuery.query("SELECT (\"id\") IN \".data\" WHERE \"name\" # \"B\"")
+        val output4 = jsonQuery.query("SELECT (\"id\", \"name\") IN \".data\" WHERE \"name\" # \"B\"")
 
         //Then check results
         assertEquals("output 1", "[{0.0, Person A, 20.0, {value1, value2}}, {1.0, Person B, 20.0, {value1, value2}}, {2.0, Person C, 20.0, {value1}}, {3.0, Person D, 20.0, {value1, value2}}, {4.0, Person E, 20.0, {value1}}]", output1)

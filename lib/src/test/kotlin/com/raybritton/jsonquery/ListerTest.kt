@@ -3,8 +3,6 @@ package com.raybritton.jsonquery
 import com.google.gson.Gson
 import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.printer.list
-import com.raybritton.jsonquery.tools.filter
-import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,7 +17,7 @@ class ListerTest {
         val json1 = """[1,2,3,4]"""
         val json2 = """["a","b","c","d","e"]"""
         val gson = Gson()
-        val query = Query(Query.Method.LIST, ".")
+        val query = Query(Query.Method.SELECT, ".")
 
         //When processed
         val result1 = gson.fromJson<Any>(json1, Any::class.java).list(query)
@@ -35,14 +33,14 @@ class ListerTest {
         //Given sample json and queries for selecting parts with and without keys
         val json = """{"ids":["a","b","c"], "element":"value", "object":{"k1":"v1","k2":"v2"}}"""
         val jsonQuery = JsonQuery()
-        val elementQuery = """LIST ".element""""
-        val elementKeysQuery = """LIST ".element" WITH KEYS"""
-        val objectQuery = """LIST ".object""""
-        val objectKeysQuery = """LIST ".object" WITH KEYS"""
-        val objectElementQuery = """LIST "k1" IN ".object""""
-        val objectElementKeysQuery = """LIST "k1" IN ".object" WITH KEYS"""
-        val objectTwoElementQuery = """LIST ("k1", "k2") IN ".object""""
-        val objectTwoElementKeysQuery = """LIST ("k1", "k2") IN ".object" WITH KEYS"""
+        val elementQuery = """SELECT ".element""""
+        val elementKeysQuery = """SELECT ".element" WITH KEYS"""
+        val objectQuery = """SELECT ".object""""
+        val objectKeysQuery = """SELECT ".object" WITH KEYS"""
+        val objectElementQuery = """SELECT "k1" IN ".object""""
+        val objectElementKeysQuery = """SELECT "k1" IN ".object" WITH KEYS"""
+        val objectTwoElementQuery = """SELECT ("k1", "k2") IN ".object""""
+        val objectTwoElementKeysQuery = """SELECT ("k1", "k2") IN ".object" WITH KEYS"""
 
         //When processed
         jsonQuery.loadJson(json)

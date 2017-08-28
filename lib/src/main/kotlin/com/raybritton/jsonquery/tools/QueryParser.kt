@@ -9,7 +9,7 @@ import java.util.regex.Pattern
  * Group 1: Method
  * Group 2: Remaining
  */
-private val METHOD = "(DESCRIBE|GET|LIST)(.*)".toPattern(Pattern.CASE_INSENSITIVE)
+private val METHOD = "(DESCRIBE|SELECT)(.*)".toPattern(Pattern.CASE_INSENSITIVE)
 /**
  * Gets the target, keys and target extras
  * Group 1: Keys or extras

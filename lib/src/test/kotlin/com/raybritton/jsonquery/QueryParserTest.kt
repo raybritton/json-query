@@ -76,11 +76,11 @@ class QueryParserTest {
         //Given sample queries
         val queryStmt1 = "DESCRIBE \".\""
         val queryStmt2 = "DESCRIBE      \".items\""
-        val queryStmt3 = "LIST VALUES IN \".items.id\""
-        val queryStmt4 = "LIST \".items.id\""
+        val queryStmt3 = "SELECT VALUES IN \".items.id\""
+        val queryStmt4 = "SELECT \".items.id\""
         val queryStmt5 = "GET \".items.id\""
-        val queryStmt6 = "LIST \"id\" IN \".items\""
-        val queryStmt7 = "LIST (\"id\", \"title\") IN \".items\""
+        val queryStmt6 = "SELECT \"id\" IN \".items\""
+        val queryStmt7 = "SELECT (\"id\", \"title\") IN \".items\""
 
         //When processed
         val query1 = queryStmt1.toQuery()
@@ -112,7 +112,7 @@ class QueryParserTest {
         assertEquals("query2 limit", null, query2.limit)
         assertEquals("query2 where", null, query2.where)
 
-        assertEquals("query3 method", Query.Method.LIST, query3.method)
+        assertEquals("query3 method", Query.Method.SELECT, query3.method)
         assertEquals("query3 target", ".items.id", query3.target)
         assertEquals("query3 target extras", Query.TargetExtra.VALUES, query3.targetExtra)
         assertEquals("query3 target keys size", 0, query3.targetKeys.size)
@@ -122,7 +122,7 @@ class QueryParserTest {
         assertEquals("query3 limit", null, query3.limit)
         assertEquals("query3 where", null, query3.where)
 
-        assertEquals("query4 method", Query.Method.LIST, query4.method)
+        assertEquals("query4 method", Query.Method.SELECT, query4.method)
         assertEquals("query4 target", ".items.id", query4.target)
         assertEquals("query4 target extras", null, query4.targetExtra)
         assertEquals("query4 target keys size", 0, query4.targetKeys.size)
@@ -142,7 +142,7 @@ class QueryParserTest {
         assertEquals("query5 limit", null, query5.limit)
         assertEquals("query5 where", null, query5.where)
 
-        assertEquals("query6 method", Query.Method.LIST, query6.method)
+        assertEquals("query6 method", Query.Method.SELECT, query6.method)
         assertEquals("query6 target", ".items", query6.target)
         assertEquals("query6 target extras", Query.TargetExtra.SPECIFIC, query6.targetExtra)
         assertEquals("query6 target keys size", 1, query6.targetKeys.size)
@@ -153,7 +153,7 @@ class QueryParserTest {
         assertEquals("query6 limit", null, query6.limit)
         assertEquals("query6 where", null, query6.where)
 
-        assertEquals("query7 method", Query.Method.LIST, query7.method)
+        assertEquals("query7 method", Query.Method.SELECT, query7.method)
         assertEquals("query7 target", ".items", query7.target)
         assertEquals("query7 target extras", Query.TargetExtra.SPECIFIC, query7.targetExtra)
         assertEquals("query7 target keys size", 2, query7.targetKeys.size)
@@ -170,9 +170,9 @@ class QueryParserTest {
     fun testSkipLimit() {
         //Given sample queries
         val skip = "GET \".id\" SKIP 1"
-        val limit = "LIST \".id\" LIMIT 9"
-        val both = "LIST \".id\" SKIP 3 LIMIT 4"
-        val bothRev = "LIST \".id\" LIMIT 2 SKIP 3"
+        val limit = "SELECT \".id\" LIMIT 9"
+        val both = "SELECT \".id\" SKIP 3 LIMIT 4"
+        val bothRev = "SELECT \".id\" LIMIT 2 SKIP 3"
 
         //When processed
         val resultSkip = skip.toQuery()
@@ -191,7 +191,7 @@ class QueryParserTest {
         assertEquals("skip limit", null, resultSkip.limit)
         assertEquals("skip where", null, resultSkip.where)
 
-        assertEquals("limit method", Query.Method.LIST, resultLimit.method)
+        assertEquals("limit method", Query.Method.SELECT, resultLimit.method)
         assertEquals("limit target", ".id", resultLimit.target)
         assertEquals("limit target extras", null, resultLimit.targetExtra)
         assertEquals("limit target keys size", 0, resultLimit.targetKeys.size)
@@ -201,7 +201,7 @@ class QueryParserTest {
         assertEquals("limit limit", 9, resultLimit.limit)
         assertEquals("limit where", null, resultLimit.where)
 
-        assertEquals("both method", Query.Method.LIST, resultBoth.method)
+        assertEquals("both method", Query.Method.SELECT, resultBoth.method)
         assertEquals("both target", ".id", resultBoth.target)
         assertEquals("both target extras", null, resultBoth.targetExtra)
         assertEquals("both target keys size", 0, resultBoth.targetKeys.size)
@@ -211,7 +211,7 @@ class QueryParserTest {
         assertEquals("both limit", 4, resultBoth.limit)
         assertEquals("both where", null, resultBoth.where)
 
-        assertEquals("bothrev method", Query.Method.LIST, resultBothRev.method)
+        assertEquals("bothrev method", Query.Method.SELECT, resultBothRev.method)
         assertEquals("bothrev target", ".id", resultBothRev.target)
         assertEquals("bothrev target extras", null, resultBothRev.targetExtra)
         assertEquals("bothrev target keys size", 0, resultBothRev.targetKeys.size)
@@ -225,13 +225,13 @@ class QueryParserTest {
     @Test
     fun testFullStatement() {
         //Given a full query
-        val query = "LIST VALUES IN \".items.id\" WHERE \"title\" == \"Hello\" SKIP 1 LIMIT 10 AS JSON WITH KEYS"
+        val query = "SELECT VALUES IN \".items.id\" WHERE \"title\" == \"Hello\" SKIP 1 LIMIT 10 AS JSON WITH KEYS"
 
         //When processed
         val result = query.toQuery()
 
         //Then check it's correct
-        assertEquals("method", Query.Method.LIST, result.method)
+        assertEquals("method", Query.Method.SELECT, result.method)
         assertEquals("target", ".items.id", result.target)
         assertEquals("target extras", Query.TargetExtra.VALUES, result.targetExtra)
         assertEquals("target keys size", 0, result.targetKeys.size)

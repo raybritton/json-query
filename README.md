@@ -4,11 +4,11 @@ A library for filtering json to extract parts from a structure.
 
 For example:
 * To list ids from a list of people
-    * `LIST "id" IN ".people"`
+    * `SELECT "id" IN ".people"`
 * To list names from a list of people older than 20
-    * `LIST "full_name" IN ".people" WHERE "age" > 20`
+    * `SELECT "full_name" IN ".people" WHERE "age" > 20`
 * To list person object from a list of people name contains "Dr"
-    * `LIST ELEMENT IN ".people" WHERE "full_name" # "Dr"`
+    * `SELECT ELEMENT IN ".people" WHERE "full_name" # "Dr"`
     
 See [SYSTEM](https://github.com/raybritton/json-query/blob/master/SYSTEM.md) for more information
 

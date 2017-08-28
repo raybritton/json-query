@@ -10,7 +10,7 @@ internal data class Query(val method: Method,
                           val asJson: Boolean = false,
                           val withKeys: Boolean = false) {
     enum class Method {
-        DESCRIBE, LIST, GET
+        DESCRIBE, SELECT
     }
 
     enum class TargetExtra {
