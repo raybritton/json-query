@@ -6,10 +6,6 @@ package com.raybritton.jsonquery
  * -o string : output file (optional)
  */
 fun main(args: Array<String>) {
-    Thread.UncaughtExceptionHandler { t, ex ->
-        println ("ERROR: ${ex.message}")
-    }
-
     val progArgs = ProgArgs.build(args)
     val jsonQuery = JsonQuery()
     jsonQuery.loadJson(progArgs.input)

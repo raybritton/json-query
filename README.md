@@ -1,62 +1,48 @@
 # JSON Query Library (WIP)
 
-See spec file for possible usage
+A library for filtering json to extract parts from a structure.
 
-`METHOD TARGET TARGET_MODIFIER WHERE_EXPR SKIP LIMIT WITH_KEYS AS_JSON`
+For example:
+* To list ids from a list of people
+    * `LIST "id" IN ".people"`
+* To list names from a list of people older than 20
+    * `LIST "full_name" IN ".people" WHERE "age" > 20`
+* To list person object from a list of people name contains "Dr"
+    * `LIST ELEMENT IN ".people" WHERE "full_name" # "Dr"`
+    
+See [SYSTEM](https://github.com/raybritton/json-query/SYSTEM.md) for more information
 
-##### METHOD:
-* DESCRIBE
-* GET
-* LIST
+### CLI
 
-##### TARGET:
-* '.'
-* '.items'
-* '.items.id'
-* '.items[0]'
-* '.items[0].inner.title'
+* -q query
+* -i input file, json or url
 
-##### TARGET_MODIFIER:
-* KEYS
-* VALUES
-* VALUES("id", "title")
+`java -jar jq-0.1.0.jar -i "example.json" -q "LIST \"id\" from \".people\""`
 
-##### WHERE_EXPR:
-`WHERE target IN array OPERATOR value`
-* WHERE "name" IN ".people" # "John"
-* WHERE "meta.key1" IN ".people" !# "VALID"
-* WHERE "id" IN "." > 0
-* WHERE "title" IN "." == "New"
-* WHERE ELEMENT IN ".grade.ages" < 20
+## Download
 
-###### OPERATORS
-* == EQUAL
-* != NOT EQUAL
-* < LESS THAN
-* \> GREATER THAN
-* \# CONTAINS
-* !# NOT CONTAINS
+Add a Gradle dependency:
 
-##### SKIP:
-* SKIP 1
+```groovy
+compile 'com.raybritton.jsonquery:lib:0.2.0'
+```
 
-##### LIMIT:
-* LIMIT 10
+A CLI JAR is available from the [releases page](https://github.com/raybritton/json-query/releases)
 
-##### WITH_KEYS:
-* WITH KEYS
+## License
 
-##### AS_JSON:
-* AS JSON
+```
+Copyright 2017 Ray Britton
 
-Examples:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-`DESCRIBE "."`
+   http://www.apache.org/licenses/LICENSE-2.0
 
-`LIST ".items" WHERE ".items.id" > 5 AS JSON`
-
-`GET ".records" WITH KEYS`
-
-`LIST "name" IN ".people" LIMIT 10`
-
-`LIST ".people2 KEYS SKIP 6`
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
