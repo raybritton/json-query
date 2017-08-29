@@ -120,7 +120,7 @@ class IntegrationTest {
     }
 
     @Test
-    fun selectingDeeperValues() {
+    fun testSelectingDeeperValues() {
         //Given json with nested objects
         val json = """{"obj1":{"obj2":{"iKey":"iVal"}}}"""
         val jsonQuery = JsonQuery()
@@ -131,5 +131,29 @@ class IntegrationTest {
 
         //Then check it was retrieved
         assertEquals("result", "iVal", output1)
+    }
+
+    @Test
+    fun testOrdering() {
+        //Given json with number and string arrays and queries to sort
+        val json1 = """[5,2,3,1,4]"""
+        val json2 = """["a", "b", "c"]"""
+        val jsonQuery = JsonQuery()
+        val query1 = """SELECT "." ORDER BY ELEMENT"""
+        val query2 = """SELECT "." ORDER BY ELEMENT DESC"""
+
+        //When processed
+        jsonQuery.loadJson(json1)
+        val result11 = jsonQuery.query(query1)
+        val result12 = jsonQuery.query(query2)
+        jsonQuery.loadJson(json2)
+        val result21 = jsonQuery.query(query1)
+        val result22 = jsonQuery.query(query2)
+
+        //Then check the results are in the correct order
+        assertEquals("result 1.1", "[1.0, 2.0, 3.0, 4.0, 5.0]", result11)
+        assertEquals("result 1.2", "[5.0, 4.0, 3.0, 2.0, 1.0]", result12)
+        assertEquals("result 2.1", "[a, b, c]", result21)
+        assertEquals("result 2.2", "[c, b, a]", result22)
     }
 }
