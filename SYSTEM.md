@@ -20,12 +20,12 @@ See spec file for possible usage
 * VALUES("id", "title")
 
 ##### WHERE_EXPR:
-`WHERE target FROM array OPERATOR value`
-* WHERE "name" FROM ".people" # "John"
-* WHERE "meta.key1" FROM ".people" !# "VALID"
-* WHERE "id" FROM "." > 0
-* WHERE "title" FROM "." == "New"
-* WHERE ELEMENT FROM ".grade.ages" < 20
+`WHERE target OPERATOR value`
+* WHERE "name" # "John"
+* WHERE "meta.key1" !# "VALID"
+* WHERE "id" > 0
+* WHERE "title" == "New"
+* WHERE ELEMENT < 20
 
 ###### OPERATORS
 * == EQUAL
