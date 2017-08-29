@@ -24,7 +24,7 @@ See [SYSTEM](https://github.com/raybritton/json-query/blob/master/SYSTEM.md) for
 Add a Gradle dependency:
 
 ```groovy
-compile 'com.raybritton.jsonquery:lib:0.3.0'
+compile 'com.raybritton.jsonquery:lib:0.4.0'
 ```
 
 A CLI JAR is available from the [releases page](https://github.com/raybritton/json-query/releases)
