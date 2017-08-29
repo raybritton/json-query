@@ -37,10 +37,10 @@ class ListerTest {
         val elementKeysQuery = """SELECT ".element" WITH KEYS"""
         val objectQuery = """SELECT ".object""""
         val objectKeysQuery = """SELECT ".object" WITH KEYS"""
-        val objectElementQuery = """SELECT "k1" IN ".object""""
-        val objectElementKeysQuery = """SELECT "k1" IN ".object" WITH KEYS"""
-        val objectTwoElementQuery = """SELECT ("k1", "k2") IN ".object""""
-        val objectTwoElementKeysQuery = """SELECT ("k1", "k2") IN ".object" WITH KEYS"""
+        val objectElementQuery = """SELECT "k1" FROM ".object""""
+        val objectElementKeysQuery = """SELECT "k1" FROM ".object" WITH KEYS"""
+        val objectTwoElementQuery = """SELECT ("k1", "k2") FROM ".object""""
+        val objectTwoElementKeysQuery = """SELECT ("k1", "k2") FROM ".object" WITH KEYS"""
 
         //When processed
         jsonQuery.loadJson(json)

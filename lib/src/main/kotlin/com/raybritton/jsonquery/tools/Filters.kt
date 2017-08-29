@@ -21,9 +21,11 @@ internal fun LinkedTreeMap<*, *>.filter(query: Query): Any {
         Query.TargetExtra.KEY -> ArrayList(keys)
         Query.TargetExtra.VALUES -> ArrayList(values)
         Query.TargetExtra.SPECIFIC -> {
-            keys.forEach { key ->
-                if (!query.targetKeys.contains(key)) {
-                    remove(key)
+            val iterator = iterator()
+            while (iterator.hasNext()) {
+                val pair = iterator.next()
+                if (!query.targetKeys.contains(pair.key)) {
+                    iterator.remove()
                 }
             }
             if (size == 1) {

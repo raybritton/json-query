@@ -20,12 +20,12 @@ See spec file for possible usage
 * VALUES("id", "title")
 
 ##### WHERE_EXPR:
-`WHERE target IN array OPERATOR value`
-* WHERE "name" IN ".people" # "John"
-* WHERE "meta.key1" IN ".people" !# "VALID"
-* WHERE "id" IN "." > 0
-* WHERE "title" IN "." == "New"
-* WHERE ELEMENT IN ".grade.ages" < 20
+`WHERE target FROM array OPERATOR value`
+* WHERE "name" FROM ".people" # "John"
+* WHERE "meta.key1" FROM ".people" !# "VALID"
+* WHERE "id" FROM "." > 0
+* WHERE "title" FROM "." == "New"
+* WHERE ELEMENT FROM ".grade.ages" < 20
 
 ###### OPERATORS
 * == EQUAL
@@ -56,6 +56,6 @@ Examples:
 
 `SELECT ".items" WHERE ".items.id" > 5 AS JSON`
 
-`SELECT "name" IN ".people" LIMIT 10 WITH KEYS`
+`SELECT "name" FROM ".people" LIMIT 10 WITH KEYS`
 
-`SELECT KEYS IN ".people2 SKIP 6`
+`SELECT KEYS FROM ".people2 SKIP 6`

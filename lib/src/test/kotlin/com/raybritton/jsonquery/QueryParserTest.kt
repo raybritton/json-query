@@ -76,11 +76,11 @@ class QueryParserTest {
         //Given sample queries
         val queryStmt1 = "DESCRIBE \".\""
         val queryStmt2 = "DESCRIBE      \".items\""
-        val queryStmt3 = "SELECT VALUES IN \".items.id\""
+        val queryStmt3 = "SELECT VALUES FROM \".items.id\""
         val queryStmt4 = "SELECT \".items.id\""
         val queryStmt5 = "SELECT \".items.id\""
-        val queryStmt6 = "SELECT \"id\" IN \".items\""
-        val queryStmt7 = "SELECT (\"id\", \"title\") IN \".items\""
+        val queryStmt6 = "SELECT \"id\" FROM \".items\""
+        val queryStmt7 = "SELECT (\"id\", \"title\") FROM \".items\""
 
         //When processed
         val query1 = queryStmt1.toQuery()
@@ -225,7 +225,7 @@ class QueryParserTest {
     @Test
     fun testFullStatement() {
         //Given a full query
-        val query = "SELECT VALUES IN \".items.id\" WHERE \"title\" == \"Hello\" SKIP 1 LIMIT 10 AS JSON WITH KEYS"
+        val query = "SELECT VALUES FROM \".items.id\" WHERE \"title\" == \"Hello\" SKIP 1 LIMIT 10 AS JSON WITH KEYS"
 
         //When processed
         val result = query.toQuery()

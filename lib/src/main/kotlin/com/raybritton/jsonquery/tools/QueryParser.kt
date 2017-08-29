@@ -16,7 +16,7 @@ private val METHOD = "(DESCRIBE|SELECT)(.*)".toPattern(Pattern.CASE_INSENSITIVE)
  * Group 2: Target
  * Group 3: Remaining
  */
-private val TARGET = "(?:((?:KEYS|VALUES|(?:\\(.+\\)|\".+\")))\\s+IN\\s+)?\"((?:\\\\\"|[^\"])*)\"(.*)".toPattern(Pattern.CASE_INSENSITIVE)
+private val TARGET = "(?:((?:KEYS|VALUES|(?:\\(.+\\)|\".+\")))\\s+FROM\\s+)?\"((?:\\\\\"|[^\"])*)\"(.*)".toPattern(Pattern.CASE_INSENSITIVE)
 /**
  * Gets the keys from the keys in TARGET
  * Call find() repeatedly on group 1 from TARGET

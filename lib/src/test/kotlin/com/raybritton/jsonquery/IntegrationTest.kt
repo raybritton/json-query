@@ -108,14 +108,28 @@ class IntegrationTest {
 
         //When several describe queries are run
         val output1 = jsonQuery.query("SELECT \".data\"")
-        val output2 = jsonQuery.query("SELECT (\"id\") IN \".data\"")
-        val output3 = jsonQuery.query("SELECT (\"id\") IN \".data\" WHERE \"name\" # \"B\"")
-        val output4 = jsonQuery.query("SELECT (\"id\", \"name\") IN \".data\" WHERE \"name\" # \"B\"")
+        val output2 = jsonQuery.query("SELECT (\"id\") FROM \".data\"")
+        val output3 = jsonQuery.query("SELECT (\"id\") FROM \".data\" WHERE \"name\" # \"B\"")
+        val output4 = jsonQuery.query("SELECT (\"id\", \"name\") FROM \".data\" WHERE \"name\" # \"B\"")
 
         //Then check results
         assertEquals("output 1", "[{0.0, Person A, 20.0, {value1, value2}}, {1.0, Person B, 20.0, {value1, value2}}, {2.0, Person C, 20.0, {value1}}, {3.0, Person D, 20.0, {value1, value2}}, {4.0, Person E, 20.0, {value1}}]", output1)
         assertEquals("output 2", "[0.0, 1.0, 2.0, 3.0, 4.0]", output2)
         assertEquals("output 3", "[1.0]", output3)
         assertEquals("output 4", "[{1.0, Person B}]", output4)
+    }
+
+    @Test
+    fun selectingDeeperValues() {
+        //Given json with nested objects
+        val json = """{"obj1":{"obj2":{"iKey":"iVal"}}}"""
+        val jsonQuery = JsonQuery()
+        jsonQuery.loadJson(json)
+
+        //When retrieving inner most value
+        val output1 = jsonQuery.query("SELECT \"iKey\" FROM \".obj1.obj2\"")
+
+        //Then check it was retrieved
+        assertEquals("result", "iVal", output1)
     }
 }
