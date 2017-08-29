@@ -54,11 +54,11 @@ private fun LinkedTreeMap<*, *>.print(query: Query): String {
 internal fun ArrayList<*>.list(query: Query): String {
     if (query.order != null) {
         if (query.order == ELEMENT) {
-            sortWith(Comparator<Any>{lhs, rhs ->
+            sortWith(Comparator<Any> { lhs, rhs ->
                 lhs.compareTo(query, rhs)
             })
         } else {
-            sortWith(Comparator<Any>{lhs, rhs ->
+            sortWith(Comparator<Any> { lhs, rhs ->
                 lhs.navigate(query.order).compareTo(query, rhs.navigate(query.order))
             })
         }

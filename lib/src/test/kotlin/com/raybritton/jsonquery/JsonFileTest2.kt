@@ -1,6 +1,5 @@
 package com.raybritton.jsonquery
 
-import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
