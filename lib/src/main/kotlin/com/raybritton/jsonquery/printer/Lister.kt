@@ -50,7 +50,7 @@ private fun LinkedTreeMap<*, *>.print(query: Query): String {
 }
 
 internal fun ArrayList<*>.list(query: Query): String {
-    val builder = StringBuilder("[")
+    val builder = StringBuilder(if (size > 1) "[" else "")
     for (element in this) {
         if (query.targetExtra == Query.TargetExtra.SPECIFIC) {
             if (query.targetKeys.size == 1) {
@@ -72,6 +72,8 @@ internal fun ArrayList<*>.list(query: Query): String {
     if (builder.length > 1) {
         builder.setLength(builder.length - 2)
     }
-    builder.append("]")
+    if (size > 1) {
+        builder.append("]")
+    }
     return builder.toString()
 }

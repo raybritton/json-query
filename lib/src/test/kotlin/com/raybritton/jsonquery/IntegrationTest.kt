@@ -115,8 +115,8 @@ class IntegrationTest {
         //Then check results
         assertEquals("output 1", "[{0.0, Person A, 20.0, {value1, value2}}, {1.0, Person B, 20.0, {value1, value2}}, {2.0, Person C, 20.0, {value1}}, {3.0, Person D, 20.0, {value1, value2}}, {4.0, Person E, 20.0, {value1}}]", output1)
         assertEquals("output 2", "[0.0, 1.0, 2.0, 3.0, 4.0]", output2)
-        assertEquals("output 3", "[1.0]", output3)
-        assertEquals("output 4", "[{1.0, Person B}]", output4)
+        assertEquals("output 3", "1.0", output3)
+        assertEquals("output 4", "{1.0, Person B}", output4)
     }
 
     @Test

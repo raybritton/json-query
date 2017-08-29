@@ -1,6 +1,6 @@
-# JSON Query Library (WIP)
+# JQL (WIP)
 
-A library for filtering json to extract parts from a structure.
+A library for filtering json to extract parts from a structure using Json Query Language.
 
 For example:
 * To list ids from a list of people
@@ -10,7 +10,7 @@ For example:
 * To list person object from a list of people name contains "Dr"
     * `SELECT ELEMENT FROM ".people" WHERE "full_name" # "Dr"`
     
-See [SYSTEM](https://github.com/raybritton/json-query/blob/master/SYSTEM.md) for more information
+See [JQL](https://github.com/raybritton/json-query/blob/master/JQL.md) for more information
 
 ### CLI
 

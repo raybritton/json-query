@@ -3,7 +3,7 @@ package com.raybritton.jsonquery
 import org.junit.Assert
 import org.junit.Test
 
-class LongJsonTest1 {
+class JsonFileTest1 {
     val json = """
         {
             "${'$'}schema": "http://json-schema.org/draft-06/schema#",
