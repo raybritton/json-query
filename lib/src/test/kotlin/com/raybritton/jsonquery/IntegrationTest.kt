@@ -73,7 +73,7 @@ class IntegrationTest {
         val output3 = jsonQuery.query("DESCRIBE \".data\"")
         val output4 = jsonQuery.query("DESCRIBE \".data\" WHERE \"id\" > 2")
         val output5 = jsonQuery.query("DESCRIBE \".data\" LIMIT 1")
-        val output6 = jsonQuery.query("DESCRIBE \".data\" SKIP 1")
+        val output6 = jsonQuery.query("DESCRIBE \".data\" OFFSET 1")
         val output7 = jsonQuery.query("DESCRIBE \".data\" WHERE \"name\" == \"Person E\" ")
 
         //Then check results

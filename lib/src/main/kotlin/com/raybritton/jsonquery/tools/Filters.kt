@@ -67,10 +67,10 @@ private fun ArrayList<*>.where(query: Query): ArrayList<*> {
 }
 
 private fun ArrayList<*>.skip(query: Query): ArrayList<*> {
-    if (query.skip == null) {
+    if (query.offset == null) {
         return this
     } else {
-        val from = Math.min(query.skip, size)
+        val from = Math.min(query.offset, size)
         return ArrayList(this.subList(from, size))
     }
 }

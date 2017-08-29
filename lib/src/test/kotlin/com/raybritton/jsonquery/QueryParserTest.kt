@@ -98,7 +98,7 @@ class QueryParserTest {
         assertEquals("query1 target keys size", 0, query1.targetKeys.size)
         assertEquals("query1 isjson", false, query1.asJson)
         assertEquals("query1 withKeys", false, query1.withKeys)
-        assertEquals("query1 skip", null, query1.skip)
+        assertEquals("query1 skip", null, query1.offset)
         assertEquals("query1 limit", null, query1.limit)
         assertEquals("query1 where", null, query1.where)
 
@@ -108,7 +108,7 @@ class QueryParserTest {
         assertEquals("query2 target keys size", 0, query2.targetKeys.size)
         assertEquals("query2 isjson", false, query2.asJson)
         assertEquals("query2 withKeys", false, query2.withKeys)
-        assertEquals("query2 skip", null, query2.skip)
+        assertEquals("query2 skip", null, query2.offset)
         assertEquals("query2 limit", null, query2.limit)
         assertEquals("query2 where", null, query2.where)
 
@@ -118,7 +118,7 @@ class QueryParserTest {
         assertEquals("query3 target keys size", 0, query3.targetKeys.size)
         assertEquals("query3 isjson", false, query3.asJson)
         assertEquals("query3 withKeys", false, query3.withKeys)
-        assertEquals("query3 skip", null, query3.skip)
+        assertEquals("query3 skip", null, query3.offset)
         assertEquals("query3 limit", null, query3.limit)
         assertEquals("query3 where", null, query3.where)
 
@@ -128,7 +128,7 @@ class QueryParserTest {
         assertEquals("query4 target keys size", 0, query4.targetKeys.size)
         assertEquals("query4 isjson", false, query4.asJson)
         assertEquals("query4 withKeys", false, query4.withKeys)
-        assertEquals("query4 skip", null, query4.skip)
+        assertEquals("query4 skip", null, query4.offset)
         assertEquals("query4 limit", null, query4.limit)
         assertEquals("query4 where", null, query4.where)
 
@@ -138,7 +138,7 @@ class QueryParserTest {
         assertEquals("query5 target keys size", 0, query5.targetKeys.size)
         assertEquals("query5 isjson", false, query5.asJson)
         assertEquals("query5 withKeys", false, query5.withKeys)
-        assertEquals("query5 skip", null, query5.skip)
+        assertEquals("query5 skip", null, query5.offset)
         assertEquals("query5 limit", null, query5.limit)
         assertEquals("query5 where", null, query5.where)
 
@@ -149,7 +149,7 @@ class QueryParserTest {
         assertEquals("query6 target key", "id", query6.targetKeys[0])
         assertEquals("query6 isjson", false, query6.asJson)
         assertEquals("query6 withKeys", false, query6.withKeys)
-        assertEquals("query6 skip", null, query6.skip)
+        assertEquals("query6 skip", null, query6.offset)
         assertEquals("query6 limit", null, query6.limit)
         assertEquals("query6 where", null, query6.where)
 
@@ -161,7 +161,7 @@ class QueryParserTest {
         assertEquals("query7 target key 2", "title", query7.targetKeys[1])
         assertEquals("query7 isjson", false, query7.asJson)
         assertEquals("query7 withKeys", false, query7.withKeys)
-        assertEquals("query7 skip", null, query7.skip)
+        assertEquals("query7 skip", null, query7.offset)
         assertEquals("query7 limit", null, query7.limit)
         assertEquals("query7 where", null, query7.where)
     }
@@ -169,10 +169,10 @@ class QueryParserTest {
     @Test
     fun testSkipLimit() {
         //Given sample queries
-        val skip = "SELECT \".id\" SKIP 1"
+        val skip = "SELECT \".id\" OFFSET 1"
         val limit = "SELECT \".id\" LIMIT 9"
-        val both = "SELECT \".id\" SKIP 3 LIMIT 4"
-        val bothRev = "SELECT \".id\" LIMIT 2 SKIP 3"
+        val both = "SELECT \".id\" OFFSET 3 LIMIT 4"
+        val bothRev = "SELECT \".id\" LIMIT 2 OFFSET 3"
 
         //When processed
         val resultSkip = skip.toQuery()
@@ -187,7 +187,7 @@ class QueryParserTest {
         assertEquals("skip target keys size", 0, resultSkip.targetKeys.size)
         assertEquals("skip isjson", false, resultSkip.asJson)
         assertEquals("skip withKeys", false, resultSkip.withKeys)
-        assertEquals("skip skip", 1, resultSkip.skip)
+        assertEquals("skip skip", 1, resultSkip.offset)
         assertEquals("skip limit", null, resultSkip.limit)
         assertEquals("skip where", null, resultSkip.where)
 
@@ -197,7 +197,7 @@ class QueryParserTest {
         assertEquals("limit target keys size", 0, resultLimit.targetKeys.size)
         assertEquals("limit isjson", false, resultLimit.asJson)
         assertEquals("limit withKeys", false, resultLimit.withKeys)
-        assertEquals("limit skip", null, resultLimit.skip)
+        assertEquals("limit skip", null, resultLimit.offset)
         assertEquals("limit limit", 9, resultLimit.limit)
         assertEquals("limit where", null, resultLimit.where)
 
@@ -207,7 +207,7 @@ class QueryParserTest {
         assertEquals("both target keys size", 0, resultBoth.targetKeys.size)
         assertEquals("both isjson", false, resultBoth.asJson)
         assertEquals("both withKeys", false, resultBoth.withKeys)
-        assertEquals("both skip", 3, resultBoth.skip)
+        assertEquals("both skip", 3, resultBoth.offset)
         assertEquals("both limit", 4, resultBoth.limit)
         assertEquals("both where", null, resultBoth.where)
 
@@ -217,7 +217,7 @@ class QueryParserTest {
         assertEquals("bothrev target keys size", 0, resultBothRev.targetKeys.size)
         assertEquals("bothrev isjson", false, resultBothRev.asJson)
         assertEquals("bothrev withKeys", false, resultBothRev.withKeys)
-        assertEquals("bothrev skip", 3, resultBothRev.skip)
+        assertEquals("bothrev skip", 3, resultBothRev.offset)
         assertEquals("bothrev limit", 2, resultBothRev.limit)
         assertEquals("bothrev where", null, resultBothRev.where)
     }
@@ -225,7 +225,7 @@ class QueryParserTest {
     @Test
     fun testFullStatement() {
         //Given a full query
-        val query = "SELECT VALUES FROM \".items.id\" WHERE \"title\" == \"Hello\" SKIP 1 LIMIT 10 AS JSON WITH KEYS"
+        val query = "SELECT VALUES FROM \".items.id\" WHERE \"title\" == \"Hello\" OFFSET 1 LIMIT 10 AS JSON WITH KEYS"
 
         //When processed
         val result = query.toQuery()
@@ -238,7 +238,7 @@ class QueryParserTest {
         assertEquals("where field", "title", result.where!!.field)
         assertEquals("where operator", Query.Where.Operator.EQUAL, result.where.operator)
         assertEquals("where compare", "Hello", result.where.compare)
-        assertEquals("skip count", 1, result.skip)
+        assertEquals("skip count", 1, result.offset)
         assertEquals("limit count", 10, result.limit)
         assertEquals("as json", true, result.asJson)
         assertEquals("with keys", true, result.withKeys)

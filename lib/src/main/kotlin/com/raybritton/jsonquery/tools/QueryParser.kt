@@ -30,7 +30,7 @@ private val TARGET_KEYS = "\"((?:\\\\\"|[^\"])*)\"\\s*,?\\s*".toPattern(Pattern.
  * Group 4: remaining
  */
 private val WHERE = "WHERE\\s+(\"(?:\\\\\"|[^\"])*\"|ELEMENT)\\s+([<>!=#]+)\\s+(NULL|-?\\d+(?:\\.)?e?(?:\\d+)?|\".+\")(.*)".toPattern(Pattern.CASE_INSENSITIVE)
-private val SKIP = ".*SKIP (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets skip count
+private val OFFSET = ".*OFFSET (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets skip count
 private val LIMIT = ".*LIMIT (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets limit count
 /**
  * Gets the order by column/element
@@ -56,7 +56,7 @@ internal fun String.toQuery(): Query {
     var desc = false
     var where: Query.Where? = null
     var order: String? = null
-    var skip: Int? = null
+    var offset: Int? = null
     var limit: Int? = null
 
     if (methodMatcher.matches()) {
@@ -118,9 +118,9 @@ internal fun String.toQuery(): Query {
         query = whereMatcher.group(4)?.trim() ?: ""
     }
 
-    val skipMatcher = SKIP.matcher(query)
-    if (skipMatcher.matches()) {
-        skip = skipMatcher.group(1).toInt()
+    val offsetMatcher = OFFSET.matcher(query)
+    if (offsetMatcher.matches()) {
+        offset = offsetMatcher.group(1).toInt()
     }
 
     val limitMatcher = LIMIT.matcher(query)
@@ -145,7 +145,7 @@ internal fun String.toQuery(): Query {
             targetKeys = targetKeys,
             withKeys = withKeys,
             asJson = isJson,
-            skip = skip,
+            offset = offset,
             pretty = pretty,
             limit = limit,
             where = where,
