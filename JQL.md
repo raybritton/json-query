@@ -42,6 +42,7 @@ SELECT | DESCRIBE
         * `".items.id"` The id object or array in the items object
 * WHERE
     * column should be written as `"id"`
+        * To refer to list element use `ELEMENT`
     * operator:
         * `==` Equal
         * `!=` Not equal
@@ -66,6 +67,7 @@ SELECT | DESCRIBE
     *  By default the JSON (from AS JSON) is returned on a single line, this causes it to be pretty printed
 * ORDER BY
     * column should be written as `"id"`
+        * To refer to list element use `ELEMENT`
     * DESC reverses the sort order
 
 #### Examples

@@ -28,7 +28,7 @@ class FilterTest {
 
     @Test
     fun testDistinctDescribe() {
-        //Given json arraies with multiple repeated elements
+        //Given json arrays with multiple repeated elements
         val json1 = """[1,2,3,4,5,6,1,2,3,4,5,4,3,2,6,7,34,0]"""
         val json2 = """["a", "b", "ab", "a"]"""
 
