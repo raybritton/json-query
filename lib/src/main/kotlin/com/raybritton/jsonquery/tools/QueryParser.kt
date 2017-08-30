@@ -10,7 +10,7 @@ import java.util.regex.Pattern
  * Group 2: Distinct
  * Group 3: Remaining
  */
-private val METHOD = "(DESCRIBE|SELECT)(?:\\s+(DISTINCT)\\s+)(.*)".toPattern(Pattern.CASE_INSENSITIVE)
+private val METHOD = "(DESCRIBE|SELECT)(?:\\s+(DISTINCT)\\s+)?(.*)".toPattern(Pattern.CASE_INSENSITIVE)
 /**
  * Gets the target, keys and target extras
  * Group 1: Keys or extras
