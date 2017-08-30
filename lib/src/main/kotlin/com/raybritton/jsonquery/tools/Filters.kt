@@ -39,8 +39,12 @@ internal fun LinkedTreeMap<*, *>.filter(query: Query): Any {
 }
 
 internal fun ArrayList<*>.filter(query: Query): ArrayList<*> {
-    val list = where(query)
-    return list.skip(query).limit(query)
+    var list = where(query)
+    list = list.skip(query).limit(query)
+    if (query.method == Query.Method.DISTINCT) {
+        list = ArrayList(list.distinct())
+    }
+    return list
 }
 
 private fun ArrayList<*>.where(query: Query): ArrayList<*> {

@@ -9,7 +9,7 @@ import java.util.regex.Pattern
  * Group 1: Method
  * Group 2: Remaining
  */
-private val METHOD = "(DESCRIBE|SELECT)(.*)".toPattern(Pattern.CASE_INSENSITIVE)
+private val METHOD = "(DESCRIBE|SELECT DISTINCT|SELECT)(.*)".toPattern(Pattern.CASE_INSENSITIVE)
 /**
  * Gets the target, keys and target extras
  * Group 1: Keys or extras
@@ -60,7 +60,7 @@ internal fun String.toQuery(): Query {
     var limit: Int? = null
 
     if (methodMatcher.matches()) {
-        method = Query.Method.valueOf(methodMatcher.group(1).toUpperCase(Locale.US))
+        method = Query.Method.getMethodByKeyword(methodMatcher.group(1).toUpperCase(Locale.US))
     } else {
         throw IllegalArgumentException("Unable to parse query method")
     }
