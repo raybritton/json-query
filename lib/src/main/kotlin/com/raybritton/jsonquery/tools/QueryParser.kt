@@ -7,9 +7,10 @@ import java.util.regex.Pattern
 /**
  * Gets the method
  * Group 1: Method
- * Group 2: Remaining
+ * Group 2: Distinct
+ * Group 3: Remaining
  */
-private val METHOD = "(DESCRIBE|SELECT DISTINCT|SELECT)(.*)".toPattern(Pattern.CASE_INSENSITIVE)
+private val METHOD = "(DESCRIBE|SELECT)(?:\\s+(DISTINCT)\\s+)(.*)".toPattern(Pattern.CASE_INSENSITIVE)
 /**
  * Gets the target, keys and target extras
  * Group 1: Keys or extras
@@ -53,6 +54,7 @@ internal fun String.toQuery(): Query {
     var withKeys = false
     var isJson = false
     var pretty = false
+    var distinct = false
     var desc = false
     var where: Query.Where? = null
     var order: String? = null
@@ -60,12 +62,15 @@ internal fun String.toQuery(): Query {
     var limit: Int? = null
 
     if (methodMatcher.matches()) {
-        method = Query.Method.getMethodByKeyword(methodMatcher.group(1).toUpperCase(Locale.US))
+        method = Query.Method.valueOf(methodMatcher.group(1).toUpperCase(Locale.US))
+        if (methodMatcher.group(2).equals("DISTINCT", true)) {
+            distinct = true
+        }
     } else {
         throw IllegalArgumentException("Unable to parse query method")
     }
 
-    query = methodMatcher.group(2).trim()
+    query = methodMatcher.group(3).trim()
 
     val targetMatcher = TARGET.matcher(query)
     if (targetMatcher.matches()) {
@@ -150,6 +155,7 @@ internal fun String.toQuery(): Query {
             limit = limit,
             where = where,
             order = order,
-            desc = desc
+            desc = desc,
+            distinct = distinct
     )
 }

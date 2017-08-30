@@ -41,7 +41,7 @@ internal fun LinkedTreeMap<*, *>.filter(query: Query): Any {
 internal fun ArrayList<*>.filter(query: Query): ArrayList<*> {
     var list = where(query)
     list = list.skip(query).limit(query)
-    if (query.method == Query.Method.DISTINCT) {
+    if (query.distinct) {
         list = ArrayList(list.distinct())
     }
     return list

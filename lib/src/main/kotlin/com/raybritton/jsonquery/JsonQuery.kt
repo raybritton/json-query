@@ -32,7 +32,7 @@ class JsonQuery {
 
         when (query.method) {
             Query.Method.DESCRIBE -> return filtered.describe()
-            Query.Method.SELECT, Query.Method.DISTINCT -> {
+            Query.Method.SELECT -> {
                 if (query.asJson) {
                     return gson.toJson(filtered)
                 } else {

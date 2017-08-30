@@ -9,22 +9,12 @@ internal data class Query(val method: Method,
                           val where: Where? = null,
                           val asJson: Boolean = false,
                           val desc: Boolean = false,
+                          val distinct: Boolean = false,
                           val pretty: Boolean = false,
                           val withKeys: Boolean = false,
                           val order: String? = null) {
-    enum class Method(val keyword: String) {
-        DESCRIBE("DESCRIBE"), SELECT("SELECT"), DISTINCT("SELECT DISTINCT");
-
-        companion object {
-            fun getMethodByKeyword(keyword: String): Method {
-                for (method in Method.values()) {
-                    if (method.keyword == keyword) {
-                        return method
-                    }
-                }
-                throw IllegalArgumentException("Method $keyword not supported")
-            }
-        }
+    enum class Method {
+        DESCRIBE, SELECT
     }
 
     enum class TargetExtra {
