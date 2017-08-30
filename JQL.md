@@ -1,68 +1,130 @@
+# JQL
 
-`METHOD TARGET_MODIFIER TARGET WHERE_EXPR OFFSET LIMIT WITH_KEYS AS_JSON PRETTY ORDER BY DESC`
+#### Json Query Language
 
-##### METHOD:
-* DESCRIBE
-* SELECT
-* SELECT DISTINCT
+JQL is designed to be used to query json so that values, objects or arrays can be extracted based on filters and limits.
 
-##### TARGET:
-* '.'
-* '.items'
-* '.items.id'
-* '.items[0]'
-* '.items[0].inner.title'
+<pre>
+SELECT | DESCRIBE
+    [DISTINCT]
+    [[KEYS|VALUES|column|columns] FROM]
+    JSON PATH
+    [WHERE column operator value]
+    [LIMIT value]
+    [OFFSET value]
+    [WITH KEYS]
+    [AS JSON]
+    [PRETTY]
+    [ORDER BY column [DESC]]
+</pre>
 
-##### TARGET_MODIFIER:
-* KEYS FROM
-* VALUES FROM
-* ("id", "title") FROM
-* "id" FROM
+#### Components
 
-##### WHERE_EXPR:
-`WHERE target OPERATOR value`
-* WHERE "name" # "John"
-* WHERE "meta.key1" !# "VALID"
-* WHERE "id" > 0
-* WHERE "title" == "New"
-* WHERE ELEMENT < 20
-
-###### OPERATORS
-* == EQUAL
-* != NOT EQUAL
-* < LESS THAN
-* \> GREATER THAN
-* \# CONTAINS
-* !# NOT CONTAINS
-
-##### OFFSET:
-* OFFSET 1
-
-##### LIMIT:
-* LIMIT 10
-
-##### WITH_KEYS:
+* SELECT | DESCRIBE
+    * `SELECT` returns values from the data
+    * `DESCRIBE` returns a description of the data
+* DISTINCT
+    * This is used to only allow distinct values to be returned
+* KEYS | VALUES | column | columns
+    * `KEYS` only returns the keys from an object
+    * `VALUES` only returns the values from an object
+    * column should be written as `"id"`
+    * columns should be written as `("id", "name")`
+    * All of these be followed by `FROM`
+* JSON PATH
+    * Parts of the json can be specified using a path
+    * Each segment should be separated by a `.` (Fullstop/Period)
+    * Any name containing `.`, `"` and `[` must be escaped using a back slash, for example `\.`
+    * A first full stop represents the whole object
+        * `"."` The whole object
+        * `".items"` The items array or object on the root
+        * `".ids[0]"` The first object in the ids array
+        * `".items.id"` The id object or array in the items object
+* WHERE
+    * column should be written as `"id"`
+    * operator:
+        * `==` Equal
+        * `!=` Not equal
+        * `>` Greater than
+        * `<` Less than
+        * `#` Contains
+        * `!#` Not contains
+    * value should be written as `1` or `"a"`
+* LIMIT
+    * This only is used if the target is an array
+    * This is the maximum number of results
+    * value must be a positive integer
+* OFFSET
+    * This only is used if the target is an array
+    * This is the number of results that will be skipped
+    * value must be a positive integer
 * WITH KEYS
-
-##### AS_JSON:
+    * By default only the values are returned, this caused the key to be returned as well
 * AS JSON
-
-##### PRETTY:
+    * This will return the filtered data in the JSON format
 * PRETTY
+    *  By default the JSON (from AS JSON) is returned on a single line, this causes it to be pretty printed
+* ORDER BY
+    * column should be written as `"id"`
+    * DESC reverses the sort order
 
-##### ORDER_BY
-* ORDER BY ELEMENT
-* ORDER BY "id"
+#### Examples
 
-##### DESC
-* DESC
+Using:
 
-Examples:
+<pre>
+[
+    {
+        "id": 0,
+        "name": "John Smith"
+    },
+    {
+        "id": 1,
+        "name": "Emma Smith"
+    },
+    {
+        "id": 2,
+        "name": "Jane Clobber"
+    },
+    {
+        "id": 3,
+        "name": "Ned Turner"
+    }
+]
+</pre>
+
+###### Select everything
+
+`SELECT "."`
+
+`[{0, John Smith}, {1, Emma Smith}, {2, Jane Clobber}, {3, Ned Turner}]`
+
+###### Select all results with an id greater than 1
+
+`SELECT "." WHERE "id" > 1`
+
+`[{2, Jane Clobber}, {3, Ned Turner}]`
+
+###### Select first result whose name contains "Jane"
+
+`SELECT "." WHERE "name" # "Jane"`
+
+`{2, Jane Clobber}`
+
+###### Select ids 
+
+`SELECT "id" FROM "."`
+
+`[0.0, 1.0, 2.0, 3.0]`
+
+###### Select last name as json 
+
+`SELECT "name" FROM "." AS JSON LIMIT 1 ORDER BY "id" DESC`
+
+`["Ned Turner"]`
+
+###### Describe the data
 
 `DESCRIBE "."`
 
-`SELECT ".items" WHERE ".items.id" > 5 AS JSON`
-
-`SELECT "name" FROM ".people" LIMIT 10 WITH KEYS`
-
-`SELECT KEYS FROM ".people2 OFFSET 6`
+`ARRAY(OBJECT(NUMBER, STRING)[4])`
