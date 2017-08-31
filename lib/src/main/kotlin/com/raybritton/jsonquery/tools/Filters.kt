@@ -56,7 +56,7 @@ internal fun ArrayList<*>.filter(query: Query): Any {
     if (query.distinct) {
         list = ArrayList(list.distinct())
     }
-    return when (query.targetExtra){
+    return when (query.targetExtra) {
         Query.TargetExtra.MIN -> list.getValues(query).min()
         Query.TargetExtra.MAX -> list.getValues(query).max()
         Query.TargetExtra.COUNT -> list.getValues(query).size
