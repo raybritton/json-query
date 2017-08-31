@@ -1,4 +1,6 @@
-# JQL (WIP)
+# Json Query Language (JQL)
+
+This is a work in progress
 
 A library for filtering json to extract parts from a structure using Json Query Language.
 
