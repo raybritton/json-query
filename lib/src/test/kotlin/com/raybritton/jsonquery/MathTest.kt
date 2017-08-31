@@ -50,30 +50,43 @@ class MathTest {
     @Test
     fun testSum() {
         //Given
-        val json = """[1,2,3]"""
+        val json1 = """[1,2,3]"""
+        val json2 = """["a", "b"]"""
+        val json3 = """[{"item":{"key":4}},{"item":{"key":4}},{"item":{"key":4}}]"""
 
         //When
-        val query = "SELECT SUM(ELEMENT) FROM \".\""
+        val query1 = "SELECT SUM(ELEMENT) FROM \".\""
+        val query2 = "SELECT SUM(\".item.key\") FROM \".\""
         val jsonQuery = JsonQuery()
-        jsonQuery.loadJson(json)
-        val result = jsonQuery.query(query)
+        jsonQuery.loadJson(json1)
+        val result1 = jsonQuery.query(query1)
+        jsonQuery.loadJson(json2)
+        val result2 = jsonQuery.query(query1)
+        jsonQuery.loadJson(json3)
+        val result3 = jsonQuery.query(query2)
 
         //Then
-        assertEquals("result", "6.0", result)
+        assertEquals("result 1", "6.0", result1)
+        assertEquals("result 2", "0.0", result2)
+        assertEquals("result 3", "12.0", result3)
     }
 
     @Test
     fun testCount() {
         //Given
-        val json = """[5,2,6,3]"""
+        val json1 = """[5,2,6,3]"""
+        val json2 = """["a","bb","ccc","d"]"""
 
         //When
         val query = "SELECT COUNT(ELEMENT) FROM \".\""
         val jsonQuery = JsonQuery()
-        jsonQuery.loadJson(json)
-        val result = jsonQuery.query(query)
+        jsonQuery.loadJson(json1)
+        val result1 = jsonQuery.query(query)
+        jsonQuery.loadJson(json2)
+        val result2 = jsonQuery.query(query)
 
         //Then
-        assertEquals("result", "4", result)
+        assertEquals("result 1", "4", result1)
+        assertEquals("result 2", "4", result2)
     }
 }
