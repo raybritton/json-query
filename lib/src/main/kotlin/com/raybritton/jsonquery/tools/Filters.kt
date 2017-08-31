@@ -2,6 +2,9 @@ package com.raybritton.jsonquery.tools
 
 import com.google.gson.internal.LinkedTreeMap
 import com.raybritton.jsonquery.ext.isValue
+import com.raybritton.jsonquery.ext.max
+import com.raybritton.jsonquery.ext.min
+import com.raybritton.jsonquery.ext.sum
 import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.utils.ELEMENT
 
@@ -34,17 +37,32 @@ internal fun LinkedTreeMap<*, *>.filter(query: Query): Any {
                 this
             }
         }
-        null -> this
+        else -> this
     }
 }
 
-internal fun ArrayList<*>.filter(query: Query): ArrayList<*> {
+internal fun ArrayList<*>.getValues(query: Query): ArrayList<*> {
+    if (query.targetKeys[0] == ELEMENT) {
+        return this
+    } else {
+        val list = map { it.navigate(query.targetKeys[0]) }
+        return ArrayList(list)
+    }
+}
+
+internal fun ArrayList<*>.filter(query: Query): Any {
     var list = where(query)
     list = list.skip(query).limit(query)
     if (query.distinct) {
         list = ArrayList(list.distinct())
     }
-    return list
+    return when (query.targetExtra){
+        Query.TargetExtra.MIN -> list.getValues(query).min()
+        Query.TargetExtra.MAX -> list.getValues(query).max()
+        Query.TargetExtra.COUNT -> list.getValues(query).size
+        Query.TargetExtra.SUM -> list.getValues(query).sum()
+        else -> list
+    }
 }
 
 private fun ArrayList<*>.where(query: Query): ArrayList<*> {

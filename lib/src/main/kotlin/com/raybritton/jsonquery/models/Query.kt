@@ -18,7 +18,7 @@ internal data class Query(val method: Method,
     }
 
     enum class TargetExtra {
-        KEY, VALUES, SPECIFIC
+        KEY, VALUES, SPECIFIC, MIN, MAX, COUNT, SUM
     }
 
     data class Where(val field: String,

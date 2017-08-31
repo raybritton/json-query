@@ -7,7 +7,7 @@ JQL is designed to be used to query json so that values, objects or arrays can b
 <pre>
 SELECT | DESCRIBE
     [DISTINCT]
-    [[KEYS|VALUES|column|columns] FROM]
+    [[KEYS|VALUES|column|columns|mathExpr] FROM]
     jsonPath
     [WHERE column operator value]
     [LIMIT value]
@@ -25,6 +25,11 @@ SELECT | DESCRIBE
     * `DESCRIBE` returns a description of the data
 * DISTINCT
     * This is used to only allow distinct values to be returned
+* mathExpr 
+    * `MAX(ELEMENT|column)`
+    * `MIN(ELEMENT|column)`
+    * `COUNT(ELEMENT|column)`
+    * `SUM(ELEMENT|column)`
 * KEYS | VALUES | column | columns
     * `KEYS` only returns the keys from an object
     * `VALUES` only returns the values from an object

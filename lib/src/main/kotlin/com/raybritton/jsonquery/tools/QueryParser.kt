@@ -1,6 +1,7 @@
 package com.raybritton.jsonquery.tools
 
 import com.raybritton.jsonquery.models.Query
+import com.raybritton.jsonquery.utils.ELEMENT
 import java.util.Locale
 import java.util.regex.Pattern
 
@@ -17,12 +18,16 @@ private val METHOD = "(DESCRIBE|SELECT)(?:\\s+(DISTINCT)\\s+)?(.*)".toPattern(Pa
  * Group 2: Target
  * Group 3: Remaining
  */
-private val TARGET = "(?:((?:KEYS|VALUES|(?:\\(.+\\)|\".+\")))\\s+FROM\\s+)?\"((?:\\\\\"|[^\"])*)\"(.*)".toPattern(Pattern.CASE_INSENSITIVE)
+private val TARGET = "(?:((?:KEYS|VALUES|MAX\\((?:ELEMENT|\".+\")\\)|MIN\\((?:ELEMENT|\".+\")\\)|COUNT\\((?:ELEMENT|\".+\")\\)|SUM\\((?:ELEMENT|\".+\")\\)|(?:\\(.+\\)|\".+\")))\\s+FROM\\s+)?\"((?:\\\\\"|[^\"])*)\"(.*)".toPattern(Pattern.CASE_INSENSITIVE)
 /**
  * Gets the keys from the keys in TARGET
  * Call find() repeatedly on group 1 from TARGET
  */
 private val TARGET_KEYS = "\"((?:\\\\\"|[^\"])*)\"\\s*,?\\s*".toPattern(Pattern.CASE_INSENSITIVE)
+/**
+ * Checks for (ELEMENT) match
+ */
+private val TARGET_ELEMENT = "[a-z]{3,5}\\(ELEMENT\\)".toPattern(Pattern.CASE_INSENSITIVE)
 /**
  * Gets the where expression
  * Group 1: target
@@ -72,6 +77,18 @@ internal fun String.toQuery(): Query {
 
     query = methodMatcher.group(3).trim()
 
+    val addAllKeys: (String) -> Unit = { extras ->
+        if (TARGET_ELEMENT.matcher(extras).matches()) {
+            targetKeys.add(ELEMENT)
+        } else {
+            val keyMatchers = TARGET_KEYS.matcher(extras)
+            while (keyMatchers.find()) {
+                val key = keyMatchers.group(1)
+                targetKeys.add(key)
+            }
+        }
+    }
+
     val targetMatcher = TARGET.matcher(query)
     if (targetMatcher.matches()) {
         target = targetMatcher.group(2)
@@ -81,13 +98,21 @@ internal fun String.toQuery(): Query {
                 targetExtra = Query.TargetExtra.KEY
             } else if (extras == "VALUES") {
                 targetExtra = Query.TargetExtra.VALUES
+            } else if (extras.startsWith("MAX")) {
+                targetExtra = Query.TargetExtra.MAX
+                addAllKeys(extras)
+            } else if (extras.startsWith("MIN")) {
+                targetExtra = Query.TargetExtra.MIN
+                addAllKeys(extras)
+            } else if (extras.startsWith("COUNT")) {
+                targetExtra = Query.TargetExtra.COUNT
+                addAllKeys(extras)
+            } else if (extras.startsWith("SUM")) {
+                targetExtra = Query.TargetExtra.SUM
+                addAllKeys(extras)
             } else {
                 targetExtra = Query.TargetExtra.SPECIFIC
-                val keyMatchers = TARGET_KEYS.matcher(extras)
-                while (keyMatchers.find()) {
-                    val key = keyMatchers.group(1)
-                    targetKeys.add(key)
-                }
+                addAllKeys(extras)
             }
         } else {
             targetExtra = null
