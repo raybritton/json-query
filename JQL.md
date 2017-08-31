@@ -8,7 +8,7 @@ JQL is designed to be used to query json so that values, objects or arrays can b
 SELECT | DESCRIBE
     [DISTINCT]
     [[KEYS|VALUES|column|columns] FROM]
-    JSON PATH
+    jsonPath
     [WHERE column operator value]
     [LIMIT value]
     [OFFSET value]
@@ -31,7 +31,7 @@ SELECT | DESCRIBE
     * column should be written as `"id"`
     * columns should be written as `("id", "name")`
     * All of these be followed by `FROM`
-* JSON PATH
+* jsonPath
     * Parts of the json can be specified using a path
     * Each segment should be separated by a `.` (Fullstop/Period)
     * Any name containing `.`, `"` and `[` must be escaped using a back slash, for example `\.`
