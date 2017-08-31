@@ -30,7 +30,7 @@ SELECT | DESCRIBE
     * `MIN(ELEMENT|column)`
     * `COUNT(ELEMENT|column)`
     * `SUM(ELEMENT|column)`
-* KEYS | VALUES | column | columns
+* KEYS | VALUES | column | columns | mathExpr
     * `KEYS` only returns the keys from an object
     * `VALUES` only returns the values from an object
     * column should be written as `"id"`

@@ -9,17 +9,21 @@
 * DISTINCT
 
 ##### TARGET:
-* '.'
-* '.items'
-* '.items.id'
-* '.items[0]'
-* '.items[0].inner.title'
+* "."
+* ".items"
+* ".items.id"
+* ".items[0]"
+* ".items[0].inner.title"
 
 ##### TARGET_MODIFIER:
 * KEYS FROM
 * VALUES FROM
 * ("id", "title") FROM
 * "id" FROM
+* MAX("value") FROM
+* MIN(ELEMENT) FROM
+* COUNT("id") FROM
+* SUM("age") FROM
 
 ##### WHERE_EXPR:
 `WHERE target OPERATOR value`
