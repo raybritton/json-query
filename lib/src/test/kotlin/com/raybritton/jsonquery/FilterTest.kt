@@ -44,4 +44,22 @@ class FilterTest {
         assertEquals("result 1", "ARRAY(NUMBER[9])", result1)
         assertEquals("result 2", "ARRAY(STRING[3])", result2)
     }
+
+    @Test
+    fun testSelectKeysAndValues() {
+        //Given json object
+        val json = """{"a":1, "b": 2, "d": 4}"""
+
+        //When queried for keys and values separately
+        val query1 = "SELECT KEYS FROM \".\""
+        val query2 = "SELECT VALUES FROM \".\""
+        val jsonQuery = JsonQuery()
+        jsonQuery.loadJson(json)
+        val result1 = jsonQuery.query(query1)
+        val result2 = jsonQuery.query(query2)
+
+        //Then check the results are as expected
+        assertEquals("result 1", "[a, b, d]", result1)
+        assertEquals("result 2", "[1.0, 2.0, 4.0]", result2)
+    }
 }
