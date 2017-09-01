@@ -66,10 +66,13 @@ SELECT | DESCRIBE
     * value must be a positive integer
 * WITH KEYS
     * By default only the values are returned, this caused the key to be returned as well
+    * This only works with SELECT
 * AS JSON
     * This will return the filtered data in the JSON format
+    * This only works with SELECT
 * PRETTY
-    *  By default the JSON (from AS JSON) is returned on a single line, this causes it to be pretty printed
+    * By default the JSON (from AS JSON) is returned on a single line, this causes it to be pretty printed
+    * This also works with DESCRIBE
 * ORDER BY
     * column should be written as `"id"`
         * To refer to list element use `ELEMENT`

@@ -21,15 +21,17 @@ internal fun Any?.describe(): String {
 
 internal fun LinkedTreeMap<*, *>.describe(): String {
     val builder = StringBuilder("OBJECT(")
-    for (value in values) {
-        builder.append(value.describe())
-        builder.append(", ")
-    }
-    builder.setLength(builder.length - 2)
+    values.toList().describe(builder)
     return builder.append(")").toString()
 }
 
 internal fun ArrayList<*>.describe(): String {
+    val builder = StringBuilder("ARRAY(")
+    describe(builder)
+    return builder.append(")").toString()
+}
+
+private fun List<*>.describe(builder: StringBuilder) {
     val map = mutableMapOf<String, Int>()
     for (i in 0 until size) {
         val desc = this[i].describe()
@@ -39,7 +41,6 @@ internal fun ArrayList<*>.describe(): String {
             map[desc] = 1
         }
     }
-    val builder = StringBuilder("ARRAY(")
     for ((key, value) in map) {
         if (value > 1) {
             builder.append(key)
@@ -54,5 +55,4 @@ internal fun ArrayList<*>.describe(): String {
     if (map.isNotEmpty()) {
         builder.setLength(builder.length - 2)
     }
-    return builder.append(")").toString()
 }

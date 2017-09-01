@@ -77,13 +77,13 @@ class IntegrationTest {
         val output7 = jsonQuery.query("DESCRIBE \".data\" WHERE \"name\" == \"Person E\" ")
 
         //Then check results
-        assertEquals("output 1", "OBJECT(STRING, NUMBER, NUMBER, ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING))[3], OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING))[2]))", output1)
+        assertEquals("output 1", "OBJECT(STRING, NUMBER[2], ARRAY(OBJECT(NUMBER[2], STRING, OBJECT(STRING[2]))[3], OBJECT(NUMBER[2], STRING, OBJECT(STRING))[2]))", output1)
         assertEquals("output 2", "STRING", output2)
-        assertEquals("output 3", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING))[3], OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING))[2])", output3)
-        assertEquals("output 4", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING)), OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)))", output4)
-        assertEquals("output 5", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING)))", output5)
-        assertEquals("output 6", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING, STRING))[2], OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING))[2])", output6)
-        assertEquals("output 7", "ARRAY(OBJECT(NUMBER, STRING, NUMBER, OBJECT(STRING)))", output7)
+        assertEquals("output 3", "ARRAY(OBJECT(NUMBER[2], STRING, OBJECT(STRING[2]))[3], OBJECT(NUMBER[2], STRING, OBJECT(STRING))[2])", output3)
+        assertEquals("output 4", "ARRAY(OBJECT(NUMBER[2], STRING, OBJECT(STRING[2])), OBJECT(NUMBER[2], STRING, OBJECT(STRING)))", output4)
+        assertEquals("output 5", "ARRAY(OBJECT(NUMBER[2], STRING, OBJECT(STRING[2])))", output5)
+        assertEquals("output 6", "ARRAY(OBJECT(NUMBER[2], STRING, OBJECT(STRING[2]))[2], OBJECT(NUMBER[2], STRING, OBJECT(STRING))[2])", output6)
+        assertEquals("output 7", "ARRAY(OBJECT(NUMBER[2], STRING, OBJECT(STRING)))", output7)
     }
 
     @Test

@@ -29,8 +29,8 @@ class DescribersTest {
 
         //Then check description is accurate
         assertEquals("json1", "OBJECT(STRING)", result1)
-        assertEquals("json2", "OBJECT(STRING, STRING)", result2)
-        assertEquals("json3", "OBJECT(BOOLEAN, NUMBER, NUMBER)", result3)
+        assertEquals("json2", "OBJECT(STRING[2])", result2)
+        assertEquals("json3", "OBJECT(BOOLEAN, NUMBER[2])", result3)
         assertEquals("json4", "ARRAY(STRING[3])", result4)
         assertEquals("json5", "ARRAY(STRING, BOOLEAN, NUMBER)", result5)
     }
@@ -88,8 +88,8 @@ class DescribersTest {
         val result3 = gson.fromJson<Any>(json3, Any::class.java).describe()
 
         //Then check description is accurate
-        assertEquals("json1", "OBJECT(OBJECT(STRING, OBJECT(STRING, OBJECT(OBJECT(STRING, STRING, STRING, STRING, STRING, OBJECT(STRING, ARRAY(STRING[2])), STRING)))))", result1)
-        assertEquals("json2", "OBJECT(OBJECT(STRING, OBJECT(STRING, STRING, NUMBER, NUMBER), OBJECT(STRING, STRING, NUMBER, NUMBER, STRING), OBJECT(STRING, NUMBER, STRING, STRING, NUMBER, NUMBER, STRING, STRING)))", result2)
-        assertEquals("json3", "OBJECT(OBJECT(STRING, ARRAY(OBJECT(STRING)[6], OBJECT(STRING, STRING)[12], NULL[4])))", result3)
+        assertEquals("json1", "OBJECT(OBJECT(STRING, OBJECT(STRING, OBJECT(OBJECT(STRING[6], OBJECT(STRING, ARRAY(STRING[2])))))))", result1)
+        assertEquals("json2", "OBJECT(OBJECT(STRING, OBJECT(STRING[2], NUMBER[2]), OBJECT(STRING[3], NUMBER[2]), OBJECT(STRING[5], NUMBER[3])))", result2)
+        assertEquals("json3", "OBJECT(OBJECT(STRING, ARRAY(OBJECT(STRING)[6], OBJECT(STRING[2])[12], NULL[4])))", result3)
     }
 }
