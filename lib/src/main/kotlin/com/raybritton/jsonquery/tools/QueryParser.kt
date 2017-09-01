@@ -6,6 +6,14 @@ import java.util.Locale
 import java.util.regex.Pattern
 
 /**
+ * Method and target if searching
+ * Group 1: target
+ * Group 2: target modifier
+ * Group 3: target key
+ * Group 4: remaining
+ */
+private val SEARCH = "SEARCH\\s+\"((?:\\\\\"|[^\"])*)\"\\s+FOR\\s+(KEY|VALUE)\\s+\"((?:\\\\\"|[^\"])*)\"(.+)?".toPattern(Pattern.CASE_INSENSITIVE)
+/**
  * Gets the method
  * Group 1: Method
  * Group 2: Distinct
@@ -51,20 +59,92 @@ private val DESC = "DESC"
 
 internal fun String.toQuery(): Query {
     var query = this.trim()
+
+    val searchMatcher = SEARCH.matcher(query)
+    if (searchMatcher.matches()) {
+        query = searchMatcher.group(4) ?: ""
+        val whereRemaining = query.where()
+        query = whereRemaining.second
+
+        return Query(
+                method = Query.Method.SEARCH,
+                target = searchMatcher.group(1),
+                targetExtra = Query.TargetExtra.valueOf(searchMatcher.group(2)),
+                targetKeys = listOf(searchMatcher.group(3)),
+                asJson = query.contains(AS_JSON, true),
+                offset = query.offset(),
+                pretty = query.contains(PRETTY, true),
+                limit = query.limit(),
+                where = whereRemaining.first)
+    } else {
+        return selectOrDescribe(query)
+    }
+}
+
+private fun String.order(): String? {
+    val orderMatcher = ORDER_BY.matcher(this)
+    if (orderMatcher.matches()) {
+        return orderMatcher.group(1)
+    } else {
+        return null
+    }
+}
+
+private fun String.limit(): Int? {
+    val limitMatcher = LIMIT.matcher(this)
+    if (limitMatcher.matches()) {
+        return limitMatcher.group(1).toInt()
+    } else {
+        return null
+    }
+}
+
+private fun String.offset(): Int? {
+    val offsetMatcher = OFFSET.matcher(this)
+    if (offsetMatcher.matches()) {
+        return offsetMatcher.group(1).toInt()
+    } else {
+        return null
+    }
+}
+
+private fun String.where(): Pair<Query.Where?, String> {
+    val whereMatcher = WHERE.matcher(this)
+    if (whereMatcher.matches()) {
+        val compare = whereMatcher.group(3)
+        var boolCompare: Boolean? = null
+        var strCompare: String? = null
+        var numCompare: Double? = null
+        if (compare == null || compare.equals("NULL", true)) {
+            //nothing
+        } else if (compare[0] == '"') {
+            strCompare = compare.substring(1, compare.length - 1)
+        } else if (compare.equals("true", true) || compare.equals("false", true)) {
+            boolCompare = compare.toBoolean()
+        } else {
+            numCompare = compare.toDouble()
+        }
+        var field = whereMatcher.group(1)
+        if (field.startsWith("\"")) {
+            field = field.substring(1, field.length - 1)
+        }
+        val where = Query.Where(field,
+                Query.Where.getOperatorBySymbol(whereMatcher.group(2)),
+                strCompare ?: boolCompare ?: numCompare)
+        val remaining = whereMatcher.group(4)?.trim() ?: ""
+        return where to remaining
+    }
+    return null to this
+}
+
+private fun selectOrDescribe(query: String): Query {
+    var query = query.trim()
     val methodMatcher = METHOD.matcher(query)
     val method: Query.Method
     val target: String
     val targetExtra: Query.TargetExtra?
     val targetKeys = mutableListOf<String>()
-    var withKeys = false
-    var isJson = false
-    var pretty = false
     var distinct = false
-    var desc = false
-    var where: Query.Where? = null
-    var order: String? = null
-    var offset: Int? = null
-    var limit: Int? = null
 
     if (methodMatcher.matches()) {
         method = Query.Method.valueOf(methodMatcher.group(1).toUpperCase(Locale.US))
@@ -95,7 +175,7 @@ internal fun String.toQuery(): Query {
         if (targetMatcher.group(1) != null) {
             val extras = targetMatcher.group(1)
             if (extras == "KEYS") {
-                targetExtra = Query.TargetExtra.KEY
+                targetExtra = Query.TargetExtra.KEYS
             } else if (extras == "VALUES") {
                 targetExtra = Query.TargetExtra.VALUES
             } else if (extras.startsWith("MAX")) {
@@ -123,64 +203,22 @@ internal fun String.toQuery(): Query {
 
     query = targetMatcher.group(3)?.trim() ?: ""
 
-    val whereMatcher = WHERE.matcher(query)
-    if (whereMatcher.matches()) {
-        val compare = whereMatcher.group(3)
-        var boolCompare: Boolean? = null
-        var strCompare: String? = null
-        var numCompare: Double? = null
-        if (compare == null || compare.equals("NULL", true)) {
-            //nothing
-        } else if (compare[0] == '"') {
-            strCompare = compare.substring(1, compare.length - 1)
-        } else if (compare.equals("true", true) || compare.equals("false", true)) {
-            boolCompare = compare.toBoolean()
-        } else {
-            numCompare = compare.toDouble()
-        }
-        var field = whereMatcher.group(1)
-        if (field.startsWith("\"")) {
-            field = field.substring(1, field.length - 1)
-        }
-        where = Query.Where(field,
-                Query.Where.getOperatorBySymbol(whereMatcher.group(2)),
-                strCompare ?: boolCompare ?: numCompare)
-        query = whereMatcher.group(4)?.trim() ?: ""
-    }
+    val whereRemaining = query.where()
+    query = whereRemaining.second
 
-    val offsetMatcher = OFFSET.matcher(query)
-    if (offsetMatcher.matches()) {
-        offset = offsetMatcher.group(1).toInt()
-    }
-
-    val limitMatcher = LIMIT.matcher(query)
-    if (limitMatcher.matches()) {
-        limit = limitMatcher.group(1).toInt()
-    }
-
-    val orderMatcher = ORDER_BY.matcher(query)
-    if (orderMatcher.matches()) {
-        order = orderMatcher.group(1)
-    }
-
-    withKeys = query.contains(WITH_KEYS, true)
-    isJson = query.contains(AS_JSON, true)
-    pretty = query.contains(PRETTY, true)
-    desc = query.contains(DESC, true)
 
     return Query(
             method = method,
             target = target,
             targetExtra = targetExtra,
             targetKeys = targetKeys,
-            withKeys = withKeys,
-            asJson = isJson,
-            offset = offset,
-            pretty = pretty,
-            limit = limit,
-            where = where,
-            order = order,
-            desc = desc,
-            distinct = distinct
-    )
+            withKeys = query.contains(WITH_KEYS, true),
+            asJson = query.contains(AS_JSON, true),
+            offset = query.offset(),
+            pretty = query.contains(PRETTY, true),
+            limit = query.limit(),
+            where = whereRemaining.first,
+            order = query.order(),
+            desc = query.contains(DESC, true),
+            distinct = distinct)
 }

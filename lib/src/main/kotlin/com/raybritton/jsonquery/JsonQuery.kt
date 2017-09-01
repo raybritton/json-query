@@ -6,6 +6,7 @@ import com.raybritton.jsonquery.printer.describe
 import com.raybritton.jsonquery.tools.filter
 import com.raybritton.jsonquery.printer.list
 import com.raybritton.jsonquery.tools.navigate
+import com.raybritton.jsonquery.tools.search
 import com.raybritton.jsonquery.tools.toQuery
 
 class JsonQuery {
@@ -39,6 +40,7 @@ class JsonQuery {
                     return filtered.list(query)
                 }
             }
+            Query.Method.SEARCH -> { return filtered.search(query, query.target).joinToString("\n") }
         }
     }
 }

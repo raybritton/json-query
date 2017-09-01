@@ -21,7 +21,7 @@ internal fun Any?.filter(query: Query): Any {
 
 internal fun LinkedTreeMap<*, *>.filter(query: Query): Any {
     return when (query.targetExtra) {
-        Query.TargetExtra.KEY -> ArrayList(keys)
+        Query.TargetExtra.KEYS -> ArrayList(keys)
         Query.TargetExtra.VALUES -> ArrayList(values)
         Query.TargetExtra.SPECIFIC -> {
             val iterator = iterator()

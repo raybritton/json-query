@@ -18,6 +18,14 @@ SELECT | DESCRIBE
     [ORDER BY column [DESC]]
 </pre>
 
+<pre>
+SEARCH
+    jsonPath
+    FOR
+    KEY | VALUE
+    value
+</pre>
+
 #### Components
 
 * SELECT | DESCRIBE
@@ -138,3 +146,9 @@ Using:
 `DESCRIBE "."`
 
 `ARRAY(OBJECT(NUMBER, STRING)[4])`
+
+###### Search for anything with the value "Ned Turner"
+
+`SEARCH "." FOR VALUE "Ned Turner"`
+
+`.name: Ned Turner`

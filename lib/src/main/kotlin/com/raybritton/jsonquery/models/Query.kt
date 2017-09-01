@@ -14,11 +14,11 @@ internal data class Query(val method: Method,
                           val withKeys: Boolean = false,
                           val order: String? = null) {
     enum class Method {
-        DESCRIBE, SELECT
+        DESCRIBE, SELECT, SEARCH
     }
 
     enum class TargetExtra {
-        KEY, VALUES, SPECIFIC, MIN, MAX, COUNT, SUM
+        KEYS, VALUES, SPECIFIC, MIN, MAX, COUNT, SUM, VALUE, KEY
     }
 
     data class Where(val field: String,
