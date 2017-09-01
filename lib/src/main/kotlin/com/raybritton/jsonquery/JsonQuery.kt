@@ -31,7 +31,7 @@ class JsonQuery {
         val filtered = jsonObj.navigate(query.target).filter(query)
 
         when (query.method) {
-            Query.Method.DESCRIBE -> return filtered.describe()
+            Query.Method.DESCRIBE -> return filtered.describe(query)
             Query.Method.SELECT -> {
                 if (query.asJson) {
                     return gson.toJson(filtered)
