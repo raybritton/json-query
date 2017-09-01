@@ -28,17 +28,22 @@ class SearchersTest {
 
     @Test
     fun testArray() {
-        //Given simple array json
+        //Given simple array jsons
         val json1 = """["a","b","c"]"""
+        val json2 = """[1,2,3]"""
 
         //When s
-        val query = "SEARCH \".\" FOR VALUE \"b\""
+        val query1 = "SEARCH \".\" FOR VALUE \"b\""
+        val query2 = "SEARCH \".\" FOR VALUE \"2\""
         val jsonQuery = JsonQuery()
         jsonQuery.loadJson(json1)
-        val result = jsonQuery.query(query)
+        val result1 = jsonQuery.query(query1)
+        jsonQuery.loadJson(json2)
+        val result2 = jsonQuery.query(query2)
 
         //Then check results are correct (array notation)
-        assertEquals("result", ".[1]: b", result)
+        assertEquals("result 1", ".[1]: b", result1)
+        assertEquals("result 2", ".[1]: 2.0", result2)
     }
 
     @Test

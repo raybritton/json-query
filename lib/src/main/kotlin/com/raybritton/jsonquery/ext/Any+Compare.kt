@@ -24,3 +24,23 @@ internal fun Any?.compareTo(query: Query, rhs: Any?): Int {
     }
     return 0
 }
+
+internal fun Any?.isSameValueAs(rhs: Any?): Boolean {
+    if (this == null && rhs != null) {
+        return false
+    }
+    if (this != null && rhs == null) {
+        return false
+    }
+    if (this is Number && rhs is Number) {
+        return this.toDouble() == rhs.toDouble()
+
+    } else if (this is String && rhs is String) {
+        return this.equals(rhs, true)
+    } else if (this is String && rhs is Number) {
+        return this.toDoubleOrNull() ?: 0.0 == rhs.toDouble()
+    } else if (this is Number && rhs is String) {
+        return this.toDouble() == rhs.toDoubleOrNull() ?: 0.0
+    }
+    return false
+}

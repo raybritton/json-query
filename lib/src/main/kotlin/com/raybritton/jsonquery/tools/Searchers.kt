@@ -1,6 +1,8 @@
 package com.raybritton.jsonquery.tools
 
 import com.google.gson.internal.LinkedTreeMap
+import com.raybritton.jsonquery.ext.compareTo
+import com.raybritton.jsonquery.ext.isSameValueAs
 import com.raybritton.jsonquery.ext.isValue
 import com.raybritton.jsonquery.models.Query
 
@@ -19,12 +21,12 @@ internal fun LinkedTreeMap<*, *>.search(query: Query, path: String): List<String
         val value = get(key)
         when (query.targetExtra) {
             Query.TargetExtra.KEY -> {
-                if ((key as String).equals(query.targetKeys[0], true)) {
+                if (key.isSameValueAs(query.targetKeys[0])) {
                     output.add("$prefix.$key: ${get(key)}")
                 }
             }
             Query.TargetExtra.VALUE -> {
-                if (value.isValue() && (value as String).equals(query.targetKeys[0], true)) {
+                if (value.isValue() && value.isSameValueAs(query.targetKeys[0])) {
                     output.add("$prefix.$key: $value")
                 }
             }
@@ -44,7 +46,7 @@ internal fun ArrayList<*>.search(query: Query, path: String = ""): List<String> 
         when (query.targetExtra) {
             Query.TargetExtra.KEY -> { }
             Query.TargetExtra.VALUE -> {
-                if (value.isValue() && (value as String).equals(query.targetKeys[0], true)) {
+                if (value.isValue() && value.isSameValueAs(query.targetKeys[0])) {
                     output.add("$prefix.[$i]: $value")
                 }
             }
