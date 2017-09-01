@@ -206,7 +206,6 @@ private fun selectOrDescribe(query: String): Query {
     val whereRemaining = query.where()
     query = whereRemaining.second
 
-
     return Query(
             method = method,
             target = target,
