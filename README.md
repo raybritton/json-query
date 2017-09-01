@@ -19,14 +19,14 @@ See [JQL](https://github.com/raybritton/json-query/blob/master/JQL.md) for more 
 * -q query
 * -i input file, json or url
 
-`java -jar jq-0.1.0.jar -i "example.json" -q "LIST \"id\" from \".people\""`
+`java -jar jq-0.9.0.jar -i "example.json" -q "LIST \"id\" from \".people\""`
 
 ## Download
 
 Add a Gradle dependency:
 
 ```groovy
-compile 'com.raybritton.jsonquery:lib:0.8.0'
+compile 'com.raybritton.jsonquery:lib:0.9.0'
 ```
 
 A CLI JAR is available from the [releases page](https://github.com/raybritton/json-query/releases)
