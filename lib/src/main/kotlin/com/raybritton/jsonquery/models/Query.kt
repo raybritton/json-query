@@ -1,18 +1,18 @@
 package com.raybritton.jsonquery.models
 
 data class Query(val method: Method,
-                          val target: String,
-                          val targetExtra: TargetExtra? = null,
-                          val targetKeys: List<String> = listOf(),
-                          val offset: Int? = null,
-                          val limit: Int? = null,
-                          val where: Where? = null,
-                          val asJson: Boolean = false,
-                          val desc: Boolean = false,
-                          val distinct: Boolean = false,
-                          val pretty: Boolean = false,
-                          val withKeys: Boolean = false,
-                          val order: String? = null) {
+                 val target: String,
+                 val targetExtra: TargetExtra? = null,
+                 val targetKeys: List<String> = listOf(),
+                 val offset: Int? = null,
+                 val limit: Int? = null,
+                 val where: Where? = null,
+                 val asJson: Boolean = false,
+                 val desc: Boolean = false,
+                 val distinct: Boolean = false,
+                 val pretty: Boolean = false,
+                 val withKeys: Boolean = false,
+                 val order: String? = null) {
     enum class Method {
         DESCRIBE, SELECT, SEARCH
     }
