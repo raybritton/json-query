@@ -57,7 +57,7 @@ private val AS_JSON = "AS JSON"
 private val PRETTY = "PRETTY"
 private val DESC = "DESC"
 
-internal fun String.toQuery(): Query {
+fun String.toQuery(): Query {
     var query = this.trim()
 
     val searchMatcher = SEARCH.matcher(query)

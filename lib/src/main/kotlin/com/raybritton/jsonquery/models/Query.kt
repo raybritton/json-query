@@ -1,6 +1,6 @@
 package com.raybritton.jsonquery.models
 
-internal data class Query(val method: Method,
+data class Query(val method: Method,
                           val target: String,
                           val targetExtra: TargetExtra? = null,
                           val targetKeys: List<String> = listOf(),

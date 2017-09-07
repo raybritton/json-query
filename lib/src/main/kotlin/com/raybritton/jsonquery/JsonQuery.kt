@@ -19,6 +19,10 @@ class JsonQuery {
 
     fun query(queryStr: String): String {
         val query = queryStr.toQuery()
+       return query(query)
+    }
+
+    fun query(query: Query): String {
         val gson = gsonBuilderProvider().let {
             if (query.pretty) {
                 it.setPrettyPrinting()
