@@ -12,7 +12,7 @@ import java.util.regex.Pattern
  * Group 3: target key
  * Group 4: remaining
  */
-private val SEARCH = "SEARCH\\s+\"((?:\\\\\"|[^\"])*)\"\\s+FOR\\s+(KEY|VALUE)\\s+\"((?:\\\\\"|[^\"])*)\"(.+)?".toPattern(Pattern.CASE_INSENSITIVE)
+private val SEARCH = "SEARCH\\s+\"((?:\\\\\"|[^\"])*)\"\\s+FOR\\s+(KEY|VALUE)\\s+(NULL|-?\\d+(?:\\.)?e?(?:\\d+)?|\"(?:\\\\\"|[^\"])*\")(.+)?".toPattern(Pattern.CASE_INSENSITIVE)
 /**
  * Gets the method
  * Group 1: Method
@@ -26,7 +26,7 @@ private val METHOD = "(DESCRIBE|SELECT)(?:\\s+(DISTINCT)\\s+)?(.*)".toPattern(Pa
  * Group 2: Target
  * Group 3: Remaining
  */
-private val TARGET = "(?:((?:KEYS|VALUES|MAX\\((?:ELEMENT|\".+\")\\)|MIN\\((?:ELEMENT|\".+\")\\)|COUNT\\((?:ELEMENT|\".+\")\\)|SUM\\((?:ELEMENT|\".+\")\\)|(?:\\(.+\\)|\".+\")))\\s+FROM\\s+)?\"((?:\\\\\"|[^\"])*)\"(.*)".toPattern(Pattern.CASE_INSENSITIVE)
+private val TARGET = "(?:((?:KEYS|VALUES|MAX\\((?:ELEMENT|\"(?:\\\\\"|[^\"])*\")\\)|MIN\\((?:ELEMENT|\"(?:\\\\\"|[^\"])*\")\\)|COUNT\\((?:ELEMENT|\"(?:\\\\\"|[^\"])*\")\\)|SUM\\((?:ELEMENT|\"(?:\\\\\"|[^\"])*\")\\)|(?:\\(.+\\)|\".+\")))\\s+FROM\\s+)?\"((?:\\\\\"|[^\"])*)\"(.*)".toPattern(Pattern.CASE_INSENSITIVE)
 /**
  * Gets the keys from the keys in TARGET
  * Call find() repeatedly on group 1 from TARGET
@@ -43,7 +43,7 @@ private val TARGET_ELEMENT = "[a-z]{3,5}\\(ELEMENT\\)".toPattern(Pattern.CASE_IN
  * Group 3: compare
  * Group 4: remaining
  */
-private val WHERE = "WHERE\\s+(\"(?:\\\\\"|[^\"])*\"|ELEMENT)\\s+([<>!=#]+)\\s+(NULL|-?\\d+(?:\\.)?e?(?:\\d+)?|\".+\")(.*)".toPattern(Pattern.CASE_INSENSITIVE)
+private val WHERE = "WHERE\\s+(\"(?:\\\\\"|[^\"])*\"|ELEMENT)\\s+([<>!=#]+)\\s+(NULL|-?\\d+(?:\\.)?e?(?:\\d+)?|\"(?:\\\\\"|[^\"])*\")(.*)".toPattern(Pattern.CASE_INSENSITIVE)
 private val OFFSET = ".*OFFSET (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets skip count
 private val LIMIT = ".*LIMIT (\\d+).*".toPattern(Pattern.CASE_INSENSITIVE) //Gets limit count
 /**
@@ -66,11 +66,18 @@ fun String.toQuery(): Query {
         val whereRemaining = query.where()
         query = whereRemaining.second
 
+        var searchValue = searchMatcher.group(3)
+        if (searchValue.equals("null", true)) {
+            searchValue = null
+        } else {
+            searchValue = searchValue.removeSurrounding("\"")
+        }
+
         return Query(
                 method = Query.Method.SEARCH,
                 target = searchMatcher.group(1),
                 targetExtra = Query.TargetExtra.valueOf(searchMatcher.group(2)),
-                targetKeys = listOf(searchMatcher.group(3)),
+                targetKeys = listOf(searchValue),
                 asJson = query.contains(AS_JSON, true),
                 offset = query.offset(),
                 pretty = query.contains(PRETTY, true),
@@ -84,7 +91,7 @@ fun String.toQuery(): Query {
 private fun String.order(): String? {
     val orderMatcher = ORDER_BY.matcher(this)
     if (orderMatcher.matches()) {
-        return orderMatcher.group(1)
+        return orderMatcher.group(1).removeSurrounding("\"")
     } else {
         return null
     }
@@ -115,7 +122,7 @@ private fun String.where(): Pair<Query.Where?, String> {
         var boolCompare: Boolean? = null
         var strCompare: String? = null
         var numCompare: Double? = null
-        if (compare == null || compare.equals("NULL", true)) {
+        if (compare.equals("NULL", true)) {
             //nothing
         } else if (compare[0] == '"') {
             strCompare = compare.substring(1, compare.length - 1)

@@ -19,7 +19,7 @@ class JsonQuery {
 
     fun query(queryStr: String): String {
         val query = queryStr.toQuery()
-       return query(query)
+        return query(query)
     }
 
     fun query(query: Query): String {

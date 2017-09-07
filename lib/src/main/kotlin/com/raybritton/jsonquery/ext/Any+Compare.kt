@@ -32,6 +32,9 @@ internal fun Any?.isSameValueAs(rhs: Any?): Boolean {
     if (this != null && rhs == null) {
         return false
     }
+    if (this === rhs) { //this should only be true for nulls
+        return true
+    }
     if (this is Number && rhs is Number) {
         return this.toDouble() == rhs.toDouble()
 

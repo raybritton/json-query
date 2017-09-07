@@ -81,6 +81,8 @@ class QueryParserTest {
         val queryStmt5 = "SELECT \".items.id\""
         val queryStmt6 = "SELECT \"id\" FROM \".items\""
         val queryStmt7 = "SELECT (\"id\", \"title\") FROM \".items\""
+        val queryStmt8 = "SELECT (\"id\", \"title\") FROM \".items\" WHERE \"wf\" > \"wv\" ORDER BY \"ob\""
+        val queryStmt9 = "SEARCH \".id\" FOR KEY \"items\""
 
         //When processed
         val query1 = queryStmt1.toQuery()
@@ -90,6 +92,8 @@ class QueryParserTest {
         val query5 = queryStmt5.toQuery()
         val query6 = queryStmt6.toQuery()
         val query7 = queryStmt7.toQuery()
+        val query8 = queryStmt8.toQuery()
+        val query9 = queryStmt9.toQuery()
 
         //Then check it matches
         assertEquals("query1 method", Query.Method.DESCRIBE, query1.method)
@@ -164,6 +168,31 @@ class QueryParserTest {
         assertEquals("query7 skip", null, query7.offset)
         assertEquals("query7 limit", null, query7.limit)
         assertEquals("query7 where", null, query7.where)
+
+        assertEquals("query8 method", Query.Method.SELECT, query8.method)
+        assertEquals("query8 target", ".items", query8.target)
+        assertEquals("query8 target extras", Query.TargetExtra.SPECIFIC, query8.targetExtra)
+        assertEquals("query8 target keys size", 2, query8.targetKeys.size)
+        assertEquals("query8 target key 1", "id", query8.targetKeys[0])
+        assertEquals("query8 target key 2", "title", query8.targetKeys[1])
+        assertEquals("query8 isjson", false, query8.asJson)
+        assertEquals("query8 withKeys", false, query8.withKeys)
+        assertEquals("query8 skip", null, query8.offset)
+        assertEquals("query8 limit", null, query8.limit)
+        assertEquals("query8 where", Query.Where("wf", Query.Where.Operator.GREATER_THAN, "wv"), query8.where)
+        assertEquals("query8 orderby", "ob", query8.order)
+        assertEquals("query8 orderby desc", false, query8.desc)
+
+        assertEquals("query9 method", Query.Method.SEARCH, query9.method)
+        assertEquals("query9 target", ".id", query9.target)
+        assertEquals("query9 target extras", Query.TargetExtra.KEY, query9.targetExtra)
+        assertEquals("query9 target keys size", 1, query9.targetKeys.size)
+        assertEquals("query9 target key", "items", query9.targetKeys[0])
+        assertEquals("query9 isjson", false, query9.asJson)
+        assertEquals("query9 withKeys", false, query9.withKeys)
+        assertEquals("query9 skip", null, query9.offset)
+        assertEquals("query9 limit", null, query9.limit)
+        assertEquals("query9 where", null, query9.where)
     }
 
     @Test
@@ -236,8 +265,8 @@ class QueryParserTest {
         assertEquals("target extras", Query.TargetExtra.VALUES, result.targetExtra)
         assertEquals("target keys size", 0, result.targetKeys.size)
         assertEquals("where field", "title", result.where!!.field)
-        assertEquals("where operator", Query.Where.Operator.EQUAL, result.where.operator)
-        assertEquals("where compare", "Hello", result.where.compare)
+        assertEquals("where operator", Query.Where.Operator.EQUAL, result.where!!.operator)
+        assertEquals("where compare", "Hello", result.where!!.compare)
         assertEquals("skip count", 1, result.offset)
         assertEquals("limit count", 10, result.limit)
         assertEquals("as json", true, result.asJson)
@@ -267,20 +296,20 @@ class QueryParserTest {
 
         //Then check they're correct
         assertEquals("n1q field", "id", number_1_query.where!!.field)
-        assertEquals("n1q operator", Query.Where.Operator.GREATER_THAN, number_1_query.where.operator)
-        assertEquals("n1q compare", 0.0, number_1_query.where.compare)
+        assertEquals("n1q operator", Query.Where.Operator.GREATER_THAN, number_1_query.where!!.operator)
+        assertEquals("n1q compare", 0.0, number_1_query.where!!.compare)
 
         assertEquals("n2q field", "id", number_2_query.where!!.field)
-        assertEquals("n2q operator", Query.Where.Operator.LESS_THAN, number_2_query.where.operator)
-        assertEquals("n2q compare", 10.0, number_2_query.where.compare)
+        assertEquals("n2q operator", Query.Where.Operator.LESS_THAN, number_2_query.where!!.operator)
+        assertEquals("n2q compare", 10.0, number_2_query.where!!.compare)
 
         assertEquals("n3q field", "id", number_3_query.where!!.field)
-        assertEquals("n3q operator", Query.Where.Operator.NOT_EQUAL, number_3_query.where.operator)
-        assertEquals("n3q compare", -10.0, number_3_query.where.compare)
+        assertEquals("n3q operator", Query.Where.Operator.NOT_EQUAL, number_3_query.where!!.operator)
+        assertEquals("n3q compare", -10.0, number_3_query.where!!.compare)
 
         assertEquals("n4q field", "id", number_4_query.where!!.field)
-        assertEquals("n4q operator", Query.Where.Operator.EQUAL, number_4_query.where.operator)
-        assertEquals("n4q compare", 1000000.0, number_4_query.where.compare)
+        assertEquals("n4q operator", Query.Where.Operator.EQUAL, number_4_query.where!!.operator)
+        assertEquals("n4q compare", 1000000.0, number_4_query.where!!.compare)
 
         assertEquals("n1 result", "ARRAY(OBJECT(NUMBER, STRING)[3], OBJECT(NUMBER, NULL), OBJECT(NUMBER, OBJECT(OBJECT(NUMBER, ARRAY(STRING[6])))))", number_1_result)
         assertEquals("n2 result", "ARRAY(OBJECT(NUMBER, STRING)[4], OBJECT(NUMBER, NULL), OBJECT(NUMBER, OBJECT(OBJECT(NUMBER, ARRAY(STRING[6])))))", number_2_result)
@@ -305,12 +334,12 @@ class QueryParserTest {
 
         //Then check they're correct
         assertEquals("s1q field", "title", string_1_query.where!!.field)
-        assertEquals("s1q operator", Query.Where.Operator.CONTAINS, string_1_query.where.operator)
-        assertEquals("s1q compare", "example", string_1_query.where.compare)
+        assertEquals("s1q operator", Query.Where.Operator.CONTAINS, string_1_query.where!!.operator)
+        assertEquals("s1q compare", "example", string_1_query.where!!.compare)
 
         assertEquals("s2q field", "title", string_2_query.where!!.field)
-        assertEquals("s2q operator", Query.Where.Operator.NOT_CONTAINS, string_2_query.where.operator)
-        assertEquals("s2q compare", "example", string_2_query.where.compare)
+        assertEquals("s2q operator", Query.Where.Operator.NOT_CONTAINS, string_2_query.where!!.operator)
+        assertEquals("s2q compare", "example", string_2_query.where!!.compare)
 
         assertEquals("s1 result", "ARRAY(OBJECT(NUMBER, STRING)[2])", string_1_result)
         assertEquals("s2 result", "ARRAY(OBJECT(NUMBER, STRING)[2], OBJECT(NUMBER, NULL), OBJECT(NUMBER, OBJECT(OBJECT(NUMBER, ARRAY(STRING[6])))))", string_2_result)
@@ -333,12 +362,12 @@ class QueryParserTest {
 
         //Then check they're correct
         assertEquals("n1q field", "title", null_1_query.where!!.field)
-        assertEquals("n1q operator", Query.Where.Operator.EQUAL, null_1_query.where.operator)
-        assertEquals("n1q compare", null, null_1_query.where.compare)
+        assertEquals("n1q operator", Query.Where.Operator.EQUAL, null_1_query.where!!.operator)
+        assertEquals("n1q compare", null, null_1_query.where!!.compare)
 
         assertEquals("n2q field", "title", null_2_query.where!!.field)
-        assertEquals("n2q operator", Query.Where.Operator.NOT_EQUAL, null_2_query.where.operator)
-        assertEquals("n2q compare", null, null_2_query.where.compare)
+        assertEquals("n2q operator", Query.Where.Operator.NOT_EQUAL, null_2_query.where!!.operator)
+        assertEquals("n2q compare", null, null_2_query.where!!.compare)
 
         assertEquals("n1 result", "ARRAY(OBJECT(NUMBER, NULL), OBJECT(NUMBER, OBJECT(OBJECT(NUMBER, ARRAY(STRING[6])))))", null_1_result)
         assertEquals("n2 result", "ARRAY(OBJECT(NUMBER, STRING)[4])", null_2_result)
@@ -364,16 +393,16 @@ class QueryParserTest {
 
         //Then check they're correct
         assertEquals("fq field", "attr.history.pageCount", fields_query.where!!.field)
-        assertEquals("fq operator", Query.Where.Operator.GREATER_THAN, fields_query.where.operator)
-        assertEquals("fq compare", 0.0, fields_query.where.compare)
+        assertEquals("fq operator", Query.Where.Operator.GREATER_THAN, fields_query.where!!.operator)
+        assertEquals("fq compare", 0.0, fields_query.where!!.compare)
 
         assertEquals("eq field", ELEMENT, element_query.where!!.field)
-        assertEquals("eq operator", Query.Where.Operator.LESS_THAN, element_query.where.operator)
-        assertEquals("eq compare", 50.0, element_query.where.compare)
+        assertEquals("eq operator", Query.Where.Operator.LESS_THAN, element_query.where!!.operator)
+        assertEquals("eq compare", 50.0, element_query.where!!.compare)
 
         assertEquals("tq field", ELEMENT, target_query.where!!.field)
-        assertEquals("tq operator", Query.Where.Operator.GREATER_THAN, target_query.where.operator)
-        assertEquals("tq compare", 10.0, target_query.where.compare)
+        assertEquals("tq operator", Query.Where.Operator.GREATER_THAN, target_query.where!!.operator)
+        assertEquals("tq compare", 10.0, target_query.where!!.compare)
 
         assertEquals("f result", "ARRAY(OBJECT(NUMBER, OBJECT(OBJECT(NUMBER, ARRAY(STRING[6])))))", fields_result)
         assertEquals("e result", "ARRAY(NUMBER[4])", element_result)
