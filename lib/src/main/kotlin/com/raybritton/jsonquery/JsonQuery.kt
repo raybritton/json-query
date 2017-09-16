@@ -5,6 +5,7 @@ import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.printer.describe
 import com.raybritton.jsonquery.tools.filter
 import com.raybritton.jsonquery.printer.list
+import com.raybritton.jsonquery.tools.filterToKeys
 import com.raybritton.jsonquery.tools.navigate
 import com.raybritton.jsonquery.tools.search
 import com.raybritton.jsonquery.tools.toQuery
@@ -39,7 +40,7 @@ class JsonQuery {
             Query.Method.DESCRIBE -> return filtered.describe(query)
             Query.Method.SELECT -> {
                 if (query.asJson) {
-                    return gson.toJson(filtered)
+                    return gson.toJson(filtered.filterToKeys(query))
                 } else {
                     return filtered.list(query)
                 }
