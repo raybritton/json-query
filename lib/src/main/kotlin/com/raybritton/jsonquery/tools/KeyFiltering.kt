@@ -2,7 +2,6 @@ package com.raybritton.jsonquery.tools
 
 import com.google.gson.internal.LinkedTreeMap
 import com.raybritton.jsonquery.models.Query
-import com.sun.xml.internal.messaging.saaj.packaging.mime.util.QEncoderStream
 
 fun Any?.filterToKeys(query: Query): Any? {
     return when (this) {
