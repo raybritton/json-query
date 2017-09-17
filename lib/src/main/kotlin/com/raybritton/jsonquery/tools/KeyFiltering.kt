@@ -24,11 +24,13 @@ fun ArrayList<*>.filterToKeys(query: Query): Any? {
 }
 
 fun LinkedTreeMap<*, *>.filterToKeys(query: Query): Any? {
-    val iterator = iterator()
-    while (iterator.hasNext()) {
-        val key = iterator.next().key
-        if (!query.targetKeys.contains(key)) {
-            iterator.remove()
+    if (query.targetKeys.isNotEmpty()) {
+        val iterator = iterator()
+        while (iterator.hasNext()) {
+            val key = iterator.next().key
+            if (!query.targetKeys.contains(key)) {
+                iterator.remove()
+            }
         }
     }
     return this
