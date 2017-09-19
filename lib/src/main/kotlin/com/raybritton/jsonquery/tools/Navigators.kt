@@ -40,7 +40,7 @@ internal fun LinkedTreeMap<*, *>.navigate(path: String): Any? {
         }
         segment = segment.unescapeArrayNotation()
         if (get(segment) != null) {
-            if (path.count { it == '.' } > 1) { //continue navigating
+            if (path.count { it == '.' } > 0) { //continue navigating
                 return get(segment)!!.navigate(path.getRemainingPath())
             } else {
                 return get(segment)!! //end of journey
@@ -56,7 +56,11 @@ internal fun ArrayList<*>.navigate(path: String): Any? {
         val idx = matcher.group(2).toInt()
         return this[idx].navigate(path.getRemainingPath())
     } else {
-        throw IllegalStateException("Array index access required")
+        if (path.getRemainingPath().isEmpty()) {
+            return this
+        } else {
+            throw IllegalStateException("Array index access required")
+        }
     }
 }
 
