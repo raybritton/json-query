@@ -11,7 +11,7 @@ buildscript {
 }
 
 allprojects {
-    ext.jqVer = '0.12.2'
+    ext.jqVer = '0.12.3'
 
     repositories {
         jcenter()
