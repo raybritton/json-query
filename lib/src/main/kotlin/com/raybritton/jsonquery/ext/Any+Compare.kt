@@ -43,7 +43,10 @@ internal fun Any?.isSameValueAs(rhs: Any?): Boolean {
     } else if (this is String && rhs is Number) {
         return this.toDoubleOrNull() ?: 0.0 == rhs.toDouble()
     } else if (this is Number && rhs is String) {
-        return this.toDouble() == rhs.toDoubleOrNull() ?: 0.0
+        val converted = rhs.toDoubleOrNull()
+        if (converted != null) {
+            return this.toDouble() == converted
+        }
     }
     return false
 }
