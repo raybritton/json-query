@@ -119,12 +119,20 @@ private fun Any?.matches(where: Query.Where): Boolean {
             }
         }
         Query.Where.Operator.LESS_THAN -> {
-            if (this != null && (this as Double) < (where.compare as Double)) {
+            if (this is String) {
+                if (this < where.compare as String) {
+                    return true
+                }
+            } else if (this != null && (this as Double) < (where.compare as Double)) {
                 return true
             }
         }
         Query.Where.Operator.GREATER_THAN -> {
-            if (this != null && (this as Double) > (where.compare as Double)) {
+            if (this is String) {
+                if (this < where.compare as String) {
+                    return true
+                }
+            } else if (this != null && (this as Double) > (where.compare as Double)) {
                 return true
             }
         }
