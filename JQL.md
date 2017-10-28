@@ -4,6 +4,8 @@
 
 JQL is designed to be used to query json so that values, objects or arrays can be extracted based on filters and limits.
 
+Note: all numbers are output as decimals as JSON only has one number type: double.
+
 <pre>
 SELECT | DESCRIBE
     [DISTINCT]
@@ -115,19 +117,19 @@ Using:
 
 `SELECT "."`
 
-`[{0, John Smith}, {1, Emma Smith}, {2, Jane Clobber}, {3, Ned Turner}]`
+`[{0.0, John Smith}, {1.0, Emma Smith}, {2.0, Jane Clobber}, {3.0, Ned Turner}]`
 
 ###### Select all results with an id greater than 1
 
 `SELECT "." WHERE "id" > 1`
 
-`[{2, Jane Clobber}, {3, Ned Turner}]`
+`[{2.0, Jane Clobber}, {3.0, Ned Turner}]`
 
 ###### Select first result whose name contains "Jane"
 
 `SELECT "." WHERE "name" # "Jane"`
 
-`{2, Jane Clobber}`
+`{2.0, Jane Clobber}`
 
 ###### Select ids 
 
@@ -139,7 +141,7 @@ Using:
 
 `SELECT "name" FROM "." AS JSON LIMIT 1 ORDER BY "id" DESC`
 
-`["Ned Turner"]`
+`[{"name":"John Smith"}]`
 
 ###### Describe the data
 
@@ -151,4 +153,4 @@ Using:
 
 `SEARCH "." FOR VALUE "Ned Turner"`
 
-`.name: Ned Turner`
+`.[3].name: Ned Turner`
