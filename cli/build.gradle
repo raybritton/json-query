@@ -14,10 +14,10 @@ apply from: '../ktlint.gradle'
 task fatJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': 'JsonQuery CLI',
-                'Implementation-Version': '0.12.3',
+                'Implementation-Version': '0.12.4',
                 'Main-Class': mainClassName
     }
-    baseName = "jq-0.12.3"
+    baseName = "jq-0.12.4"
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
