@@ -59,7 +59,7 @@ class ListerTest {
         assertEquals("object", "{v1, v2}", objectResult)
         assertEquals("object keys", "{k1: v1, k2: v2}", objectKeysResult)
         assertEquals("object element", "v1", objectElementResult)
-        assertEquals("object element keys", "k1: v1", objectElementKeysResult)
+        assertEquals("object element keys", "{k1: v1}", objectElementKeysResult)
         assertEquals("object two element", "{v1, v2}", objectTwoElementResult)
         assertEquals("object two element keys", "{k1: v1, k2: v2}", objectTwoElementKeysResult)
     }

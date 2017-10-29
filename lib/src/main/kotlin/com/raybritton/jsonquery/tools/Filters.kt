@@ -32,7 +32,7 @@ internal fun LinkedTreeMap<*, *>.filter(query: Query): Any {
                 }
             }
             if (size == 1) {
-                return this[keys.first()]!!
+                return this
             } else {
                 this
             }

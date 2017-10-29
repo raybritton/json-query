@@ -128,9 +128,11 @@ class IntegrationTest {
 
         //When retrieving inner most value
         val output1 = jsonQuery.query("SELECT \"iKey\" FROM \".obj1.obj2\"")
+        val output2 = jsonQuery.query("SELECT \"iKey\" FROM \".obj1.obj2\" WITH KEYS")
 
         //Then check it was retrieved
-        assertEquals("result", "iVal", output1)
+        assertEquals("result1", "iVal", output1)
+        assertEquals("result2", "{iKey: iVal}", output2)
     }
 
     @Test

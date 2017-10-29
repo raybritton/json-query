@@ -6,9 +6,8 @@ import com.raybritton.jsonquery.tools.navigate
 import com.raybritton.jsonquery.utils.ELEMENT
 
 internal fun Any?.sort(query: Query): Any? {
-    if (this == null) {
-        return this
-    }
+    if (query.order == null) return this
+    if (this == null) return this
     return when (this) {
         is ArrayList<*> -> this.sort(query)
         is LinkedTreeMap<*, *> -> this.sort(query)

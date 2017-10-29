@@ -492,15 +492,21 @@ class JsonFileTest3 {
     @Test
     fun testSelectingAsJson() {
         //Given query to select anything as json
-        val query = """SELECT "updatedAt" FROM "." WHERE "questionId" == 6 ORDER BY "updatedAt" AS JSON"""
+        val query1 = """SELECT "updatedAt" FROM "." WHERE "questionId" == 6 ORDER BY "updatedAt" AS JSON"""
+        val query2 = """SELECT "updatedAt" FROM "." WHERE "questionId" == 6 ORDER BY "updatedAt""""
+        val query3 = """SELECT "updatedAt" FROM "." WHERE "questionId" == 6 ORDER BY "updatedAt" WITH KEYS"""
 
         //When processed
         val jsonQuery = JsonQuery()
         jsonQuery.loadJson(json)
-        val result = jsonQuery.query(query)
+        val result1 = jsonQuery.query(query1)
+        val result2 = jsonQuery.query(query2)
+        val result3 = jsonQuery.query(query3)
 
         //Then check only updatedAts where returned
-        assertEquals("result", """[{"updatedAt":"2017-09-11T10:00:22.000Z"}]""", result)
+        assertEquals("result1", """[{"updatedAt":"2017-09-11T10:00:22.000Z"}]""", result1)
+        assertEquals("result2", """2017-09-11T10:00:22.000Z""", result2)
+        assertEquals("result3", """updatedAt: 2017-09-11T10:00:22.000Z""", result3)
     }
 
     @Test

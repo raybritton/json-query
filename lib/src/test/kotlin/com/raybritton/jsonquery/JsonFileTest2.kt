@@ -46,7 +46,7 @@ class JsonFileTest2 {
         val result2 = jsonQuery.query(query2)
 
         //Then check [] are only shown for multiple results
-        assertEquals("result 1", result1, "{Mary, Smith}")
-        assertEquals("result 2", result2, "[{Sally, Green}, {Jim, Galley}]")
+        assertEquals("result 1", "{Mary, Smith}", result1)
+        assertEquals("result 2", "[{Sally, Green}, {Jim, Galley}]", result2)
     }
 }
