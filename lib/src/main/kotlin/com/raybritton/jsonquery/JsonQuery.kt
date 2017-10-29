@@ -1,6 +1,7 @@
 package com.raybritton.jsonquery
 
 import com.google.gson.GsonBuilder
+import com.raybritton.jsonquery.ext.sort
 import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.printer.describe
 import com.raybritton.jsonquery.tools.filter
@@ -40,7 +41,7 @@ class JsonQuery {
             Query.Method.DESCRIBE -> return filtered.describe(query)
             Query.Method.SELECT -> {
                 if (query.asJson) {
-                    return gson.toJson(filtered.filterToKeys(query))
+                    return gson.toJson(filtered.sort(query).filterToKeys(query))
                 } else {
                     return filtered.list(query)
                 }

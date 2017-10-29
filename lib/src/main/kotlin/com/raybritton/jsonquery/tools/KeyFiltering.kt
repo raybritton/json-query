@@ -3,6 +3,9 @@ package com.raybritton.jsonquery.tools
 import com.google.gson.internal.LinkedTreeMap
 import com.raybritton.jsonquery.models.Query
 
+/**
+ * Remove any element whose key is not in query.targetKeys
+ */
 fun Any?.filterToKeys(query: Query): Any? {
     return when (this) {
         is ArrayList<*> -> this.filterToKeys(query)

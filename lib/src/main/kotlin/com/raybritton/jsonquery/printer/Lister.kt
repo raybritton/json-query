@@ -2,6 +2,7 @@ package com.raybritton.jsonquery.printer
 
 import com.google.gson.internal.LinkedTreeMap
 import com.raybritton.jsonquery.ext.compareTo
+import com.raybritton.jsonquery.ext.sort
 import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.tools.navigate
 import com.raybritton.jsonquery.utils.ELEMENT
@@ -52,17 +53,7 @@ private fun LinkedTreeMap<*, *>.print(query: Query): String {
 }
 
 internal fun ArrayList<*>.list(query: Query): String {
-    if (query.order != null) {
-        if (query.order == ELEMENT) {
-            sortWith(Comparator<Any> { lhs, rhs ->
-                lhs.compareTo(query, rhs)
-            })
-        } else {
-            sortWith(Comparator<Any> { lhs, rhs ->
-                lhs.navigate(query.order).compareTo(query, rhs.navigate(query.order))
-            })
-        }
-    }
+    this.sort(query)
     val builder = StringBuilder(if (size > 1) "[" else "")
     for (element in this) {
         if (query.targetExtra == Query.TargetExtra.SPECIFIC) {
