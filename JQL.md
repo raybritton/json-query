@@ -7,7 +7,7 @@ JQL is designed to be used to query json so that values, objects or arrays can b
 Note: all numbers are output as decimals as JSON only has one number type: double.
 
 <pre>
-SELECT | DESCRIBE
+SELECT
     [DISTINCT]
     [[KEYS|VALUES|column|columns|mathExpr] FROM]
     jsonPath
@@ -18,6 +18,17 @@ SELECT | DESCRIBE
     [AS JSON]
     [PRETTY]
     [ORDER BY column [DESC]]
+</pre>
+
+<pre>
+DESCRIBE
+    [DISTINCT]
+    [[column|columns] FROM]
+    jsonPath
+    [WHERE column operator value]
+    [LIMIT value]
+    [OFFSET value]
+    [PRETTY]
 </pre>
 
 <pre>
