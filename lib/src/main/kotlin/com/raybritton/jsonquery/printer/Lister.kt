@@ -1,11 +1,9 @@
 package com.raybritton.jsonquery.printer
 
 import com.google.gson.internal.LinkedTreeMap
-import com.raybritton.jsonquery.ext.compareTo
 import com.raybritton.jsonquery.ext.sort
 import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.tools.navigate
-import com.raybritton.jsonquery.utils.ELEMENT
 
 internal fun Any?.list(query: Query): String {
     return when (this) {
