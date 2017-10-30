@@ -46,7 +46,9 @@ class JsonQuery {
                     return filtered.list(query)
                 }
             }
-            Query.Method.SEARCH -> { return filtered.search(query, query.target).joinToString("\n") }
+            Query.Method.SEARCH -> {
+                return filtered.search(query, query.target).joinToString("\n")
+            }
         }
     }
 }

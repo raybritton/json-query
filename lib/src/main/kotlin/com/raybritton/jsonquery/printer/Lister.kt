@@ -34,7 +34,7 @@ private fun Any?.print(query: Query, isRoot: Boolean = false): String {
 }
 
 private fun LinkedTreeMap<*, *>.print(query: Query, isRoot: Boolean = false): String {
-    val showMarkers = (size > 1) || !isRoot || query.withKeys
+    val showMarkers = (size != 1) || !isRoot || query.withKeys
     val builder = StringBuilder(if (showMarkers) "{" else "")
     for (key in keys) {
         if (query.withKeys) {
@@ -55,7 +55,7 @@ private fun LinkedTreeMap<*, *>.print(query: Query, isRoot: Boolean = false): St
 
 internal fun ArrayList<*>.list(query: Query, isRoot: Boolean = false): String {
     this.sort(query)
-    val showMarkers = (size > 1) || !isRoot
+    val showMarkers = (size != 1) || !isRoot
     val builder = StringBuilder(if (showMarkers) "[" else "")
     for (element in this) {
         if (query.targetExtra == Query.TargetExtra.SPECIFIC) {

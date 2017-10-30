@@ -27,6 +27,20 @@ class JsonFileTest6 {
         assertEquals("result2", """[{"id":"343abed-243dd-adecb-f344edf4f","name":"Example6","data":{"bits":[5.0,5.0,3.0,4.0,5.0],"code":"user"}},{"id":"343abed-243dd-adecb-f344edf4a","name":"Example1","data":{"bits":[1.0,2.0,3.0,4.0,5.0],"code":"json"}}]""", result2)
     }
 
+    @Test
+    fun testSelectingMissingElement() {
+        //Given query to select element from object in the list as json
+        val query = """SELECT "name" FROM "." WHERE "code" # "qu""""
+
+        //When processed
+        val jsonQuery = JsonQuery()
+        jsonQuery.loadJson(json)
+        val result = jsonQuery.query(query)
+
+        //Then only the globalids are returned (and not all elements)
+        assertEquals("result", """[]""", result)
+    }
+
     val json2 = """{"glossary":{"title":"example glossary","GlossDiv":{"title":"S","GlossList":{"GlossEntry":{"ID":"SGML","SortAs":"SGML","GlossTerm":"Standard Generalized Markup Language","Acronym":"SGML","Abbrev":"ISO 8879:1986","GlossDef":{"para":"A meta-markup language, used to create markup languages such as DocBook.","GlossSeeAlso":["GML","XML"]},"GlossSee":"markup"}}}}}"""
 
     @Test
