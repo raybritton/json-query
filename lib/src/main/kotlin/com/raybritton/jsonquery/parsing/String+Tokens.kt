@@ -16,6 +16,6 @@ fun String.tokenize(): List<String> {
     return tokens
 }
 
-fun Char.isSeparator(): Boolean {
+private fun Char.isSeparator(): Boolean {
     return isWhitespace() || this == '(' || this == ')'
 }
