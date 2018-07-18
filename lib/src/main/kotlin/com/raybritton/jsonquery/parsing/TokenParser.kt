@@ -1,15 +1,20 @@
 package com.raybritton.jsonquery.parsing
 
-fun String.parse(): MutableList<Token> {
+fun String.parse(): List<Token> {
     val reader = TokenReader(CharReader(this))
 
     val list = mutableListOf<Token>()
 
-    while (reader.peek() != null) {
+    val peeker = {
+//        reader.peek()
+        true
+    }
+
+    while (peeker() && reader.peek() != null) {
         list.add(reader.next()!!)
     }
 
-    return list
+    return list.filter { it.type != Token.Type.WHITESPACE }
 }
 
 private class TokenReader(private val charReader: CharReader) {
@@ -23,53 +28,70 @@ private class TokenReader(private val charReader: CharReader) {
 
     var current: Token? = null
 
-    fun isEof() = charReader.isEof()
-
     fun peek(): Token? {
         if (current == null) {
-            current = next()
+            current = read()
+            println("tr peek - setting current")
         }
+        println("tr peek - returning $current")
         return current
+    }
+
+    private fun read(): Token? {
+        parsers.forEach {
+            if (it.canParse(charReader)) {
+                val token = it.parse(charReader)
+                println("is ${it::class.java.simpleName}")
+                println("read - returning $token")
+                return token
+            }
+        }
+        println("read - nothing found")
+        return null
     }
 
     fun next(): Token? {
         val token = current
         if (token != null) {
+            println("tr next - returning current $token")
             current = null
             return token
         }
-        parsers.forEach {
-            if (it.canParse(charReader)) {
-                return it.parse(charReader)
-            }
-        }
-        return null
+        return read()
     }
 }
 
 private object WhitespaceParser : TokenParser {
     override fun canParse(charReader: CharReader) = charReader.peek()?.isWhitespace() ?: false
-    override fun parse(charReader: CharReader): Token? {
+    override fun parse(charReader: CharReader): Token {
         while (canParse(charReader)) {
             charReader.next()
         }
-        return null
+        return Token(Token.Type.WHITESPACE, "")
     }
 }
 
 private object NumberParser : TokenParser {
-    override fun canParse(charReader: CharReader) = charReader.peek()?.isDigit() ?: false || charReader.peek() == '.'
+    override fun canParse(charReader: CharReader) = charReader.peek()?.isDigit() ?: false
     override fun parse(charReader: CharReader): Token {
         var next = charReader.peek()
         val output = StringBuilder()
 
+        var hasDot = false
         while (next != null) {
-            next = if (canParse(charReader)) {
+            if (next == '.') {
+                if (hasDot) {
+                    return Token(Token.Type.NUMBER, output.toString())
+                } else {
+                    hasDot = true
+                    output.append(charReader.next()!!)
+                }
+            } else if (next.isDigit()){
                 output.append(charReader.next()!!)
-                charReader.next()
             } else {
-                null
+                return Token(Token.Type.NUMBER, output.toString())
             }
+            next = charReader.peek()
         }
 
         return Token(Token.Type.NUMBER, output.toString())
@@ -82,7 +104,6 @@ private object KeywordParser : TokenParser {
     override fun parse(charReader: CharReader): Token? {
         var next = charReader.peek()
         val output = StringBuilder()
-        output.append(next)
         while (next != null) {
             if (canParse(charReader)) {
                 output.append(charReader.next()!!)
@@ -120,7 +141,7 @@ private object StringParser : TokenParser {
 
 data class Token(val type: Type, val value: String) {
     enum class Type {
-        KEYWORD, STRING, NUMBER, OPERATOR
+        KEYWORD, STRING, NUMBER, OPERATOR, WHITESPACE
     }
 }
 
@@ -135,27 +156,48 @@ private class CharReader(string: String) {
 
     fun peek(): Char? {
         if (currentPos >= chars.size - 1) {
+            println("cr peek - out of range")
             return null
         }
+        println("cr peek - return ${quoteIfNotNull(chars[currentPos])}")
         return chars[currentPos]
     }
 
     fun extendedPeek(len: Int): String? {
         if (currentPos >= chars.size - (len + 1)) {
+            println("cr extended peek - out of range")
             return null
         }
+        println("cr extended peek - ${quoteIfNotNull(chars.sliceArray(0..len).joinToString(""))}")
         return chars.sliceArray(0..len).joinToString("")
     }
 
     fun next(): Char? {
         if (currentPos >= chars.size - 1) {
+            println("cr next - out of range")
             return null
         }
+        println("cr next - incrementing currentPos now ${currentPos + 1}")
+        val letter = chars[currentPos]
+        println("cr next - return ${quoteIfNotNull(letter)}")
         currentPos++
-        return chars[currentPos]
+        return letter
+    }
+
+    private fun quoteIfNotNull(str: Char?): String {
+        return quoteIfNotNull("" + str)
     }
 
     fun isEof(): Boolean {
+        println("cr eof checked: ${peek() == null}")
         return peek() == null
+    }
+}
+
+private fun quoteIfNotNull(str: String?): String {
+    return if (str == null) {
+        "null"
+    } else {
+        "'$str'"
     }
 }
