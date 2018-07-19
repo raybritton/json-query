@@ -1,16 +1,11 @@
 package com.raybritton.jsonquery.parsing
 
 fun String.parse(): List<Token> {
-    val reader = TokenReader(CharReader(this))
+    val reader = TokenReader(CharReader(this + " "))
 
     val list = mutableListOf<Token>()
 
-    val peeker = {
-//        reader.peek()
-        true
-    }
-
-    while (peeker() && reader.peek() != null) {
+    while (!reader.isEof() && reader.peek() != null) {
         list.add(reader.next()!!)
     }
 
@@ -23,8 +18,11 @@ private class TokenReader(private val charReader: CharReader) {
             WhitespaceParser,
             NumberParser,
             StringParser,
-            KeywordParser
+            KeywordParser,
+            PunctuationParser
     )
+
+    fun isEof() = charReader.isEof()
 
     var current: Token? = null
 
@@ -47,7 +45,7 @@ private class TokenReader(private val charReader: CharReader) {
             }
         }
         println("read - nothing found")
-        return null
+        throw IllegalStateException("Unable to parse '${charReader.peek()}' at ${charReader.currentPos}")
     }
 
     fun next(): Token? {
@@ -58,6 +56,36 @@ private class TokenReader(private val charReader: CharReader) {
             return token
         }
         return read()
+    }
+}
+
+private object PunctuationParser : TokenParser {
+    override fun canParse(charReader: CharReader) = "()[],=<>!#".contains(charReader.peek() ?: ' ')
+    override fun parse(charReader: CharReader): Token? {
+        val char = charReader.peek()
+        when (char) {
+            '(' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString())
+            ')' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString())
+            '[' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString())
+            ']' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString())
+            '<' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString())
+            '>' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString())
+            '#' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString())
+            '!' -> {
+                if (charReader.extendedPeek(2) == "!#") {
+                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}")
+                }
+                if (charReader.extendedPeek(2) == "!=") {
+                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}")
+                }
+            }
+            '=' -> {
+                if (charReader.extendedPeek(2) == "==") {
+                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}")
+                }
+            }
+        }
+        throw IllegalStateException("Invalid operator '$char' at ${charReader.currentPos}")
     }
 }
 
@@ -86,7 +114,7 @@ private object NumberParser : TokenParser {
                     hasDot = true
                     output.append(charReader.next()!!)
                 }
-            } else if (next.isDigit()){
+            } else if (next.isDigit()) {
                 output.append(charReader.next()!!)
             } else {
                 return Token(Token.Type.NUMBER, output.toString())
@@ -99,9 +127,11 @@ private object NumberParser : TokenParser {
 }
 
 private object KeywordParser : TokenParser {
+    private val KEYWORDS = listOf("SELECT", "DESCRIBE", "DISTINCT", "SUM", "KEYS", "VALUES", "SPECIFIC", "MIN", "MAX", "COUNT", "VALUE", "KEY", "LIMIT", "OFFSET", "WITH", "KEYS", "PRETTY", "AS", "JSON", "ORDER", "BY", "WHERE", "DESC", "FROM")
 
     override fun canParse(charReader: CharReader) = charReader.peek()?.isLetter() ?: false
     override fun parse(charReader: CharReader): Token? {
+        val startIdx = charReader.currentPos
         var next = charReader.peek()
         val output = StringBuilder()
         while (next != null) {
@@ -112,7 +142,11 @@ private object KeywordParser : TokenParser {
             }
         }
 
-        return Token(Token.Type.KEYWORD, output.toString())
+        if (KEYWORDS.contains(output.toString())) {
+            return Token(Token.Type.KEYWORD, output.toString())
+        } else {
+            throw IllegalStateException("Invalid token '$output' at $startIdx")
+        }
     }
 }
 
@@ -141,7 +175,7 @@ private object StringParser : TokenParser {
 
 data class Token(val type: Type, val value: String) {
     enum class Type {
-        KEYWORD, STRING, NUMBER, OPERATOR, WHITESPACE
+        KEYWORD, STRING, NUMBER, OPERATOR, WHITESPACE, PUNCTUATION
     }
 }
 
@@ -152,7 +186,8 @@ private interface TokenParser {
 
 private class CharReader(string: String) {
     private val chars = string.toCharArray()
-    private var currentPos = 0
+    var currentPos = 0
+        private set
 
     fun peek(): Char? {
         if (currentPos >= chars.size - 1) {

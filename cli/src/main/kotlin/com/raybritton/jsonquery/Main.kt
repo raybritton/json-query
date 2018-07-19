@@ -8,7 +8,9 @@ import com.raybritton.jsonquery.parsing.parse
  * -o string : output file (optional)
  */
 fun main(args: Array<String>) {
-    val tokens = "SELECT DISTINCT 1 23.2 'test' ".parse()
+//    val tokens = "   SELECT DISTINCT 1 23.2      'test' \"str\" 54.212 45.343  ".parse()
+//    val tokens = "SELECT \"name\" FROM \".\" AS JSON LIMIT 1 ORDER BY \"id\" DESC ".parse()
+    val tokens = "SELECT \"name\" FROM \".\" WHERE \"id\" > 1".parse()
     println(tokens)
 
 
