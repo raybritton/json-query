@@ -126,4 +126,22 @@ data class Query(val method: Method,
         append('"')
         if (brackets) append(")")
     }
+
+    class Builder {
+        var method: Method? = null
+        var target: String? = null
+        var targetExtra: TargetExtra? = null
+        var targetKeys: List<String> = listOf()
+        var offset: Int? = null
+        var limit: Int? = null
+        var where: Where? = null
+        var asJson: Boolean = false
+        var desc: Boolean = false
+        var distinct: Boolean = false
+        var pretty: Boolean = false
+        var withKeys: Boolean = false
+        var order: String? = null
+
+        fun build() = Query(method!!, target!!, targetExtra, targetKeys, offset, limit, where, asJson, desc, distinct, pretty, withKeys, order)
+    }
 }

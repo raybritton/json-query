@@ -1,6 +1,7 @@
 package com.raybritton.jsonquery.tools
 
-import com.google.gson.internal.LinkedTreeMap
+import com.raybritton.jsonquery.JsonArray
+import com.raybritton.jsonquery.JsonObject
 import com.raybritton.jsonquery.ext.isValue
 import com.raybritton.jsonquery.ext.max
 import com.raybritton.jsonquery.ext.min
@@ -13,13 +14,13 @@ internal fun Any?.filter(query: Query): Any {
         return "NULL"
     }
     return when (this) {
-        is LinkedTreeMap<*, *> -> this.filter(query)
-        is ArrayList<*> -> this.filter(query)
+        is JsonObject -> this.filter(query)
+        is JsonArray -> this.filter(query)
         else -> this
     }
 }
 
-internal fun LinkedTreeMap<*, *>.filter(query: Query): Any {
+internal fun JsonObject.filter(query: Query): Any {
     return when (query.targetExtra) {
         Query.TargetExtra.KEYS -> ArrayList(keys)
         Query.TargetExtra.VALUES -> ArrayList(values)
@@ -41,7 +42,7 @@ internal fun LinkedTreeMap<*, *>.filter(query: Query): Any {
     }
 }
 
-internal fun ArrayList<*>.getValues(query: Query): ArrayList<*> {
+internal fun JsonArray.getValues(query: Query): JsonArray {
     if (query.targetKeys[0] == ELEMENT) {
         return this
     } else {
@@ -50,7 +51,7 @@ internal fun ArrayList<*>.getValues(query: Query): ArrayList<*> {
     }
 }
 
-internal fun ArrayList<*>.filter(query: Query): Any {
+internal fun JsonArray.filter(query: Query): Any {
     var list = where(query)
     list = list.skip(query).limit(query)
     if (query.distinct) {
@@ -65,7 +66,7 @@ internal fun ArrayList<*>.filter(query: Query): Any {
     }
 }
 
-private fun ArrayList<*>.where(query: Query): ArrayList<*> {
+private fun JsonArray.where(query: Query): JsonArray {
     if (query.where != null) {
         val result = mutableListOf<Any>()
         if (query.where.field == ELEMENT) {
@@ -88,7 +89,7 @@ private fun ArrayList<*>.where(query: Query): ArrayList<*> {
     }
 }
 
-private fun ArrayList<*>.skip(query: Query): ArrayList<*> {
+private fun JsonArray.skip(query: Query): JsonArray {
     if (query.offset == null) {
         return this
     } else {
@@ -97,7 +98,7 @@ private fun ArrayList<*>.skip(query: Query): ArrayList<*> {
     }
 }
 
-private fun ArrayList<*>.limit(query: Query): ArrayList<*> {
+private fun JsonArray.limit(query: Query): JsonArray {
     if (query.limit == null) {
         return this
     } else {

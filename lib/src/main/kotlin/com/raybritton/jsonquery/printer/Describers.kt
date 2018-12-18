@@ -1,6 +1,7 @@
 package com.raybritton.jsonquery.printer
 
-import com.google.gson.internal.LinkedTreeMap
+import com.raybritton.jsonquery.JsonArray
+import com.raybritton.jsonquery.JsonObject
 import com.raybritton.jsonquery.ext.isValue
 import com.raybritton.jsonquery.models.Query
 
@@ -17,19 +18,19 @@ internal fun Any?.describe(query: Query, tabCount: Int = 0): String {
         is Double -> "NUMBER"
         is String -> "STRING"
         is Boolean -> "BOOLEAN"
-        is LinkedTreeMap<*, *> -> this.describe(query, tabCount)
-        is ArrayList<*> -> this.describe(query, tabCount)
+        is JsonObject -> this.describe(query, tabCount)
+        is JsonArray -> this.describe(query, tabCount)
         else -> "UNKNOWN"
     }
 }
 
-internal fun LinkedTreeMap<*, *>.describe(query: Query, tabCount: Int = 0): String {
+internal fun JsonObject.describe(query: Query, tabCount: Int = 0): String {
     val builder = StringBuilder("OBJECT(")
     values.toList().describe(query, builder, tabCount + 1)
     return builder.append(")").toString()
 }
 
-internal fun ArrayList<*>.describe(query: Query, tabCount: Int = 0): String {
+internal fun JsonArray.describe(query: Query, tabCount: Int = 0): String {
     val builder = StringBuilder("ARRAY(")
     describe(query, builder, tabCount + 1)
     return builder.append(")").toString()

@@ -1,18 +1,20 @@
 package com.raybritton.jsonquery.ext
 
-internal fun ArrayList<*>.min(): Double {
+import com.raybritton.jsonquery.JsonArray
+
+internal fun JsonArray.min(): Double {
     return getNumbers().min() ?: Double.NaN
 }
 
-internal fun ArrayList<*>.max(): Double {
+internal fun JsonArray.max(): Double {
     return getNumbers().max() ?: Double.NaN
 }
 
-internal fun ArrayList<*>.sum(): Double {
+internal fun JsonArray.sum(): Double {
     return getNumbers().sum()
 }
 
-internal fun ArrayList<*>.getNumbers(): List<Double> {
+internal fun JsonArray.getNumbers(): List<Double> {
     val numbers = mutableListOf<Double>()
     forEach {
         if (it is Number) {

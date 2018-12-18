@@ -1,6 +1,8 @@
 package com.raybritton.jsonquery.tools
 
 import com.google.gson.internal.LinkedTreeMap
+import com.raybritton.jsonquery.JsonArray
+import com.raybritton.jsonquery.JsonObject
 import com.raybritton.jsonquery.ext.unescapeArrayNotation
 import com.raybritton.jsonquery.ext.unescapeDotNotation
 
@@ -26,13 +28,13 @@ internal fun Any?.navigate(path: String): Any? {
         return this
     }
     return when (this) {
-        is LinkedTreeMap<*, *> -> this.navigate(path)
-        is ArrayList<*> -> this.navigate(path)
+        is JsonObject -> this.navigate(path)
+        is JsonArray -> this.navigate(path)
         else -> throw IllegalStateException("Failed to navigate with $path inside ${this::class.java.simpleName}")
     }
 }
 
-internal fun LinkedTreeMap<*, *>.navigate(path: String): Any? {
+internal fun JsonObject.navigate(path: String): Any? {
         var segment = path.getFirstSegment().unescapeDotNotation()
         val arrayMatcher = INDEX_ACCESS.matcher(segment)
         if (arrayMatcher.matches()) { //moving to particular element in array
@@ -49,7 +51,7 @@ internal fun LinkedTreeMap<*, *>.navigate(path: String): Any? {
         return null
 }
 
-internal fun ArrayList<*>.navigate(path: String): Any? {
+internal fun JsonArray.navigate(path: String): Any? {
     val segment = path.getFirstSegment().unescapeDotNotation().unescapeArrayNotation()
     val matcher = INDEX_ACCESS.matcher(segment)
     if (matcher.matches()) {

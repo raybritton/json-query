@@ -1,6 +1,8 @@
 package com.raybritton.jsonquery.tools
 
 import com.google.gson.internal.LinkedTreeMap
+import com.raybritton.jsonquery.JsonArray
+import com.raybritton.jsonquery.JsonObject
 import com.raybritton.jsonquery.models.Query
 
 /**
@@ -8,25 +10,25 @@ import com.raybritton.jsonquery.models.Query
  */
 fun Any?.filterToKeys(query: Query): Any? {
     return when (this) {
-        is ArrayList<*> -> this.filterToKeys(query)
-        is LinkedTreeMap<*, *> -> this.filterToKeys(query)
+        is JsonArray -> this.filterToKeys(query)
+        is JsonObject -> this.filterToKeys(query)
         else -> this
     }
 }
 
-fun ArrayList<*>.filterToKeys(query: Query): Any? {
+fun JsonArray.filterToKeys(query: Query): Any? {
     val iterator = iterator()
     while (iterator.hasNext()) {
         val item = iterator.next().filterToKeys(query)
         when (item) {
-            is ArrayList<*> -> if (item.isEmpty()) iterator.remove()
-            is LinkedTreeMap<*, *> -> if (item.isEmpty()) iterator.remove()
+            is JsonArray -> if (item.isEmpty()) iterator.remove()
+            is JsonObject -> if (item.isEmpty()) iterator.remove()
         }
     }
     return this
 }
 
-fun LinkedTreeMap<*, *>.filterToKeys(query: Query): Any? {
+fun JsonObject.filterToKeys(query: Query): Any? {
     if (query.targetKeys.isNotEmpty()) {
         val iterator = iterator()
         while (iterator.hasNext()) {

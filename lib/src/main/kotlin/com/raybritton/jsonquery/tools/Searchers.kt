@@ -1,6 +1,8 @@
 package com.raybritton.jsonquery.tools
 
 import com.google.gson.internal.LinkedTreeMap
+import com.raybritton.jsonquery.JsonArray
+import com.raybritton.jsonquery.JsonObject
 import com.raybritton.jsonquery.ext.compareTo
 import com.raybritton.jsonquery.ext.isSameValueAs
 import com.raybritton.jsonquery.ext.isValue
@@ -8,13 +10,13 @@ import com.raybritton.jsonquery.models.Query
 
 internal fun Any?.search(query: Query, path: String): List<String> {
     return when (this) {
-        is LinkedTreeMap<*, *> -> this.search(query, path)
-        is ArrayList<*> -> this.search(query, path)
+        is JsonObject -> this.search(query, path)
+        is JsonArray -> this.search(query, path)
         else -> throw IllegalStateException("Attempted to search $this")
     }
 }
 
-internal fun LinkedTreeMap<*, *>.search(query: Query, path: String): List<String> {
+internal fun JsonObject.search(query: Query, path: String): List<String> {
     val output = mutableListOf<String>()
     val prefix = if (path == ".") "" else path
     for (key in keys) {
@@ -39,7 +41,7 @@ internal fun LinkedTreeMap<*, *>.search(query: Query, path: String): List<String
     return output
 }
 
-internal fun ArrayList<*>.search(query: Query, path: String = ""): List<String> {
+internal fun JsonArray.search(query: Query, path: String = ""): List<String> {
     val output = mutableListOf<String>()
     val prefix = if (path == ".") "" else path
     forEachIndexed { i, value ->

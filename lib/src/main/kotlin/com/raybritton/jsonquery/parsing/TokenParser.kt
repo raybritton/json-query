@@ -1,7 +1,9 @@
 package com.raybritton.jsonquery.parsing
 
+import java.util.*
+
 fun String.parse(): List<Token> {
-    val reader = TokenReader(CharReader(this + " "))
+    val reader = TokenReader(CharReader(this.preParse()))
 
     val list = mutableListOf<Token>()
 
@@ -10,6 +12,12 @@ fun String.parse(): List<Token> {
     }
 
     return list.filter { it.type != Token.Type.WHITESPACE }
+}
+
+private fun String.preParse(): String {
+    return this.replace("AS JSON", "AS_JSON")
+            .replace("ORDER BY", "ORDER_BY")
+            .replace("WITH KEYS", "WITH_KEYS") + " "
 }
 
 private class TokenReader(private val charReader: CharReader) {
@@ -127,7 +135,7 @@ private object NumberParser : TokenParser {
 }
 
 private object KeywordParser : TokenParser {
-    private val KEYWORDS = listOf("SELECT", "DESCRIBE", "DISTINCT", "SUM", "KEYS", "VALUES", "SPECIFIC", "MIN", "MAX", "COUNT", "VALUE", "KEY", "LIMIT", "OFFSET", "WITH", "KEYS", "PRETTY", "AS", "JSON", "ORDER", "BY", "WHERE", "DESC", "FROM")
+    private val KEYWORDS = listOf("SELECT", "DESCRIBE", "DISTINCT", "SUM", "KEYS", "VALUES", "SPECIFIC", "MIN", "MAX", "COUNT", "VALUE", "KEY", "LIMIT", "OFFSET", "WITH_KEYS", "PRETTY", "AS_JSON", "ORDER_BY", "WHERE", "DESC", "FROM")
 
     override fun canParse(charReader: CharReader) = charReader.peek()?.isLetter() ?: false
     override fun parse(charReader: CharReader): Token? {
@@ -143,7 +151,7 @@ private object KeywordParser : TokenParser {
         }
 
         if (KEYWORDS.contains(output.toString())) {
-            return Token(Token.Type.KEYWORD, output.toString())
+            return Token(Token.Type.KEYWORD, output.toString().toUpperCase(Locale.US))
         } else {
             throw IllegalStateException("Invalid token '$output' at $startIdx")
         }
@@ -175,7 +183,7 @@ private object StringParser : TokenParser {
 
 data class Token(val type: Type, val value: String) {
     enum class Type {
-        KEYWORD, STRING, NUMBER, OPERATOR, WHITESPACE, PUNCTUATION
+        KEYWORD, STRING, NUMBER, WHITESPACE, PUNCTUATION
     }
 }
 

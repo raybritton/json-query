@@ -1,14 +1,15 @@
 package com.raybritton.jsonquery.printer
 
-import com.google.gson.internal.LinkedTreeMap
+import com.raybritton.jsonquery.JsonArray
+import com.raybritton.jsonquery.JsonObject
 import com.raybritton.jsonquery.ext.sort
 import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.tools.navigate
 
 internal fun Any?.list(query: Query, isRoot: Boolean = false): String {
     return when (this) {
-        is ArrayList<*> -> this.list(query, true)
-        is LinkedTreeMap<*, *> -> this.print(query, true)
+        is JsonArray -> this.list(query, true)
+        is JsonObject -> this.print(query, true)
         else -> {
             if (query.withKeys) { //use the key from the query as the actual key has been lost by this point
                 if (query.targetKeys.isNotEmpty()) {
@@ -28,12 +29,12 @@ private fun Any?.print(query: Query, isRoot: Boolean = false): String {
         return "null"
     }
     when (this) {
-        is LinkedTreeMap<*, *> -> return print(query, isRoot)
+        is JsonObject -> return print(query, isRoot)
         else -> return this.toString()
     }
 }
 
-private fun LinkedTreeMap<*, *>.print(query: Query, isRoot: Boolean = false): String {
+private fun JsonObject.print(query: Query, isRoot: Boolean = false): String {
     val showMarkers = (size != 1) || !isRoot || query.withKeys
     val builder = StringBuilder(if (showMarkers) "{" else "")
     for (key in keys) {
@@ -53,7 +54,7 @@ private fun LinkedTreeMap<*, *>.print(query: Query, isRoot: Boolean = false): St
     return builder.toString()
 }
 
-internal fun ArrayList<*>.list(query: Query, isRoot: Boolean = false): String {
+internal fun JsonArray.list(query: Query, isRoot: Boolean = false): String {
     this.sort(query)
     val showMarkers = (size != 1) || !isRoot
     val builder = StringBuilder(if (showMarkers) "[" else "")
