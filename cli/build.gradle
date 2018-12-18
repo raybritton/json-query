@@ -1,21 +1,19 @@
-apply plugin: 'kotlin'
-apply plugin: 'application'
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm'
+}
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile project(':lib')
     testCompile 'junit:junit:4.12'
 }
-
-mainClassName = 'com.raybritton.jsonquery.MainKt'
-
-apply from: '../ktlint.gradle'
 
 task fatJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': 'JsonQuery CLI',
                 'Implementation-Version': '0.12.6',
-                'Main-Class': mainClassName
+                'Main-Class': 'com.raybritton.jsonquery.MainKt'
     }
     baseName = "jq-0.12.6"
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
