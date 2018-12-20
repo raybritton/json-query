@@ -38,7 +38,7 @@ internal fun JsonObject.navigate(path: String): Any? {
         var segment = path.getFirstSegment().unescapeDotNotation()
         val arrayMatcher = INDEX_ACCESS.matcher(segment)
         if (arrayMatcher.matches()) { //moving to particular element in array
-            return get(arrayMatcher.group(1)).navigate(segment)
+            return get(arrayMatcher.group(1)).navigate(path)
         }
         segment = segment.unescapeArrayNotation()
         if (get(segment) != null) {

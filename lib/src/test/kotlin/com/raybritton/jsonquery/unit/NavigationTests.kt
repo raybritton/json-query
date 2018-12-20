@@ -76,4 +76,13 @@ class NavigationTests {
 
         assertEquals("Output", "51.0", output)
     }
+
+    @Test
+    fun testObjectInObjectInListAtIndexAtIndexNav() {
+        val json = "[{'list':[{'inner':{'a':'here'}}]},{'list':[{'inner':{'a':'not here'}}]}]"
+
+        val output = JsonQuery().loadJson(json).query("SELECT 'a' FROM '.[0].list[0].inner'")
+
+        assertEquals("Output", "\"here\"", output)
+    }
 }
