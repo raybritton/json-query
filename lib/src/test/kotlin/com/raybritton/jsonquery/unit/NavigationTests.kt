@@ -51,7 +51,7 @@ class NavigationTests {
     }
 
     @Test
-    fun testMulitpleValuesInObjectInObjectInListNav() {
+    fun testMultipleValuesInObjectInObjectInListNav() {
         val json = "{'list':[{'inner':{'a':50, 'b': 'test'}},{'inner':{'a':51}},{'inner':{'b':49}},{'inner':{'a':null}}]}"
 
         val output = JsonQuery().loadJson(json).query("SELECT ('a','b') FROM '.list.inner'")
@@ -60,7 +60,7 @@ class NavigationTests {
     }
 
     @Test
-    fun testMulitpleValuesInObjectInObjectInListWithKeysNav() {
+    fun testMultipleValuesInObjectInObjectInListWithKeysNav() {
         val json = "{'list':[{'inner':{'a':50, 'b': 'test'}},{'inner':{'a':51}},{'inner':{'b':49}},{'inner':{'a':null}}]}"
 
         val output = JsonQuery().loadJson(json).query("SELECT ('a','b') FROM '.list.inner' WITH KEYS")

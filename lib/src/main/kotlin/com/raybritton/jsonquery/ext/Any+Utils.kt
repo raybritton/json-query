@@ -1,6 +1,8 @@
 package com.raybritton.jsonquery.ext
 
 import com.google.gson.internal.LinkedTreeMap
+import com.raybritton.jsonquery.JsonArray
+import com.raybritton.jsonquery.JsonObject
 
 internal fun Any?.isValue(): Boolean {
     if (this == null) {
@@ -13,8 +15,9 @@ internal fun Any?.isValue(): Boolean {
         is Double -> true
         is Long -> true
         is Boolean -> true
-        is LinkedTreeMap<*, *> -> false
-        is ArrayList<*> -> false
+        is JsonObject -> false
+        is JsonArray -> false
+        is Pair<*, *> -> true
         else -> throw IllegalStateException("Unknown type: ${this::class.java.name}")
     }
 }

@@ -45,7 +45,7 @@ internal fun JsonObject.navigate(path: String): Any? {
             if (path.count { it == '.' } > 0) { //continue navigating
                 return get(segment)!!.navigate(path.getRemainingPath())
             } else {
-                return get(segment)!! //end of journey
+                return segment to get(segment)!! //end of journey
             }
         }
         return null

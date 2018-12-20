@@ -11,8 +11,15 @@ internal fun Any?.print(query: Query, isRoot: Boolean = false): String {
     return when (this) {
         is JsonArray -> this.print(query, true)
         is JsonObject -> this.print(query, true)
+        is Pair<*, *> -> {
+            if (query.withKeys) {
+                "${this.first}: ${this.second.wrap()}"
+            } else {
+                this.second.wrap()
+            }
+        }
         else -> {
-            if (query.withKeys) { //use the key from the query as the actual key has been lost by this point
+            if (query.withKeys) {
                 if (query.targetKeys.isNotEmpty()) {
                     "${query.targetKeys[0]}: ${this.wrap()}"
                 } else {

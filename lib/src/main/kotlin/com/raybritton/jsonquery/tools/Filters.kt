@@ -145,42 +145,43 @@ private fun JsonArray.limit(query: Query): JsonArray {
 }
 
 private fun Any?.matches(where: Query.Where, caseSensitive: Boolean): Boolean {
+    val value = if (this is Pair<*,*>) second else this
     when (where.operator) {
         Query.Where.Operator.EQUAL -> {
-            if (this.isSameValueAs(where.compare, caseSensitive)) {
+            if (value.isSameValueAs(where.compare, caseSensitive)) {
                 return true
             }
         }
         Query.Where.Operator.NOT_EQUAL -> {
-            if (!this.isSameValueAs(where.compare, caseSensitive)) {
+            if (!value.isSameValueAs(where.compare, caseSensitive)) {
                 return true
             }
         }
         Query.Where.Operator.LESS_THAN -> {
-            if (this is String) {
-                if (this < where.compare.toString()) {
+            if (value is String) {
+                if (value < where.compare.toString()) {
                     return true
                 }
-            } else if ((this.toString().toDoubleOrNull() ?: 0.0) < (where.compare.toString().toDoubleOrNull() ?: 0.0)) {
+            } else if ((value.toString().toDoubleOrNull() ?: 0.0) < (where.compare.toString().toDoubleOrNull() ?: 0.0)) {
                 return true
             }
         }
         Query.Where.Operator.GREATER_THAN -> {
-            if (this is String) {
-                if (this < where.compare.toString()) {
+            if (value is String) {
+                if (value < where.compare.toString()) {
                     return true
                 }
-            } else if ((this.toString().toDoubleOrNull() ?: 0.0) > (where.compare.toString().toDoubleOrNull() ?: 0.0)) {
+            } else if ((value.toString().toDoubleOrNull() ?: 0.0) > (where.compare.toString().toDoubleOrNull() ?: 0.0)) {
                 return true
             }
         }
         Query.Where.Operator.CONTAINS -> {
-            if (this != null && (this.toString()).contains(where.compare.toString())) {
+            if (value != null && (value.toString()).contains(where.compare.toString())) {
                 return true
             }
         }
         Query.Where.Operator.NOT_CONTAINS -> {
-            if (this == null || !(this.toString()).contains(where.compare.toString())) {
+            if (value == null || !(value.toString()).contains(where.compare.toString())) {
                 return true
             }
         }
