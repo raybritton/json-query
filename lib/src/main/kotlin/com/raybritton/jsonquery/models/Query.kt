@@ -1,6 +1,6 @@
 package com.raybritton.jsonquery.models
 
-data class Query(val method: Method,
+internal data class Query(val method: Method,
                  val target: String,
                  val targetExtra: TargetExtra? = null,
                  val targetKeys: List<String> = listOf(),
@@ -18,24 +18,78 @@ data class Query(val method: Method,
     }
 
     enum class TargetExtra {
-        KEYS, VALUES, SPECIFIC, MIN, MAX, COUNT, SUM, VALUE, KEY
+        /**
+         * Only return keys for this query
+         */
+        KEYS,
+        /**
+         * Only return values for this query
+         */
+        VALUES,
+        /**
+         * INTERNAL
+         * Query specifies columns to return
+         */
+        SPECIFIC,
+        /**
+         * Return lowest numeric value from queried fields
+         */
+        MIN,
+        /**
+         * Return highed numeric value from queried fields
+         */
+        MAX,
+        /**
+         * Return number of fields matching query
+         */
+        COUNT,
+        /**
+         * Return sum of all numeric values from queried fields
+         */
+        SUM,
+        /**
+         * For search
+         * Search values only for specified string
+         */
+        VALUE,
+        /**
+         * For search
+         * Search keys only for specified string
+         */
+        KEY,
+        /**
+         * For search
+         * Search keys and values for specified string
+         */
+        BOTH
     }
 
     data class Where(val field: String,
                      val operator: Operator,
                      val compare: Any?) {
-        enum class Operator(val symbol: String) {
-            EQUAL("=="), NOT_EQUAL("!="), LESS_THAN("<"), GREATER_THAN(">"), CONTAINS("#"), NOT_CONTAINS("!#")
+        enum class Operator(vararg val symbol: String) {
+            EQUAL("==", "="), NOT_EQUAL("!="), LESS_THAN("<"), GREATER_THAN(">"), CONTAINS("#"), NOT_CONTAINS("!#")
         }
 
         companion object {
+            @Throws(IllegalArgumentException::class)
             fun getOperatorBySymbol(symbol: String): Where.Operator {
                 for (op in Where.Operator.values()) {
-                    if (op.symbol == symbol) {
+                    if (op.symbol.contains(symbol)) {
                         return op
                     }
                 }
                 throw IllegalArgumentException("Operator $symbol not supported")
+            }
+        }
+
+        class Builder {
+            var field: String? = null
+            var operator: Operator? = null
+            var compare: Any? = null
+
+            fun build(): Where {
+                return Where(field!!, operator!!, compare)
             }
         }
     }
@@ -46,13 +100,11 @@ data class Query(val method: Method,
             builder.append("SEARCH ")
             builder.appendWrapped(target)
             builder.append(" FOR ")
-            builder.append(targetExtra)
-            builder.append(" ")
-            if (targetKeys[0][0].isLetter()) {
-                builder.appendWrapped(targetKeys[0])
-            } else {
-                builder.append(targetKeys[0])
+            if (targetExtra != TargetExtra.BOTH) {
+                builder.append(targetExtra)
+                builder.append(" ")
             }
+            builder.appendWrapped(targetKeys[0])
         } else {
             builder.append(method)
             builder.append(" ")
@@ -69,26 +121,28 @@ data class Query(val method: Method,
                         builder.appendWrapped(targetKeys[0], true)
                     }
                     TargetExtra.SPECIFIC -> {
-                        if (targetKeys.size == 1) {
-                            builder.appendWrapped(targetKeys[0])
-                        } else {
-                            targetKeys.joinTo(builder, ", ", "(", ")", transform = { '"' + it + '"' })
+                        when (targetKeys.size) {
+                            0 -> {}
+                            1 -> builder.appendWrapped(targetKeys[0])
+                            else -> targetKeys.joinTo(builder, ", ", "(", ")", transform = { '"' + it + '"' })
                         }
                     }
                 }
-                builder.append(" FROM ")
+                if (targetExtra != TargetExtra.SPECIFIC || (targetExtra == TargetExtra.SPECIFIC && targetKeys.isNotEmpty())) {
+                    builder.append(" FROM ")
+                }
             }
             builder.appendWrapped(target)
             if (where != null) {
                 builder.append(" WHERE ")
                 builder.appendWrapped(where.field)
                 builder.append(" ")
-                builder.append(where.operator.symbol)
+                builder.append(where.operator.symbol[0])
                 builder.append(" ")
-                if (where.compare is String) {
-                    builder.appendWrapped(where.compare)
-                } else {
+                if (where.compare.toString()[0].isDigit()) {
                     builder.append(where.compare)
+                } else {
+                    builder.appendWrapped(where.compare.toString())
                 }
             }
             if (order != null) {
@@ -127,7 +181,7 @@ data class Query(val method: Method,
         if (brackets) append(")")
     }
 
-    class Builder {
+    internal class Builder {
         var method: Method? = null
         var target: String? = null
         var targetExtra: TargetExtra? = null

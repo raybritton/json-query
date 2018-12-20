@@ -1,8 +1,10 @@
 package com.raybritton.jsonquery.parsing
 
+import com.raybritton.jsonquery.JQLogger
+import com.raybritton.jsonquery.SyntaxException
 import java.util.*
 
-fun String.parse(): List<Token> {
+internal fun String.toQueryTokens(): List<Token> {
     val reader = TokenReader(CharReader(this.preParse()))
 
     val list = mutableListOf<Token>()
@@ -15,9 +17,9 @@ fun String.parse(): List<Token> {
 }
 
 private fun String.preParse(): String {
-    return this.replace("AS JSON", "AS_JSON")
-            .replace("ORDER BY", "ORDER_BY")
-            .replace("WITH KEYS", "WITH_KEYS") + " "
+    return this.replace("AS JSON", "ASJSON")
+            .replace("ORDER BY", "ORDERBY")
+            .replace("WITH KEYS", "WITHKEYS") + " "
 }
 
 private class TokenReader(private val charReader: CharReader) {
@@ -37,9 +39,9 @@ private class TokenReader(private val charReader: CharReader) {
     fun peek(): Token? {
         if (current == null) {
             current = read()
-            println("tr peek - setting current")
+            JQLogger.info("tr peek - setting current")
         }
-        println("tr peek - returning $current")
+        JQLogger.info("tr peek - returning $current")
         return current
     }
 
@@ -47,19 +49,19 @@ private class TokenReader(private val charReader: CharReader) {
         parsers.forEach {
             if (it.canParse(charReader)) {
                 val token = it.parse(charReader)
-                println("is ${it::class.java.simpleName}")
-                println("read - returning $token")
+                JQLogger.info("is ${it::class.java.simpleName}")
+                JQLogger.info("read - returning $token")
                 return token
             }
         }
-        println("read - nothing found")
-        throw IllegalStateException("Unable to parse '${charReader.peek()}' at ${charReader.currentPos}")
+        JQLogger.info("read - nothing found")
+        throw SyntaxException("Unable to parse '${charReader.peek()}' at ${charReader.currentPos}")
     }
 
     fun next(): Token? {
         val token = current
         if (token != null) {
-            println("tr next - returning current $token")
+            JQLogger.info("tr next - returning current $token")
             current = null
             return token
         }
@@ -72,28 +74,24 @@ private object PunctuationParser : TokenParser {
     override fun parse(charReader: CharReader): Token? {
         val char = charReader.peek()
         when (char) {
-            '(' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString())
-            ')' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString())
-            '[' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString())
-            ']' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString())
-            '<' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString())
-            '>' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString())
-            '#' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString())
+            ',', '(', ')', '[', ']', '<', '>', '#' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString(), charReader.currentPos)
             '!' -> {
                 if (charReader.extendedPeek(2) == "!#") {
-                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}")
+                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}", charReader.currentPos)
                 }
                 if (charReader.extendedPeek(2) == "!=") {
-                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}")
+                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}", charReader.currentPos)
                 }
             }
             '=' -> {
                 if (charReader.extendedPeek(2) == "==") {
-                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}")
+                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}", charReader.currentPos)
+                } else {
+                    return Token(Token.Type.PUNCTUATION, charReader.next().toString(), charReader.currentPos)
                 }
             }
         }
-        throw IllegalStateException("Invalid operator '$char' at ${charReader.currentPos}")
+        throw SyntaxException("Invalid symbol '$char' at ${charReader.currentPos}")
     }
 }
 
@@ -103,7 +101,7 @@ private object WhitespaceParser : TokenParser {
         while (canParse(charReader)) {
             charReader.next()
         }
-        return Token(Token.Type.WHITESPACE, "")
+        return Token(Token.Type.WHITESPACE, "", charReader.currentPos)
     }
 }
 
@@ -117,7 +115,7 @@ private object NumberParser : TokenParser {
         while (next != null) {
             if (next == '.') {
                 if (hasDot) {
-                    return Token(Token.Type.NUMBER, output.toString())
+                    return Token(Token.Type.NUMBER, output.toString(), charReader.currentPos)
                 } else {
                     hasDot = true
                     output.append(charReader.next()!!)
@@ -125,17 +123,17 @@ private object NumberParser : TokenParser {
             } else if (next.isDigit()) {
                 output.append(charReader.next()!!)
             } else {
-                return Token(Token.Type.NUMBER, output.toString())
+                return Token(Token.Type.NUMBER, output.toString(), charReader.currentPos)
             }
             next = charReader.peek()
         }
 
-        return Token(Token.Type.NUMBER, output.toString())
+        return Token(Token.Type.NUMBER, output.toString(), charReader.currentPos)
     }
 }
 
 private object KeywordParser : TokenParser {
-    private val KEYWORDS = listOf("SELECT", "DESCRIBE", "DISTINCT", "SUM", "KEYS", "VALUES", "SPECIFIC", "MIN", "MAX", "COUNT", "VALUE", "KEY", "LIMIT", "OFFSET", "WITH_KEYS", "PRETTY", "AS_JSON", "ORDER_BY", "WHERE", "DESC", "FROM")
+    private val KEYWORDS = listOf("SELECT", "DESCRIBE", "DISTINCT", "SUM", "ELEMENT", "FOR", "SEARCH", "KEYS", "VALUES", "SPECIFIC", "MIN", "MAX", "COUNT", "VALUE", "KEY", "LIMIT", "OFFSET", "WITHKEYS", "PRETTY", "ASJSON", "ORDERBY", "WHERE", "DESC", "FROM")
 
     override fun canParse(charReader: CharReader) = charReader.peek()?.isLetter() ?: false
     override fun parse(charReader: CharReader): Token? {
@@ -150,10 +148,10 @@ private object KeywordParser : TokenParser {
             }
         }
 
-        if (KEYWORDS.contains(output.toString())) {
-            return Token(Token.Type.KEYWORD, output.toString().toUpperCase(Locale.US))
+        if (KEYWORDS.contains(output.toString().toUpperCase(Locale.US))) {
+            return Token(Token.Type.KEYWORD, output.toString().toUpperCase(Locale.US), charReader.currentPos)
         } else {
-            throw IllegalStateException("Invalid token '$output' at $startIdx")
+            throw SyntaxException("Invalid token '$output' at $startIdx")
         }
     }
 }
@@ -177,13 +175,17 @@ private object StringParser : TokenParser {
                 str += ch
             }
         }
-        return Token(Token.Type.STRING, str)
+        return Token(Token.Type.STRING, str, charReader.currentPos)
     }
 }
 
-data class Token(val type: Type, val value: String) {
+internal data class Token(val type: Type, val value: String, val charIdx: Int) {
     enum class Type {
         KEYWORD, STRING, NUMBER, WHITESPACE, PUNCTUATION
+    }
+
+    override fun toString(): String {
+        return "$type ($value)"
     }
 }
 
@@ -199,48 +201,46 @@ private class CharReader(string: String) {
 
     fun peek(): Char? {
         if (currentPos >= chars.size - 1) {
-            println("cr peek - out of range")
+            JQLogger.info("cr peek - out of range")
             return null
         }
-        println("cr peek - return ${quoteIfNotNull(chars[currentPos])}")
+        JQLogger.info("cr peek - returning ${chars[currentPos].surroundWithQuotes()}")
         return chars[currentPos]
     }
 
     fun extendedPeek(len: Int): String? {
         if (currentPos >= chars.size - (len + 1)) {
-            println("cr extended peek - out of range")
+            JQLogger.info("cr extended peek - out of range")
             return null
         }
-        println("cr extended peek - ${quoteIfNotNull(chars.sliceArray(0..len).joinToString(""))}")
-        return chars.sliceArray(0..len).joinToString("")
+        JQLogger.info("cr extended peeking at - ${(chars.sliceArray(currentPos until (currentPos + len)).joinToString("")).surroundWithQuotes()}")
+        return chars.sliceArray(currentPos until (currentPos + len)).joinToString("")
     }
 
     fun next(): Char? {
         if (currentPos >= chars.size - 1) {
-            println("cr next - out of range")
+            JQLogger.info("cr next - out of range")
             return null
         }
-        println("cr next - incrementing currentPos now ${currentPos + 1}")
+        JQLogger.info("cr next - incrementing currentPos, now ${currentPos + 1}")
         val letter = chars[currentPos]
-        println("cr next - return ${quoteIfNotNull(letter)}")
+        JQLogger.info("cr next - returning ${letter.surroundWithQuotes()}")
         currentPos++
         return letter
     }
 
-    private fun quoteIfNotNull(str: Char?): String {
-        return quoteIfNotNull("" + str)
-    }
-
     fun isEof(): Boolean {
-        println("cr eof checked: ${peek() == null}")
+        JQLogger.info("cr eof checked: ${peek() == null}")
         return peek() == null
     }
 }
 
-private fun quoteIfNotNull(str: String?): String {
-    return if (str == null) {
-        "null"
+private fun String?.surroundWithQuotes(): String? {
+    return if (this == null) {
+        null
     } else {
-        "'$str'"
+        "'" + this + "'"
     }
 }
+
+private fun Char?.surroundWithQuotes() = this?.toString()?.surroundWithQuotes()

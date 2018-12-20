@@ -6,10 +6,14 @@ JQL is designed to be used to query json so that values, objects or arrays can b
 
 Note: all numbers are output as decimals as JSON only has one number type: double.
 
+Key:
+* [] = optional
+* () = Pick one
+
 <pre>
 SELECT
     [DISTINCT]
-    [[KEYS|VALUES|column|columns|mathExpr] FROM]
+    [(KEYS|VALUES|column|columns|mathExpr) FROM]
     jsonPath
     [WHERE column operator value]
     [LIMIT value]
@@ -23,7 +27,7 @@ SELECT
 <pre>
 DESCRIBE
     [DISTINCT]
-    [[column|columns] FROM]
+    [(column|columns) FROM]
     jsonPath
     [WHERE column operator value]
     [LIMIT value]
@@ -35,8 +39,8 @@ DESCRIBE
 SEARCH
     jsonPath
     FOR
-    KEY | VALUE
-    value
+    [(KEY | VALUE)]
+    searchTerm
 </pre>
 
 #### Components
@@ -70,7 +74,7 @@ SEARCH
     * column should be written as `"id"`
         * To refer to list element use `ELEMENT`
     * operator:
-        * `==` Equal
+        * `=` Equal
         * `!=` Not equal
         * `>` Greater than
         * `<` Less than
@@ -93,11 +97,19 @@ SEARCH
     * This only works with SELECT
 * PRETTY
     * By default the JSON (from AS JSON) is returned on a single line, this causes it to be pretty printed
-    * This also works with DESCRIBE
+    * This works with SELECT OR DESCRIBE
 * ORDER BY
     * column should be written as `"id"`
         * To refer to list element use `ELEMENT`
     * DESC reverses the sort order
+    * This only works with SELECT
+
+* SEARCH
+    * Search json data for a searchTerm
+* KEY | VALUE
+    * Search can look at just keys, values or both
+* searchTerm
+    * A string (numbers and booleans will be cast for comparision)
 
 #### Examples
 

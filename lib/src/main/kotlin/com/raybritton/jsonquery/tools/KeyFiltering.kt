@@ -8,7 +8,7 @@ import com.raybritton.jsonquery.models.Query
 /**
  * Remove any element whose key is not in query.targetKeys
  */
-fun Any?.filterToKeys(query: Query): Any? {
+internal fun Any?.filterToKeys(query: Query): Any? {
     return when (this) {
         is JsonArray -> this.filterToKeys(query)
         is JsonObject -> this.filterToKeys(query)
@@ -16,7 +16,7 @@ fun Any?.filterToKeys(query: Query): Any? {
     }
 }
 
-fun JsonArray.filterToKeys(query: Query): Any? {
+private fun JsonArray.filterToKeys(query: Query): Any? {
     val iterator = iterator()
     while (iterator.hasNext()) {
         val item = iterator.next().filterToKeys(query)
@@ -28,7 +28,7 @@ fun JsonArray.filterToKeys(query: Query): Any? {
     return this
 }
 
-fun JsonObject.filterToKeys(query: Query): Any? {
+private fun JsonObject.filterToKeys(query: Query): Any? {
     if (query.targetKeys.isNotEmpty()) {
         val iterator = iterator()
         while (iterator.hasNext()) {

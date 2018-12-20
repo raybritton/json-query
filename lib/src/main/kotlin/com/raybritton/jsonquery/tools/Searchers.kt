@@ -21,18 +21,15 @@ internal fun JsonObject.search(query: Query, path: String): List<String> {
     val prefix = if (path == ".") "" else path
     for (key in keys) {
         val value = get(key)
-        when (query.targetExtra) {
-            Query.TargetExtra.KEY -> {
-                if (key.isSameValueAs(query.targetKeys[0])) {
-                    output.add("$prefix.$key: ${get(key)}")
-                }
+        if (query.targetExtra == Query.TargetExtra.KEY || query.targetExtra == Query.TargetExtra.BOTH) {
+            if (key.isSameValueAs(query.targetKeys[0])) {
+                output.add("$prefix.$key: ${get(key)}")
             }
-            Query.TargetExtra.VALUE -> {
-                if (value.isValue() && value.isSameValueAs(query.targetKeys[0])) {
-                    output.add("$prefix.$key: $value")
-                }
+        }
+        if (query.targetExtra == Query.TargetExtra.VALUE || query.targetExtra == Query.TargetExtra.BOTH) {
+            if (value.isValue() && value.isSameValueAs(query.targetKeys[0])) {
+                output.add("$prefix.$key: $value")
             }
-            else -> throw IllegalStateException("Search with invalid modifier: ${query.targetExtra}")
         }
         if (!value.isValue()) {
             output.addAll(value.search(query, "$prefix.$key"))
@@ -46,8 +43,9 @@ internal fun JsonArray.search(query: Query, path: String = ""): List<String> {
     val prefix = if (path == ".") "" else path
     forEachIndexed { i, value ->
         when (query.targetExtra) {
-            Query.TargetExtra.KEY -> { }
-            Query.TargetExtra.VALUE -> {
+            Query.TargetExtra.KEY -> {
+            }
+            Query.TargetExtra.VALUE, Query.TargetExtra.BOTH -> {
                 if (value.isValue() && value.isSameValueAs(query.targetKeys[0])) {
                     output.add("$prefix.[$i]: $value")
                 }

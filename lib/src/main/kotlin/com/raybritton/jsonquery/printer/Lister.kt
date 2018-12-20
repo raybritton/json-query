@@ -6,9 +6,9 @@ import com.raybritton.jsonquery.ext.sort
 import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.tools.navigate
 
-internal fun Any?.list(query: Query, isRoot: Boolean = false): String {
+internal fun Any?.print(query: Query, isRoot: Boolean = false): String {
     return when (this) {
-        is JsonArray -> this.list(query, true)
+        is JsonArray -> this.print(query, true)
         is JsonObject -> this.print(query, true)
         else -> {
             if (query.withKeys) { //use the key from the query as the actual key has been lost by this point
@@ -18,19 +18,9 @@ internal fun Any?.list(query: Query, isRoot: Boolean = false): String {
                     "${query.target.substring(1)}: $this"
                 }
             } else {
-                this.print(query, true)
+                this.toString()
             }
         }
-    }
-}
-
-private fun Any?.print(query: Query, isRoot: Boolean = false): String {
-    if (this == null) {
-        return "null"
-    }
-    when (this) {
-        is JsonObject -> return print(query, isRoot)
-        else -> return this.toString()
     }
 }
 
@@ -54,18 +44,18 @@ private fun JsonObject.print(query: Query, isRoot: Boolean = false): String {
     return builder.toString()
 }
 
-internal fun JsonArray.list(query: Query, isRoot: Boolean = false): String {
+internal fun JsonArray.print(query: Query, isRoot: Boolean = false): String {
     this.sort(query)
     val showMarkers = (size != 1) || !isRoot
     val builder = StringBuilder(if (showMarkers) "[" else "")
     for (element in this) {
         if (query.targetExtra == Query.TargetExtra.SPECIFIC) {
             if (query.targetKeys.size == 1) {
-                builder.append(element.navigate(query.targetKeys[0]).list(query, false))
+                builder.append(element.navigate(query.targetKeys[0]).print(query, false))
             } else if (query.targetKeys.size > 1) {
                 builder.append("{")
                 for (key in query.targetKeys) {
-                    builder.append(element.navigate(key).list(query, false))
+                    builder.append(element.navigate(key).print(query, false))
                     builder.append(", ")
                 }
                 builder.setLength(builder.length - 2)

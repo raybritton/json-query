@@ -1,6 +1,7 @@
 package com.raybritton.jsonquery.ext
 
 import com.raybritton.jsonquery.models.Query
+import java.util.*
 
 internal fun Any?.compareTo(query: Query, rhs: Any?): Int {
     if (this == null && rhs != null) {
@@ -37,7 +38,6 @@ internal fun Any?.isSameValueAs(rhs: Any?): Boolean {
     }
     if (this is Number && rhs is Number) {
         return this.toDouble() == rhs.toDouble()
-
     } else if (this is String && rhs is String) {
         return this.equals(rhs, true)
     } else if (this is String && rhs is Number) {
@@ -47,6 +47,10 @@ internal fun Any?.isSameValueAs(rhs: Any?): Boolean {
         if (converted != null) {
             return this.toDouble() == converted
         }
+    } else if (this is Boolean && rhs is String) {
+        return this.toString().toLowerCase(Locale.US) == rhs.toLowerCase(Locale.US)
+    } else if (this is String && rhs is Boolean) {
+        return this.toLowerCase(Locale.US) == rhs.toString().toLowerCase(Locale.US)
     }
     return false
 }

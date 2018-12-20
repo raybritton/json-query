@@ -2,10 +2,7 @@ package com.raybritton.jsonquery.tools
 
 import com.raybritton.jsonquery.JsonArray
 import com.raybritton.jsonquery.JsonObject
-import com.raybritton.jsonquery.ext.isValue
-import com.raybritton.jsonquery.ext.max
-import com.raybritton.jsonquery.ext.min
-import com.raybritton.jsonquery.ext.sum
+import com.raybritton.jsonquery.ext.*
 import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.utils.ELEMENT
 
@@ -62,6 +59,7 @@ internal fun JsonArray.filter(query: Query): Any {
         Query.TargetExtra.MAX -> list.getValues(query).max()
         Query.TargetExtra.COUNT -> list.getValues(query).size
         Query.TargetExtra.SUM -> list.getValues(query).sum()
+        Query.TargetExtra.KEYS, Query.TargetExtra.VALUES -> list.map { it.filter(query) }.distinct()
         else -> list
     }
 }
@@ -110,40 +108,40 @@ private fun JsonArray.limit(query: Query): JsonArray {
 private fun Any?.matches(where: Query.Where): Boolean {
     when (where.operator) {
         Query.Where.Operator.EQUAL -> {
-            if (this == where.compare) {
+            if (this.isSameValueAs(where.compare)) {
                 return true
             }
         }
         Query.Where.Operator.NOT_EQUAL -> {
-            if (this != where.compare) {
+            if (!this.isSameValueAs(where.compare)) {
                 return true
             }
         }
         Query.Where.Operator.LESS_THAN -> {
             if (this is String) {
-                if (this < where.compare as String) {
+                if (this < where.compare.toString()) {
                     return true
                 }
-            } else if (this != null && (this as Double) < (where.compare as Double)) {
+            } else if ((this.toString().toDoubleOrNull() ?: 0.0) < (where.compare.toString().toDoubleOrNull() ?: 0.0)) {
                 return true
             }
         }
         Query.Where.Operator.GREATER_THAN -> {
             if (this is String) {
-                if (this < where.compare as String) {
+                if (this < where.compare.toString()) {
                     return true
                 }
-            } else if (this != null && (this as Double) > (where.compare as Double)) {
+            } else if ((this.toString().toDoubleOrNull() ?: 0.0) > (where.compare.toString().toDoubleOrNull() ?: 0.0)) {
                 return true
             }
         }
         Query.Where.Operator.CONTAINS -> {
-            if (this != null && (this as String).contains(where.compare as String)) {
+            if (this != null && (this.toString()).contains(where.compare.toString())) {
                 return true
             }
         }
         Query.Where.Operator.NOT_CONTAINS -> {
-            if (this == null || !(this as String).contains(where.compare as String)) {
+            if (this == null || !(this.toString()).contains(where.compare.toString())) {
                 return true
             }
         }
