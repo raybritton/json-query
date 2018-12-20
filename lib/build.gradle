@@ -11,11 +11,7 @@ version ext.jqVer
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile group: 'com.google.code.gson', name: 'gson', version: gson_version
-    testCompile group: 'com.google.code.gson', name: 'gson', version: gson_version
-    testCompile("org.junit.jupiter:junit-jupiter-api:5.0.1")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.0.1")
     testCompile("junit:junit:4.12")
-    testRuntime("org.junit.vintage:junit-vintage-engine:4.12.1")
 }
 
 ext {

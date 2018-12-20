@@ -13,23 +13,23 @@ Key:
 <pre>
 SELECT
     [DISTINCT]
-    [(KEYS|VALUES|column|columns|mathExpr) FROM]
+    [(KEYS|VALUES|field|fields|mathExpr) FROM]
     jsonPath
-    [WHERE column operator value [CASE SENSITIVE]]
+    [WHERE field operator value [CASE SENSITIVE]]
     [LIMIT value]
     [OFFSET value]
     [WITH KEYS]
     [AS JSON]
     [PRETTY]
-    [ORDER BY column [DESC]]
+    [ORDER BY field [DESC]]
 </pre>
 
 <pre>
 DESCRIBE
     [DISTINCT]
-    [(column|columns) FROM]
+    [(field|fields) FROM]
     jsonPath
-    [WHERE column operator value [CASE SENSITIVE]]
+    [WHERE field operator value [CASE SENSITIVE]]
     [LIMIT value]
     [OFFSET value]
     [PRETTY]
@@ -53,15 +53,15 @@ SEARCH
 * DISTINCT
     * This is used to only allow distinct values to be returned
 * mathExpr 
-    * `MAX(ELEMENT|column)`
-    * `MIN(ELEMENT|column)`
-    * `COUNT(ELEMENT|column)`
-    * `SUM(ELEMENT|column)`
-* KEYS | VALUES | column | columns | mathExpr
+    * `MAX(ELEMENT|field)`
+    * `MIN(ELEMENT|field)`
+    * `COUNT(ELEMENT|field)`
+    * `SUM(ELEMENT|field)`
+* KEYS | VALUES | field | fields | mathExpr
     * `KEYS` only returns the keys from an object
     * `VALUES` only returns the values from an object
-    * column should be written as `"id"`
-    * columns should be written as `("id", "name")`
+    * field should be written as `"id"`
+    * fields should be written as `("id", "name")`
     * All of these be followed by `FROM`
 * jsonPath
     * Parts of the json can be specified using a path
@@ -73,7 +73,7 @@ SEARCH
         * `".ids[0]"` The first object in the ids array
         * `".items.id"` The id object or array in the items object
 * WHERE
-    * column should be written as `"id"`
+    * field should be written as `"id"`
         * To refer to list element use `ELEMENT`
     * operator:
         * `=` Equal
@@ -101,7 +101,7 @@ SEARCH
     * By default the JSON (from AS JSON) is returned on a single line, this causes it to be pretty printed
     * This works with SELECT OR DESCRIBE
 * ORDER BY
-    * column should be written as `"id"`
+    * field should be written as `"id"`
         * To refer to list element use `ELEMENT`
     * DESC reverses the sort order
     * This only works with SELECT

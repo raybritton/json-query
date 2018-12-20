@@ -2,19 +2,19 @@ package com.raybritton.jsonquery.ext
 
 import com.raybritton.jsonquery.JsonArray
 
-internal fun JsonArray.min(): Double {
+internal fun Iterable<Any?>.minValue(): Double {
     return getNumbers().min() ?: Double.NaN
 }
 
-internal fun JsonArray.max(): Double {
+internal fun Iterable<Any?>.maxValue(): Double {
     return getNumbers().max() ?: Double.NaN
 }
 
-internal fun JsonArray.sum(): Double {
+internal fun Iterable<Any?>.sumAll(): Double {
     return getNumbers().sum()
 }
 
-internal fun JsonArray.getNumbers(): List<Double> {
+internal fun Iterable<Any?>.getNumbers(): List<Double> {
     val numbers = mutableListOf<Double>()
     forEach {
         if (it is Number) {

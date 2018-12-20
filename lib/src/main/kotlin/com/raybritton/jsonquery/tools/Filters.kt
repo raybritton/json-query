@@ -78,12 +78,12 @@ internal fun JsonObject.filter(query: Query): Any {
     }
 }
 
-internal fun JsonArray.getValues(query: Query): JsonArray {
+internal fun JsonArray.getValues(query: Query): List<Any?> {
     if (query.targetKeys[0] == ELEMENT) {
         return this
     } else {
         val list = map { it.navigate(query.targetKeys[0]) }
-        return ArrayList(list)
+        return ArrayList(list).toFlatList()
     }
 }
 
@@ -94,10 +94,10 @@ internal fun JsonArray.filter(query: Query): Any {
         list = ArrayList(list.distinct())
     }
     return when (query.targetExtra) {
-        Query.TargetExtra.MIN -> list.getValues(query).min()
-        Query.TargetExtra.MAX -> list.getValues(query).max()
+        Query.TargetExtra.MIN -> list.getValues(query).minValue()
+        Query.TargetExtra.MAX -> list.getValues(query).maxValue()
         Query.TargetExtra.COUNT -> list.getValues(query).size
-        Query.TargetExtra.SUM -> list.getValues(query).sum()
+        Query.TargetExtra.SUM -> list.getValues(query).sumAll()
         Query.TargetExtra.KEYS, Query.TargetExtra.VALUES -> list.map { it.filter(query) }
         else -> list
     }

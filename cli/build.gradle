@@ -12,10 +12,10 @@ dependencies {
 task fatJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': 'JsonQuery CLI',
-                'Implementation-Version': '0.12.6',
+                'Implementation-Version': '0.13.0',
                 'Main-Class': 'com.raybritton.jsonquery.MainKt'
     }
-    baseName = "jq-0.12.6"
+    baseName = "jq-0.13.0"
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
