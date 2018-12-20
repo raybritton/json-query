@@ -15,7 +15,7 @@ SELECT
     [DISTINCT]
     [(KEYS|VALUES|column|columns|mathExpr) FROM]
     jsonPath
-    [WHERE column operator value]
+    [WHERE column operator value [CASE SENSITIVE]]
     [LIMIT value]
     [OFFSET value]
     [WITH KEYS]
@@ -29,7 +29,7 @@ DESCRIBE
     [DISTINCT]
     [(column|columns) FROM]
     jsonPath
-    [WHERE column operator value]
+    [WHERE column operator value [CASE SENSITIVE]]
     [LIMIT value]
     [OFFSET value]
     [PRETTY]
@@ -41,6 +41,8 @@ SEARCH
     FOR
     [(KEY | VALUE)]
     searchTerm
+    [CASE SENSITIVE]
+    [WITH VALUES]
 </pre>
 
 #### Components
@@ -103,6 +105,8 @@ SEARCH
         * To refer to list element use `ELEMENT`
     * DESC reverses the sort order
     * This only works with SELECT
+* CASE SENSITIVE
+    * Equals, contains and search are case insensitive by default, adding this makes them case sensitive
 
 * SEARCH
     * Search json data for a searchTerm
@@ -110,6 +114,8 @@ SEARCH
     * Search can look at just keys, values or both
 * searchTerm
     * A string (numbers and booleans will be cast for comparision)
+* WITH VALUES
+    * Print found value with location
 
 #### Examples
 

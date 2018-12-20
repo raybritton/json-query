@@ -17,9 +17,11 @@ internal fun String.toQueryTokens(): List<Token> {
 }
 
 private fun String.preParse(): String {
-    return this.replace("AS JSON", "ASJSON")
-            .replace("ORDER BY", "ORDERBY")
-            .replace("WITH KEYS", "WITHKEYS") + " "
+    return this.replace("AS JSON", "ASJSON", true)
+            .replace("ORDER BY", "ORDERBY", true)
+            .replace("CASE SENSITIVE", "CASESENSITIVE", true)
+            .replace("WITH VALUES", "WITHVALUES", true)
+            .replace("WITH KEYS", "WITHKEYS", true) + " "
 }
 
 private class TokenReader(private val charReader: CharReader) {
@@ -74,20 +76,20 @@ private object PunctuationParser : TokenParser {
     override fun parse(charReader: CharReader): Token? {
         val char = charReader.peek()
         when (char) {
-            ',', '(', ')', '[', ']', '<', '>', '#' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString(), charReader.currentPos)
+            ',', '(', ')', '[', ']', '<', '>', '#' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString(), charReader.currentPos - 1)
             '!' -> {
                 if (charReader.extendedPeek(2) == "!#") {
-                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}", charReader.currentPos)
+                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}", charReader.currentPos - 2)
                 }
                 if (charReader.extendedPeek(2) == "!=") {
-                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}", charReader.currentPos)
+                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}", charReader.currentPos - 2)
                 }
             }
             '=' -> {
                 if (charReader.extendedPeek(2) == "==") {
-                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}", charReader.currentPos)
+                    return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}", charReader.currentPos - 2)
                 } else {
-                    return Token(Token.Type.PUNCTUATION, charReader.next().toString(), charReader.currentPos)
+                    return Token(Token.Type.PUNCTUATION, charReader.next().toString(), charReader.currentPos - 1)
                 }
             }
         }
@@ -115,7 +117,7 @@ private object NumberParser : TokenParser {
         while (next != null) {
             if (next == '.') {
                 if (hasDot) {
-                    return Token(Token.Type.NUMBER, output.toString(), charReader.currentPos)
+                    return Token(Token.Type.NUMBER, output.toString(), charReader.currentPos - output.length)
                 } else {
                     hasDot = true
                     output.append(charReader.next()!!)
@@ -123,17 +125,17 @@ private object NumberParser : TokenParser {
             } else if (next.isDigit()) {
                 output.append(charReader.next()!!)
             } else {
-                return Token(Token.Type.NUMBER, output.toString(), charReader.currentPos)
+                return Token(Token.Type.NUMBER, output.toString(), charReader.currentPos - output.length)
             }
             next = charReader.peek()
         }
 
-        return Token(Token.Type.NUMBER, output.toString(), charReader.currentPos)
+        return Token(Token.Type.NUMBER, output.toString(), charReader.currentPos - output.length)
     }
 }
 
 private object KeywordParser : TokenParser {
-    private val KEYWORDS = listOf("SELECT", "DESCRIBE", "DISTINCT", "SUM", "ELEMENT", "FOR", "SEARCH", "KEYS", "VALUES", "SPECIFIC", "MIN", "MAX", "COUNT", "VALUE", "KEY", "LIMIT", "OFFSET", "WITHKEYS", "PRETTY", "ASJSON", "ORDERBY", "WHERE", "DESC", "FROM")
+    private val KEYWORDS = listOf("SELECT", "DESCRIBE", "DISTINCT", "SUM", "ELEMENT", "FOR", "SEARCH", "KEYS", "VALUES", "SPECIFIC", "MIN", "MAX", "COUNT", "VALUE", "KEY", "LIMIT", "OFFSET", "WITHKEYS", "PRETTY", "ASJSON", "ORDERBY", "WHERE", "DESC", "FROM", "WITHVALUES", "CASESENSITIVE")
 
     override fun canParse(charReader: CharReader) = charReader.peek()?.isLetter() ?: false
     override fun parse(charReader: CharReader): Token? {
@@ -149,7 +151,7 @@ private object KeywordParser : TokenParser {
         }
 
         if (KEYWORDS.contains(output.toString().toUpperCase(Locale.US))) {
-            return Token(Token.Type.KEYWORD, output.toString().toUpperCase(Locale.US), charReader.currentPos)
+            return Token(Token.Type.KEYWORD, output.toString().toUpperCase(Locale.US), charReader.currentPos - output.length)
         } else {
             throw SyntaxException("Invalid token '$output' at $startIdx")
         }
@@ -175,7 +177,7 @@ private object StringParser : TokenParser {
                 str += ch
             }
         }
-        return Token(Token.Type.STRING, str, charReader.currentPos)
+        return Token(Token.Type.STRING, str, charReader.currentPos - str.length)
     }
 }
 

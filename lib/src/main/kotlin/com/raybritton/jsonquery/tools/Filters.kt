@@ -69,14 +69,14 @@ private fun JsonArray.where(query: Query): JsonArray {
         val result = mutableListOf<Any>()
         if (query.where.field == ELEMENT) {
             for (element in this) {
-                if (element.isValue() && element.matches(query.where)) {
+                if (element.isValue() && element.matches(query.where, query.caseSensitive)) {
                     result.add(element)
                 }
             }
         } else {
             for (element in this) {
                 val target = element.navigate(query.where.field)
-                if (target.isValue() && target.matches(query.where)) {
+                if (target.isValue() && target.matches(query.where, query.caseSensitive)) {
                     result.add(element)
                 }
             }
@@ -105,15 +105,15 @@ private fun JsonArray.limit(query: Query): JsonArray {
     }
 }
 
-private fun Any?.matches(where: Query.Where): Boolean {
+private fun Any?.matches(where: Query.Where, caseSensitive: Boolean): Boolean {
     when (where.operator) {
         Query.Where.Operator.EQUAL -> {
-            if (this.isSameValueAs(where.compare)) {
+            if (this.isSameValueAs(where.compare, caseSensitive)) {
                 return true
             }
         }
         Query.Where.Operator.NOT_EQUAL -> {
-            if (!this.isSameValueAs(where.compare)) {
+            if (!this.isSameValueAs(where.compare, caseSensitive)) {
                 return true
             }
         }

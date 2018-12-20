@@ -17,7 +17,7 @@ internal fun Any?.compareTo(query: Query, rhs: Any?): Int {
         }
         return result
     } else if (this is String && rhs is String) {
-        var result = this.compareTo(rhs)
+        var result = this.compareTo(rhs, !query.caseSensitive)
         if (query.desc) {
             result *= -1
         }
@@ -26,7 +26,7 @@ internal fun Any?.compareTo(query: Query, rhs: Any?): Int {
     return 0
 }
 
-internal fun Any?.isSameValueAs(rhs: Any?): Boolean {
+internal fun Any?.isSameValueAs(rhs: Any?, caseSensitive: Boolean): Boolean {
     if (this == null && rhs != null) {
         return false
     }
@@ -39,7 +39,7 @@ internal fun Any?.isSameValueAs(rhs: Any?): Boolean {
     if (this is Number && rhs is Number) {
         return this.toDouble() == rhs.toDouble()
     } else if (this is String && rhs is String) {
-        return this.equals(rhs, true)
+        return this.equals(rhs, !caseSensitive)
     } else if (this is String && rhs is Number) {
         return this.toDoubleOrNull() ?: 0.0 == rhs.toDouble()
     } else if (this is Number && rhs is String) {

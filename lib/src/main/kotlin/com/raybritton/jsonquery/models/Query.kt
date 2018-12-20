@@ -1,18 +1,20 @@
 package com.raybritton.jsonquery.models
 
 internal data class Query(val method: Method,
-                 val target: String,
-                 val targetExtra: TargetExtra? = null,
-                 val targetKeys: List<String> = listOf(),
-                 val offset: Int? = null,
-                 val limit: Int? = null,
-                 val where: Where? = null,
-                 val asJson: Boolean = false,
-                 val desc: Boolean = false,
-                 val distinct: Boolean = false,
-                 val pretty: Boolean = false,
-                 val withKeys: Boolean = false,
-                 val order: String? = null) {
+                          val target: String,
+                          val targetExtra: TargetExtra? = null,
+                          val targetKeys: List<String> = listOf(),
+                          val offset: Int? = null,
+                          val limit: Int? = null,
+                          val where: Where? = null,
+                          val asJson: Boolean = false,
+                          val desc: Boolean = false,
+                          val distinct: Boolean = false,
+                          val pretty: Boolean = false,
+                          val withKeys: Boolean = false,
+                          val withValues: Boolean = false,
+                          val caseSensitive: Boolean = false,
+                          val order: String? = null) {
     enum class Method {
         DESCRIBE, SELECT, SEARCH
     }
@@ -105,6 +107,12 @@ internal data class Query(val method: Method,
                 builder.append(" ")
             }
             builder.appendWrapped(targetKeys[0])
+            if (caseSensitive) {
+                builder.append(" CASE SENSITIVE")
+            }
+            if (withValues) {
+                builder.append(" WITH VALUES")
+            }
         } else {
             builder.append(method)
             builder.append(" ")
@@ -122,7 +130,8 @@ internal data class Query(val method: Method,
                     }
                     TargetExtra.SPECIFIC -> {
                         when (targetKeys.size) {
-                            0 -> {}
+                            0 -> {
+                            }
                             1 -> builder.appendWrapped(targetKeys[0])
                             else -> targetKeys.joinTo(builder, ", ", "(", ")", transform = { '"' + it + '"' })
                         }
@@ -143,6 +152,9 @@ internal data class Query(val method: Method,
                     builder.append(where.compare)
                 } else {
                     builder.appendWrapped(where.compare.toString())
+                }
+                if (caseSensitive) {
+                    builder.append(" CASE SENSITIVE")
                 }
             }
             if (order != null) {
@@ -194,8 +206,10 @@ internal data class Query(val method: Method,
         var distinct: Boolean = false
         var pretty: Boolean = false
         var withKeys: Boolean = false
+        var withValues: Boolean = false
+        var caseSensitive: Boolean = false
         var order: String? = null
 
-        fun build() = Query(method!!, target!!, targetExtra, targetKeys, offset, limit, where, asJson, desc, distinct, pretty, withKeys, order)
+        fun build() = Query(method!!, target!!, targetExtra, targetKeys, offset, limit, where, asJson, desc, distinct, pretty, withKeys, withValues, caseSensitive, order)
     }
 }

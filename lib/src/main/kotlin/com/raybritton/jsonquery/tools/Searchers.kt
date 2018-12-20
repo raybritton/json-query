@@ -22,13 +22,21 @@ internal fun JsonObject.search(query: Query, path: String): List<String> {
     for (key in keys) {
         val value = get(key)
         if (query.targetExtra == Query.TargetExtra.KEY || query.targetExtra == Query.TargetExtra.BOTH) {
-            if (key.isSameValueAs(query.targetKeys[0])) {
-                output.add("$prefix.$key: ${get(key)}")
+            if (key.isSameValueAs(query.targetKeys[0], query.caseSensitive)) {
+                if (query.withValues) {
+                    output.add("$prefix.$key: ${get(key)}")
+                } else {
+                    output.add("$prefix.$key")
+                }
             }
         }
         if (query.targetExtra == Query.TargetExtra.VALUE || query.targetExtra == Query.TargetExtra.BOTH) {
-            if (value.isValue() && value.isSameValueAs(query.targetKeys[0])) {
-                output.add("$prefix.$key: $value")
+            if (value.isValue() && value.isSameValueAs(query.targetKeys[0], query.caseSensitive)) {
+                if (query.withValues) {
+                    output.add("$prefix.$key: $value")
+                } else {
+                    output.add("$prefix.$key")
+                }
             }
         }
         if (!value.isValue()) {
@@ -46,8 +54,12 @@ internal fun JsonArray.search(query: Query, path: String = ""): List<String> {
             Query.TargetExtra.KEY -> {
             }
             Query.TargetExtra.VALUE, Query.TargetExtra.BOTH -> {
-                if (value.isValue() && value.isSameValueAs(query.targetKeys[0])) {
-                    output.add("$prefix.[$i]: $value")
+                if (value.isValue() && value.isSameValueAs(query.targetKeys[0], query.caseSensitive)) {
+                    if (query.withValues) {
+                        output.add("$prefix.[$i]: $value")
+                    } else {
+                        output.add("$prefix.[$i]")
+                    }
                 }
             }
             else -> throw IllegalStateException("Search with invalid modifier: ${query.targetExtra}")

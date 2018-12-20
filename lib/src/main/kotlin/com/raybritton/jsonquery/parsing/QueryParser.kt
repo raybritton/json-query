@@ -57,9 +57,25 @@ internal fun List<Token>.buildQuery(): Query {
                         builder.checkTargetExtras("WITH KEYS", Query.TargetExtra.SPECIFIC)
                         builder.withKeys = true
                     }
+                    "WITHVALUES" -> {
+                        builder.allowedMethods("WITH VALUES", Query.Method.SEARCH)
+                        builder.checkTargetExtras("WITH VALUES", Query.TargetExtra.KEY, Query.TargetExtra.VALUE, Query.TargetExtra.BOTH)
+                        builder.withValues = true
+                    }
                     "ORDERBY" -> {
                         builder.allowedMethods("ORDER BY", Query.Method.SELECT)
                         tokenIdx += parseOrderBy(this.subList(tokenIdx, size), builder)
+                    }
+                    "CASESENSITIVE" -> {
+                        builder.checkMethodSet()
+                        when (builder.method) {
+                            Query.Method.DESCRIBE, Query.Method.SELECT -> {
+                                if (builder.where == null) {
+                                    throw SyntaxException(token, " nothing: CASE SENSITIVE only works with WHERE")
+                                }
+                            }
+                        }
+                        builder.caseSensitive = true
                     }
                     else -> throw SyntaxException(token, "KEYWORD")
                 }
@@ -215,22 +231,16 @@ private fun parseSearch(list: List<Token>, builder: Query.Builder): Int {
     if (list.size == 3 || list[2].type != Token.Type.KEYWORD || list[2].value != "FOR") {
         throw SyntaxException(list[2], "FOR")
     }
-    if (list.size == 4) {
-        if (list[3].type == Token.Type.STRING) {
-            builder.targetExtra = Query.TargetExtra.BOTH
-            builder.targetKeys = listOf(list[3].value)
-            return 3
-        } else {
-            throw SyntaxException(list[3], "(KEY | VALUE) or search term (must be a string)")
-        }
+    if (list[3].type == Token.Type.STRING) {
+        builder.targetExtra = Query.TargetExtra.BOTH
+        builder.targetKeys = listOf(list[3].value)
+        return 3
+    } else if (list[3].type == Token.Type.KEYWORD && list[4].type == Token.Type.STRING && (list[3].value == "KEY" || list[3].value == "VALUE")) {
+        builder.targetExtra = Query.TargetExtra.valueOf(list[3].value)
+        builder.targetKeys = listOf(list[4].value)
+        return 4
     } else {
-        if (list[3].type == Token.Type.KEYWORD && list[4].type == Token.Type.STRING && (list[3].value == "KEY" || list[3].value == "VALUE")) {
-            builder.targetExtra = Query.TargetExtra.valueOf(list[3].value)
-            builder.targetKeys = listOf(list[4].value)
-            return 4
-        } else {
-            throw SyntaxException(list[3], "(KEY | VALUE) or search term (must be a string)")
-        }
+        throw SyntaxException(list[3], "(KEY | VALUE) or search term (must be a string)")
     }
 }
 

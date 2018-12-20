@@ -9,6 +9,10 @@ fun main(args: Array<String>) {
     val progArgs = ProgArgs.build(args)
     val jsonQuery = JsonQuery()
     jsonQuery.loadJson(progArgs.input)
-    val output = jsonQuery.query(progArgs.query)
-    println(output)
+    try {
+        val output = jsonQuery.query(progArgs.query)
+        println(output)
+    }   catch (e: SyntaxException) {
+        println(e.message!!)
+    }
 }
