@@ -68,11 +68,7 @@ internal fun JsonObject.filter(query: Query): Any {
                     iterator.remove()
                 }
             }
-            if (size == 1) {
-                return this
-            } else {
-                this
-            }
+            this
         }
         else -> this
     }
