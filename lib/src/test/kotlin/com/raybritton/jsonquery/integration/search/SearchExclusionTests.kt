@@ -1,5 +1,6 @@
-package com.raybritton.jsonquery
+package com.raybritton.jsonquery.integration.search
 
+import com.raybritton.jsonquery.JsonQuery
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

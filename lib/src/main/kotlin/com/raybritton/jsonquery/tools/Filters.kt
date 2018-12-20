@@ -14,12 +14,51 @@ internal fun Any?.filter(query: Query): Any {
         is JsonObject -> this.filter(query)
         is JsonArray -> this.filter(query)
         else -> this
+    }.let {
+        if (query.targetExtra == Query.TargetExtra.KEYS || query.targetExtra == Query.TargetExtra.VALUES) {
+            it.toFlatList().let {
+                if (query.distinct) {
+                    it.distinct()
+                } else {
+                    it
+                }
+            }
+        } else {
+            it
+        }
     }
+}
+
+internal fun Any?.toFlatList(): List<Any?> {
+    return when (this) {
+        is JsonObject -> {
+            val list = mutableListOf<Any?>()
+            for(key in keys) { list.addAll(this[key].toFlatList()) }
+            list
+        }
+        is JsonArray -> {
+            val list = mutableListOf<Any?>()
+            forEach { list.addAll(it.toFlatList()) }
+            list
+        }
+        else -> listOf(this)
+    }
+}
+
+internal fun JsonObject.toKeys(): List<Any> {
+    val list = mutableListOf<Any>()
+    forEach<Any, Any> { (key, _) ->
+        list.add(key)
+        if (this[key] is JsonObject) {
+            list.addAll((this[key] as JsonObject).toKeys())
+        }
+    }
+    return list
 }
 
 internal fun JsonObject.filter(query: Query): Any {
     return when (query.targetExtra) {
-        Query.TargetExtra.KEYS -> ArrayList(keys)
+        Query.TargetExtra.KEYS -> this.toKeys()
         Query.TargetExtra.VALUES -> ArrayList(values)
         Query.TargetExtra.SPECIFIC -> {
             val iterator = iterator()
@@ -59,7 +98,7 @@ internal fun JsonArray.filter(query: Query): Any {
         Query.TargetExtra.MAX -> list.getValues(query).max()
         Query.TargetExtra.COUNT -> list.getValues(query).size
         Query.TargetExtra.SUM -> list.getValues(query).sum()
-        Query.TargetExtra.KEYS, Query.TargetExtra.VALUES -> list.map { it.filter(query) }.distinct()
+        Query.TargetExtra.KEYS, Query.TargetExtra.VALUES -> list.map { it.filter(query) }
         else -> list
     }
 }

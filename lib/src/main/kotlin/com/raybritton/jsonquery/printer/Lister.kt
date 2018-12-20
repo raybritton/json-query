@@ -13,14 +13,22 @@ internal fun Any?.print(query: Query, isRoot: Boolean = false): String {
         else -> {
             if (query.withKeys) { //use the key from the query as the actual key has been lost by this point
                 if (query.targetKeys.isNotEmpty()) {
-                    "${query.targetKeys[0]}: $this"
+                    "${query.targetKeys[0]}: ${this.wrap()}"
                 } else {
-                    "${query.target.substring(1)}: $this"
+                    "${query.target.substring(1)}: ${this.wrap()}"
                 }
             } else {
-                this.toString()
+                this.wrap()
             }
         }
+    }
+}
+
+private fun Any?.wrap(): String {
+    if (this is String) {
+        return '"' + this + '"'
+    } else {
+        return this.toString()
     }
 }
 
