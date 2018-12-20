@@ -58,11 +58,7 @@ internal fun JsonArray.navigate(path: String): Any? {
         val idx = matcher.group(2).toInt()
         return this[idx].navigate(path.getRemainingPath())
     } else {
-        if (path.getRemainingPath().isEmpty()) {
-            return this
-        } else {
-            throw IllegalStateException("Array index access required")
-        }
+        return map { it.navigate(path) }
     }
 }
 
