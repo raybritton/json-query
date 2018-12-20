@@ -76,7 +76,7 @@ private object PunctuationParser : TokenParser {
     override fun parse(charReader: CharReader): Token? {
         val char = charReader.peek()
         when (char) {
-            ',', '(', ')', '[', ']', '<', '>', '#' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString(), charReader.currentPos - 1)
+            ',', '(', ')',  '<', '>', '#' -> return Token(Token.Type.PUNCTUATION, charReader.next()!!.toString(), charReader.currentPos - 1)
             '!' -> {
                 if (charReader.extendedPeek(2) == "!#") {
                     return Token(Token.Type.PUNCTUATION, "${charReader.next()}${charReader.next()}", charReader.currentPos - 2)

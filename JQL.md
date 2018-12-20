@@ -53,15 +53,18 @@ SEARCH
 * DISTINCT
     * This is used to only allow distinct values to be returned
 * mathExpr 
-    * `MAX(ELEMENT|field)`
-    * `MIN(ELEMENT|field)`
-    * `COUNT(ELEMENT|field)`
-    * `SUM(ELEMENT|field)`
+    * `MAX(ELEMENT)`
+    * `MIN(ELEMENT)`
+    * `COUNT(ELEMENT)`
+    * `SUM(ELEMENT)`
+        * When using math expressison the target (the string after FROM) must be an array
+        * Non number values in the array are ignored
+        * NaN will be returned for MIN, MAX and SUM if the array contains no numbers
 * KEYS | VALUES | field | fields | mathExpr
     * `KEYS` only returns the keys from an object
     * `VALUES` only returns the values from an object
-    * field should be written as `"id"`
-    * fields should be written as `("id", "name")`
+    * field must be written as `"id"`
+    * fields must be written as `("id", "name")`
     * All of these be followed by `FROM`
 * jsonPath
     * Parts of the json can be specified using a path

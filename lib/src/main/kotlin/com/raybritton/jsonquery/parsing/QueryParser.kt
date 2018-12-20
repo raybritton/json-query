@@ -77,7 +77,10 @@ internal fun List<Token>.buildQuery(): Query {
                         }
                         builder.caseSensitive = true
                     }
-                    else -> throw SyntaxException(token, "KEYWORD")
+                    else -> {
+                        builder.checkMethodSet()
+                        throw SyntaxException(token, "KEYWORD")
+                    }
                 }
             }
             else -> throw SyntaxException(token, "KEYWORD")
