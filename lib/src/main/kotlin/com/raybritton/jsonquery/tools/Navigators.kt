@@ -30,7 +30,7 @@ internal fun Any?.navigate(path: String): Any? {
     return when (this) {
         is JsonObject -> this.navigate(path)
         is JsonArray -> this.navigate(path)
-        else -> throw IllegalStateException("Failed to navigate with '$path' inside ${this::class.java.simpleName}")
+        else -> throw IllegalStateException("Unknown field '$path'")
     }
 }
 

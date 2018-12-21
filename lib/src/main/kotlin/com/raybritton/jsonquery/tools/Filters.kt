@@ -57,22 +57,25 @@ internal fun JsonObject.toKeys(): List<Any> {
 }
 
 internal fun JsonObject.filter(query: Query): Any {
+    val obj = this//.where(query)
     return when (query.targetExtra) {
-        Query.TargetExtra.KEYS -> this.toKeys()
-        Query.TargetExtra.VALUES -> ArrayList(values)
+        Query.TargetExtra.KEYS -> obj.toKeys()
+        Query.TargetExtra.VALUES -> ArrayList(obj.values)
         Query.TargetExtra.SPECIFIC -> {
-            val iterator = iterator()
+            val iterator = obj.iterator()
             while (iterator.hasNext()) {
                 val pair = iterator.next()
                 if (!query.targetKeys.contains(pair.key)) {
                     iterator.remove()
                 }
             }
-            this
+            obj
         }
-        else -> this
+        else -> obj
     }
 }
+
+
 
 internal fun JsonArray.getValues(query: Query): List<Any?> {
     if (query.targetKeys[0] == ELEMENT) {
@@ -99,29 +102,6 @@ internal fun JsonArray.filter(query: Query): Any {
     }
 }
 
-private fun JsonArray.where(query: Query): JsonArray {
-    if (query.where != null) {
-        val result = mutableListOf<Any>()
-        if (query.where.field == ELEMENT) {
-            for (element in this) {
-                if (element.isValue() && element.matches(query.where, query.caseSensitive)) {
-                    result.add(element)
-                }
-            }
-        } else {
-            for (element in this) {
-                val target = element.navigate(query.where.field)
-                if (target.isValue() && target.matches(query.where, query.caseSensitive)) {
-                    result.add(element)
-                }
-            }
-        }
-        return ArrayList(result)
-    } else {
-        return this
-    }
-}
-
 private fun JsonArray.skip(query: Query): JsonArray {
     if (query.offset == null) {
         return this
@@ -140,47 +120,3 @@ private fun JsonArray.limit(query: Query): JsonArray {
     }
 }
 
-private fun Any?.matches(where: Query.Where, caseSensitive: Boolean): Boolean {
-    val value = if (this is Pair<*,*>) second else this
-    when (where.operator) {
-        Query.Where.Operator.EQUAL -> {
-            if (value.isSameValueAs(where.compare, caseSensitive)) {
-                return true
-            }
-        }
-        Query.Where.Operator.NOT_EQUAL -> {
-            if (!value.isSameValueAs(where.compare, caseSensitive)) {
-                return true
-            }
-        }
-        Query.Where.Operator.LESS_THAN -> {
-            if (value is String) {
-                if (value < where.compare.toString()) {
-                    return true
-                }
-            } else if ((value.toString().toDoubleOrNull() ?: 0.0) < (where.compare.toString().toDoubleOrNull() ?: 0.0)) {
-                return true
-            }
-        }
-        Query.Where.Operator.GREATER_THAN -> {
-            if (value is String) {
-                if (value < where.compare.toString()) {
-                    return true
-                }
-            } else if ((value.toString().toDoubleOrNull() ?: 0.0) > (where.compare.toString().toDoubleOrNull() ?: 0.0)) {
-                return true
-            }
-        }
-        Query.Where.Operator.CONTAINS -> {
-            if (value != null && (value.toString()).contains(where.compare.toString())) {
-                return true
-            }
-        }
-        Query.Where.Operator.NOT_CONTAINS -> {
-            if (value == null || !(value.toString()).contains(where.compare.toString())) {
-                return true
-            }
-        }
-    }
-    return false
-}
