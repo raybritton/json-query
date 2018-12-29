@@ -1,6 +1,8 @@
 package com.raybritton.jsonquery.parsing.tokens
 
 import com.raybritton.jsonquery.ext.isSameValueAs
+import com.raybritton.jsonquery.models.JsonArray
+import com.raybritton.jsonquery.models.JsonObject
 import com.raybritton.jsonquery.models.Value
 
 /**
@@ -21,8 +23,9 @@ internal sealed class Operator(val symbol: String) {
     object Contains : Operator("#") {
         override fun op(lhs: Any?, rhs: Value<*>, caseSensitive: Boolean): Boolean {
             return when {
-                (lhs is String && rhs is Value.ValueString) -> lhs.contains(rhs.value, caseSensitive)
-                lhs is Array<*> -> lhs.any { lhs.isSameValueAs(rhs, caseSensitive) }
+                (lhs is String && rhs is Value.ValueString) -> lhs.contains(rhs.value, !caseSensitive)
+                lhs is JsonArray -> lhs.any { it.isSameValueAs(rhs, caseSensitive) }
+                lhs is JsonObject -> lhs.keys.any { it.isSameValueAs(rhs, caseSensitive) }
                 else -> false //TODO throw?
             }
         }
