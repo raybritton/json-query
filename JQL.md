@@ -2,33 +2,32 @@
 
 #### Json Query Language
 
+See new [syntax documentation](https://jql.dokku-ray.app/docs) 
+
 JQL is designed to be used to query json so that values, objects or arrays can be extracted based on filters and limits.
 
 Note: all numbers are output as decimals as JSON only has one number type: double.
-
-Key:
-* [] = optional
-* () = Pick one
 
 <pre>
 SELECT
     [DISTINCT]
     [(KEYS|VALUES|field|fields|mathExpr) FROM]
-    jsonPath
+    target
+    [BY ELEMENT]
     [WHERE field operator value [CASE SENSITIVE]]
     [LIMIT value]
     [OFFSET value]
+    [ORDER BY field [DESC]]
     [WITH KEYS]
     [AS JSON]
     [PRETTY]
-    [ORDER BY field [DESC]]
 </pre>
 
 <pre>
 DESCRIBE
     [DISTINCT]
     [(field|fields) FROM]
-    jsonPath
+    searchTerm
     [WHERE field operator value [CASE SENSITIVE]]
     [LIMIT value]
     [OFFSET value]
@@ -37,9 +36,10 @@ DESCRIBE
 
 <pre>
 SEARCH
-    jsonPath
+    target
     FOR
     [(KEY | VALUE)]
+    [LIKE]
     searchTerm
     [CASE SENSITIVE]
     [WITH VALUES]
@@ -53,10 +53,10 @@ SEARCH
 * DISTINCT
     * This is used to only allow distinct values to be returned
 * mathExpr 
-    * `MAX(ELEMENT)`
-    * `MIN(ELEMENT)`
-    * `COUNT(ELEMENT)`
-    * `SUM(ELEMENT)`
+    * `MAX(ELEMENT | jsonPath)`
+    * `MIN(ELEMENT | jsonPath)`
+    * `COUNT(ELEMENT | jsonPath)`
+    * `SUM(ELEMENT | jsonPath)`
         * When using math expressison the target (the string after FROM) must be an array
         * Non number values in the array are ignored
         * NaN will be returned for MIN, MAX and SUM if the array contains no numbers
@@ -66,6 +66,9 @@ SEARCH
     * field must be written as `"id"`
     * fields must be written as `("id", "name")`
     * All of these be followed by `FROM`
+* target
+    * jsonPath 
+    * Or the results of a nested SELECT
 * jsonPath
     * Parts of the json can be specified using a path
     * Each segment should be separated by a `.` (Fullstop/Period)
@@ -79,13 +82,16 @@ SEARCH
     * field should be written as `"id"`
         * To refer to list element use `ELEMENT`
     * operator:
-        * `=` Equal
+        * `==` Equal
         * `!=` Not equal
         * `>` Greater than
         * `<` Less than
-        * `#` Contains
-        * `!#` Not contains
-    * value should be written as `1` or `"a"`
+        * `>=` Greater than or equal
+        * `<=` Less than or equal
+        * `#` Contains (array, object, or string) 
+        * `!#` Not contains (array, object, or string)
+        
+        (with objects contains checks for keys existence (`"key": null` counts as existing))
 * LIMIT
     * This only is used if the target is an array
     * This is the maximum number of results
@@ -110,15 +116,32 @@ SEARCH
     * This only works with SELECT
 * CASE SENSITIVE
     * Equals, contains and search are case insensitive by default, adding this makes them case sensitive
+* searchTerm
+    * A string, number, 'TRUE' or 'FALSE', 'NULL'
+    * Or the results of a nested SELECT
+* BY ELEMENT
+    * Splits the results by their position on the target
+    * If the json was an array of two objects both with an array of numbers inside i.e `[{numbers: [1,2,3], numbers: [5,6,10]}]` and the query was `SELECT SUM('.numbers') FROM '.'` the result would be `27` but with `BY ELEMENT` it becomes `[6,21]` 
 
 * SEARCH
     * Search json data for a searchTerm
 * KEY | VALUE
     * Search can look at just keys, values or both
-* searchTerm
-    * A string (numbers and booleans will be cast for comparision)
 * WITH VALUES
     * Print found value with location
+* LIKE
+    * Only a partial match is needed (only works for strings)
+
+Nested SELECTs:
+
+These must be surrounded by parenthesis and for
+ 
+* `target` use AS JSON
+* `searchTerm` not use AS JSON
+
+i.e.
+
+`SELECT 'name' FROM (SELECT 'person' FROM '.' WHERE ... AS JSON) ...` 
 
 #### Examples
 
