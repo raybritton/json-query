@@ -6,15 +6,13 @@ import com.raybritton.jsonquery.JQLogger
  * Turns a string into a peekable stream
  */
 
-internal fun String.charParser() = CharParser(this)
-
 internal class CharParser(string: String) {
     private val chars = string.toCharArray()
     var currentPos = 0
         private set
 
     fun peek(): Char? {
-        if (currentPos >= chars.size - 1) {
+        if (currentPos >= chars.size) {
             JQLogger.info("cr peek - out of range")
             return null
         }
@@ -37,7 +35,7 @@ internal class CharParser(string: String) {
     }
 
     fun next(): Char? {
-        if (currentPos >= chars.size - 1) {
+        if (currentPos >= chars.size) {
             JQLogger.info("cr next - out of range")
             return null
         }
