@@ -101,12 +101,17 @@ internal object NumberParser : TokenParser<Token.NUMBER> {
         var isNegative = false
 
         val make: () -> Token.NUMBER = {
-            Token.NUMBER(output.toString().toDouble() * if (isNegative) -1 else 1, charReader.currentPos - output.length)
+            Token.NUMBER(output.toString().toDouble(), charReader.currentPos - output.length)
         }
 
         while (next != null) {
             if (next == '-') {
-                isNegative = true
+                if (isNegative) {
+                    return make()
+                } else {
+                    isNegative = true
+                    output.append(charReader.next()!!)
+                }
             } else if (next == '.') {
                 if (hasDot) {
                     return make()
@@ -122,8 +127,7 @@ internal object NumberParser : TokenParser<Token.NUMBER> {
             next = charReader.peek()
         }
 
-        throw UnsupportedOperationException("Not reachable? $output")
-//        return Token.NUMBER(output.toString().toDouble(), charReader.currentPos - output.length)
+        return make()
     }
 }
 
