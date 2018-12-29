@@ -1,4 +1,4 @@
-package com.raybritton.jsonquery.unit
+package com.raybritton.jsonquery.unit.navigation
 
 import com.raybritton.jsonquery.RuntimeException
 import com.raybritton.jsonquery.models.JsonArray
@@ -8,7 +8,6 @@ import com.raybritton.jsonquery.tools.navigateToTarget
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
-
 
 class InvalidNavigationTests {
     @Rule
@@ -78,7 +77,7 @@ class InvalidNavigationTests {
     @Test
     fun `test navigating to the root object`() {
         exceptionRule.expect(RuntimeException::class.java)
-        exceptionRule.expectMessage("Path (.) resulted in an object or array")
+        exceptionRule.expectMessage("Path '.' resulted in an object or array")
 
         val obj = JsonObject("foo" to 1)
 
@@ -88,7 +87,7 @@ class InvalidNavigationTests {
     @Test
     fun `test navigating to the root array`() {
         exceptionRule.expect(RuntimeException::class.java)
-        exceptionRule.expectMessage("Path (.) resulted in an object or array")
+        exceptionRule.expectMessage("Path '.' resulted in an object or array")
 
         val arr = JsonArray(1, 2)
 
@@ -98,7 +97,7 @@ class InvalidNavigationTests {
     @Test
     fun `test navigating to object in root object`() {
         exceptionRule.expect(RuntimeException::class.java)
-        exceptionRule.expectMessage("Path (.foo) resulted in an object or array")
+        exceptionRule.expectMessage("Path '.foo' resulted in an object or array")
 
         val inner = JsonObject("bar" to "test")
         val obj = JsonObject("foo" to inner)
@@ -109,7 +108,7 @@ class InvalidNavigationTests {
     @Test
     fun `test navigating to object in in object in root object`() {
         exceptionRule.expect(RuntimeException::class.java)
-        exceptionRule.expectMessage("Path (.foo.bar) resulted in an object or array")
+        exceptionRule.expectMessage("Path '.foo.bar' resulted in an object or array")
 
         val deep = JsonObject("baz" to "test")
         val inner = JsonObject("bar" to deep)

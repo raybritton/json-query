@@ -1,4 +1,4 @@
-package com.raybritton.jsonquery.unit
+package com.raybritton.jsonquery.unit.navigation
 
 import com.raybritton.jsonquery.models.JsonArray
 import com.raybritton.jsonquery.models.JsonObject

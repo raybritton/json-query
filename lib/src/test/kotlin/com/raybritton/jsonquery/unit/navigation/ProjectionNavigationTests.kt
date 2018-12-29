@@ -1,4 +1,4 @@
-package com.raybritton.jsonquery.unit
+package com.raybritton.jsonquery.unit.navigation
 
 import com.raybritton.jsonquery.models.JsonArray
 import com.raybritton.jsonquery.models.JsonObject
@@ -134,7 +134,7 @@ class ProjectionNavigationTests {
     fun `test navigating to the root object`() {
         val obj = JsonObject("foo" to 1)
 
-        val result = obj.navigateToTargetOrProjection(".")
+        val result = obj.navigateToTargetOrProjection("")
 
         assertEquals("No nav in obj", obj, result)
     }
@@ -143,7 +143,7 @@ class ProjectionNavigationTests {
     fun `test navigating to the root array`() {
         val arr = JsonArray(1, 2)
 
-        val result = arr.navigateToTargetOrProjection(".")
+        val result = arr.navigateToTargetOrProjection("")
 
         assertEquals("No nav in arr", arr, result)
     }

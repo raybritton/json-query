@@ -38,7 +38,7 @@ internal fun Any?.navigateToProjection(path: String): Any? {
     if (this == null) return this
     val result = this.navigate(path, false)
     if (result is JsonArray || result is JsonObject) {
-        throw RuntimeException("Path ($path) resulted in an object or array", RuntimeException.ExtraInfo.NAVIGATED_NON_VALUE)
+        throw RuntimeException("Path '$path' resulted in an object or array", RuntimeException.ExtraInfo.NAVIGATED_NON_VALUE)
     }
     return result
 }
