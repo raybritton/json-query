@@ -48,7 +48,7 @@ private class TokenReader(private val charReader: CharParser) {
 
     private fun read(): Token<*>? {
         parsers.forEach {
-            if (it.canParse(charReader)) {
+            if (charReader.peek() != null && it.canParse(charReader.peek()!!)) {
                 val token = it.parse(charReader)
                 JQLogger.info("is ${it::class.java.simpleName}")
                 JQLogger.info("read - returning $token")

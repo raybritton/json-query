@@ -10,12 +10,12 @@ import java.util.*
  */
 
 internal interface TokenParser<T> {
-    fun canParse(charReader: CharParser): Boolean
+    fun canParse(char: Char): Boolean
     fun parse(charReader: CharParser): T
 }
 
 internal object PunctuationParser : TokenParser<Token.PUNCTUATION> {
-    override fun canParse(charReader: CharParser) = "(),".contains(charReader.peek() ?: ' ')
+    override fun canParse(char: Char) = "(),".contains(char)
     override fun parse(charReader: CharParser): Token.PUNCTUATION {
         val char = charReader.peek()
         when (char) {
@@ -26,7 +26,7 @@ internal object PunctuationParser : TokenParser<Token.PUNCTUATION> {
 }
 
 internal object OperatorParser : TokenParser<Token.OPERATOR> {
-    override fun canParse(charReader: CharParser) = "=<>!#".contains(charReader.peek() ?: ' ')
+    override fun canParse(char: Char) = "=<>!#".contains(char)
     override fun parse(charReader: CharParser): Token.OPERATOR {
         val char = charReader.peek()
         when (char) {
@@ -82,9 +82,9 @@ internal object OperatorParser : TokenParser<Token.OPERATOR> {
 }
 
 internal object WhitespaceParser : TokenParser<Token.WHITESPACE> {
-    override fun canParse(charReader: CharParser) = charReader.peek()?.isWhitespace() ?: false
+    override fun canParse(char: Char) = char.isWhitespace()
     override fun parse(charReader: CharParser): Token.WHITESPACE {
-        while (canParse(charReader)) {
+        while (charReader.peek() != null && canParse(charReader.peek()!!)) {
             charReader.next()
         }
         return Token.WHITESPACE(charReader.currentPos)
@@ -92,7 +92,7 @@ internal object WhitespaceParser : TokenParser<Token.WHITESPACE> {
 }
 
 internal object NumberParser : TokenParser<Token.NUMBER> {
-    override fun canParse(charReader: CharParser) = charReader.peek()?.let { it.isDigit() || it == '-' } ?: false
+    override fun canParse(char: Char) = char.let { it.isDigit() || it == '-' }
     override fun parse(charReader: CharParser): Token.NUMBER {
         var next = charReader.peek()
         val output = StringBuilder()
@@ -128,13 +128,13 @@ internal object NumberParser : TokenParser<Token.NUMBER> {
 }
 
 internal object KeywordParser : TokenParser<Token.KEYWORD> {
-    override fun canParse(charReader: CharParser) = charReader.peek()?.isLetter() ?: false
+    override fun canParse(char: Char) = char.isLetter()
     override fun parse(charReader: CharParser): Token.KEYWORD {
         val startIdx = charReader.currentPos
         var next = charReader.peek()
         val output = StringBuilder()
         while (next != null) {
-            if (canParse(charReader)) {
+            if (charReader.peek() != null && canParse(charReader.peek()!!)) {
                 output.append(charReader.next()!!)
             } else {
                 next = null
@@ -150,7 +150,7 @@ internal object KeywordParser : TokenParser<Token.KEYWORD> {
 }
 
 internal object StringParser : TokenParser<Token.STRING> {
-    override fun canParse(charReader: CharParser) = charReader.peek() == '"' || charReader.extendedPeek(2) == "\"" || charReader.peek() == '\'' || charReader.extendedPeek(2) == "\'"
+    override fun canParse(char: Char) = char == '"' || char == '\''
     override fun parse(charReader: CharParser): Token.STRING {
         var escaped = false
         var str = ""
