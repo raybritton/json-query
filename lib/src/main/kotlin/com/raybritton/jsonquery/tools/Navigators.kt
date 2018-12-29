@@ -1,81 +1,100 @@
 package com.raybritton.jsonquery.tools
 
-import com.google.gson.internal.LinkedTreeMap
-import com.raybritton.jsonquery.JsonArray
-import com.raybritton.jsonquery.JsonObject
-import com.raybritton.jsonquery.ext.unescapeArrayNotation
-import com.raybritton.jsonquery.ext.unescapeDotNotation
+import com.raybritton.jsonquery.RuntimeException
+import com.raybritton.jsonquery.ext.toSegments
+import com.raybritton.jsonquery.models.JsonArray
+import com.raybritton.jsonquery.models.JsonObject
+import java.util.*
 
-/**
- * Gets the first part of the path
- * Group 1: First segment
- * Group 2: Remaining
- */
-private val FIRST_SEGMENT = "\\.?((?:\\\\.|[^.])*)(.*)".toPattern()
-/**
- * Used to check if segment has unescaped array access notation
- * If this matches the path is refering to just one element in an array
- * Group 1: Path
- * Group 2: Array index
- */
-private val INDEX_ACCESS = "((?:\\\\\"|[^\"])*)(?<!\\\\)\\[(\\d)\\]".toPattern()
+private class Box<T>(val value: T?)
 
-internal fun Any?.navigate(path: String): Any? {
-    if (this == null) {
-        throw IllegalStateException("Tried to navigate on null with $path")
+private val INDEX_ACCESSOR = "^\\[(\\d+)\\]$".toPattern()
+
+internal fun Any.navigateToTargetOrProjection(path: String): Any? {
+    return this.navigate(path, false)
+}
+
+internal fun Any.navigateToTarget(path: String): Any {
+    val result = this.navigate(path, true)
+    when (result) {
+        is JsonArray, is JsonObject -> return result
+        null -> throw RuntimeException("Target path resulted in a null value", RuntimeException.ExtraInfo.NAVIGATED_NULL)
+        else -> throw RuntimeException("Target path resulted in a value", RuntimeException.ExtraInfo.NAVIGATED_VALUE)
     }
-    if (path.isEmpty() || path == ".") {
+}
+
+internal fun Any?.navigateToProjection(path: String): Any? {
+    if (this == null) return this
+    val result = this.navigate(path, false)
+    if (result is JsonArray || result is JsonObject) {
+        throw RuntimeException("Path ($path) resulted in an object or array", RuntimeException.ExtraInfo.NAVIGATED_NON_VALUE)
+    }
+    return result
+}
+
+private fun Any.navigate(path: String, isTarget: Boolean, previouslyNavigatedPath: String? = null, inArray: Boolean = false): Any? {
+    if (path == ".") {
         return this
     }
-    return when (this) {
-        is JsonObject -> this.navigate(path)
-        is JsonArray -> this.navigate(path)
-        else -> throw IllegalStateException("Unknown field '$path'")
+
+    val segments = ArrayDeque(path.toSegments())
+    val navigated = mutableListOf<String>()
+    if (previouslyNavigatedPath != null) {
+        navigated.addAll(previouslyNavigatedPath.toSegments())
     }
+    var currentJson: Any? = this
+
+    while (segments.isNotEmpty()) {
+        val segment = segments.pop()
+        val navigatedPath = (navigated + segment).joinToString(".", prefix = if (isTarget) "." else "")
+        var result = when (currentJson) {
+            is JsonObject -> currentJson.navigate(segment, navigatedPath, inArray)
+            is JsonArray -> currentJson.navigate(segment, segments.joinToString("."), navigatedPath)
+            else -> this
+        }
+        navigated.add(segment)
+        if (result is List<*> && result.size == 1) {
+            result = result[0]
+        }
+        if (result is Box<*>) {
+            result = result.value
+        }
+        currentJson = result
+    }
+
+    return currentJson
 }
 
-internal fun JsonObject.navigate(path: String): Any? {
-        var segment = path.getFirstSegment().unescapeDotNotation()
-        val arrayMatcher = INDEX_ACCESS.matcher(segment)
-        if (arrayMatcher.matches()) { //moving to particular element in array
-            return get(arrayMatcher.group(1)).navigate(path)
-        }
-        segment = segment.unescapeArrayNotation()
-        if (get(segment) != null) {
-            if (path.count { it == '.' } > 0) { //continue navigating
-                return get(segment)!!.navigate(path.getRemainingPath())
+private fun JsonObject.navigate(segment: String, navigatedPath: String, inArray: Boolean): Box<*>? {
+    return if (containsKey(segment)) {
+        Box(get(segment))
+    } else {
+        if (INDEX_ACCESSOR.matcher(segment).matches()) {
+            throw RuntimeException("Attempted index access on object with '$navigatedPath'", RuntimeException.ExtraInfo.INDEX_ON_OBJECT)
+        } else {
+            if (inArray) {
+                return null
             } else {
-                return segment to get(segment)!! //end of journey
+                throw RuntimeException("Found nothing for '$navigatedPath'", RuntimeException.ExtraInfo.NAVIGATED_NOTHING)
             }
         }
-        return null
-}
-
-internal fun JsonArray.navigate(path: String): Any? {
-    val segment = path.getFirstSegment().unescapeDotNotation().unescapeArrayNotation()
-    val matcher = INDEX_ACCESS.matcher(segment)
-    if (matcher.matches()) {
-        val idx = matcher.group(2).toInt()
-        return this[idx].navigate(path.getRemainingPath())
-    } else {
-        return map { it.navigate(path) }
     }
 }
 
-internal fun String.getFirstSegment(): String {
-    val matcher = FIRST_SEGMENT.matcher(this)
-    if (matcher.matches()) {
-        return matcher.group(1)
+private fun JsonArray.navigate(segment: String, remainingPath: String, navigatedPath: String): Any {
+    val matcher = INDEX_ACCESSOR.matcher(segment)
+    return if (matcher.matches()) {
+        val index = matcher.group(1).toInt()
+        if (index >= size) {
+            throw RuntimeException("Index too high for '$navigatedPath'", RuntimeException.ExtraInfo.INDEX_TOO_HIGH)
+        } else {
+            Box(get(index))
+        }
     } else {
-        throw IllegalArgumentException("Unable to get first segment for $this")
-    }
-}
-
-internal fun String.getRemainingPath(): String {
-    val matcher = FIRST_SEGMENT.matcher(this)
-    if (matcher.matches()) {
-        return matcher.group(2)
-    } else {
-        return ""
+        if (any { it is JsonObject }) {
+            mapNotNull { (it as? JsonObject)?.navigate(segment, navigatedPath, true) }
+        } else {
+            throw RuntimeException("No objects found for '$navigatedPath'", RuntimeException.ExtraInfo.FIELD_ON_ARRAY)
+        }
     }
 }
