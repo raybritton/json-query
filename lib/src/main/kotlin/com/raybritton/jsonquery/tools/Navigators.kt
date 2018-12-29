@@ -10,10 +10,17 @@ private class Box<T>(val value: T?)
 
 private val INDEX_ACCESSOR = "^\\[(\\d+)\\]$".toPattern()
 
+/**
+ * Navigate to anything in a json object/array
+ */
 internal fun Any.navigateToTargetOrProjection(path: String): Any? {
     return this.navigate(path, false)
 }
 
+/**
+ * Navigate to a JsonObject or JsonArray
+ * If the result is null or a value a RuntimeException is thrown
+ */
 internal fun Any.navigateToTarget(path: String): Any {
     val result = this.navigate(path, true)
     when (result) {
@@ -23,6 +30,10 @@ internal fun Any.navigateToTarget(path: String): Any {
     }
 }
 
+/**
+ * Navigate to a value (number, string, boolean or null)
+ * If the result is a JsonObject or JsonArray a RuntimeException is thrown
+ */
 internal fun Any?.navigateToProjection(path: String): Any? {
     if (this == null) return this
     val result = this.navigate(path, false)
@@ -92,7 +103,8 @@ private fun JsonArray.navigate(segment: String, remainingPath: String, navigated
         }
     } else {
         if (any { it is JsonObject }) {
-            mapNotNull { (it as? JsonObject)?.navigate(segment, navigatedPath, true) }
+            val result = mapNotNull { (it as? JsonObject)?.navigate(segment, navigatedPath, true)?.value }
+            JsonArray(result)
         } else {
             throw RuntimeException("No objects found for '$navigatedPath'", RuntimeException.ExtraInfo.FIELD_ON_ARRAY)
         }

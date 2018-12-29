@@ -13,7 +13,7 @@ import org.junit.rules.ExpectedException
 class InvalidNavigationTests {
     @Rule
     @JvmField
-    var exceptionRule = ExpectedException.none()
+    var exceptionRule: ExpectedException = ExpectedException.none()
 
     @Test
     fun `test no matching field in object`() {

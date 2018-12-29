@@ -62,4 +62,15 @@ class TargetNavigationTests {
 
         assertEquals("direct access to field", layer8, result)
     }
+
+    @Test
+    fun `test accessing field in objects in array`() {
+        val item1 = JsonObject("foo" to "bar")
+        val item2 = JsonObject("foo" to "baz")
+        val root = JsonArray(item1, item2)
+
+        val result = root.navigateToTarget(".foo")
+
+        assertEquals("array of foo", listOf("bar", "baz"), result)
+    }
 }
