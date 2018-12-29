@@ -21,7 +21,7 @@ internal class CharParser(string: String) {
     }
 
     fun extendedPeek(len: Int): String? {
-        if (currentPos >= chars.size - (len + 1)) {
+        if (currentPos + (len - 1) >= chars.size) {
             JQLogger.info("cr extended peek - out of range")
             return null
         }
