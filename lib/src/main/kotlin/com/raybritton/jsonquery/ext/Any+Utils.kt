@@ -1,8 +1,7 @@
 package com.raybritton.jsonquery.ext
 
-import com.google.gson.internal.LinkedTreeMap
-import com.raybritton.jsonquery.JsonArray
-import com.raybritton.jsonquery.JsonObject
+import com.raybritton.jsonquery.models.JsonArray
+import com.raybritton.jsonquery.models.JsonObject
 
 internal fun Any?.isValue(): Boolean {
     if (this == null) {

@@ -1,215 +1,163 @@
 package com.raybritton.jsonquery.models
 
-internal data class Query(val method: Method,
-                          val target: String,
-                          val targetExtra: TargetExtra? = null,
-                          val targetKeys: List<String> = listOf(),
-                          val offset: Int? = null,
-                          val limit: Int? = null,
-                          val where: Where? = null,
-                          val asJson: Boolean = false,
-                          val desc: Boolean = false,
-                          val distinct: Boolean = false,
-                          val pretty: Boolean = false,
-                          val withKeys: Boolean = false,
-                          val withValues: Boolean = false,
-                          val caseSensitive: Boolean = false,
-                          val order: String? = null) {
+import com.raybritton.jsonquery.parsing.tokens.Keyword
+import com.raybritton.jsonquery.parsing.tokens.Operator
+import com.raybritton.jsonquery.parsing.tokens.Token
+import com.raybritton.jsonquery.parsing.tokens.isKeyword
+
+internal data class Query(
+        val originalString: String,
+        val method: Method,
+        val target: Target,
+        val flags: Flags,
+        val where: Where?,
+        val search: SearchQuery? = null,
+        val select: SelectQuery? = null,
+        val describe: DescribeQuery? = null
+) {
+
     enum class Method {
-        DESCRIBE, SELECT, SEARCH
+        SELECT, DESCRIBE, SEARCH
     }
 
-    enum class TargetExtra {
-        /**
-         * Only return keys for this query
-         */
-        KEYS,
-        /**
-         * Only return values for this query
-         */
-        VALUES,
-        /**
-         * INTERNAL
-         * Query specifies columns to return
-         */
-        SPECIFIC,
-        /**
-         * Return lowest numeric value from queried fields
-         */
-        MIN,
-        /**
-         * Return highed numeric value from queried fields
-         */
-        MAX,
-        /**
-         * Return number of fields matching query
-         */
-        COUNT,
-        /**
-         * Return sum of all numeric values from queried fields
-         */
-        SUM,
-        /**
-         * For search
-         * Search values only for specified string
-         */
-        VALUE,
-        /**
-         * For search
-         * Search keys only for specified string
-         */
-        KEY,
-        /**
-         * For search
-         * Search keys and values for specified string
-         */
-        BOTH
-    }
-
-    data class Where(val field: String,
-                     val operator: Operator,
-                     val compare: Any?) {
-        enum class Operator(vararg val symbol: String) {
-            EQUAL("==", "="), NOT_EQUAL("!="), LESS_THAN("<"), GREATER_THAN(">"), CONTAINS("#"), NOT_CONTAINS("!#")
-        }
-
-        companion object {
-            @Throws(IllegalArgumentException::class)
-            fun getOperatorBySymbol(symbol: String): Where.Operator {
-                for (op in Where.Operator.values()) {
-                    if (op.symbol.contains(symbol)) {
-                        return op
-                    }
-                }
-                throw IllegalArgumentException("Operator $symbol not supported")
-            }
-        }
-
-        class Builder {
-            var field: String? = null
-            var operator: Operator? = null
-            var compare: Any? = null
-
-            fun build(): Where {
-                return Where(field!!, operator!!, compare)
-            }
-        }
-    }
+    data class Flags(
+            val isCaseSensitive: Boolean = false,
+            val isDistinct: Boolean = false,
+            val isWithValues: Boolean = false,
+            val isByElement: Boolean = false,
+            val isWithKeys: Boolean = false,
+            val isAsJson: Boolean = false,
+            val isPrettyPrinted: Boolean = false,
+            val isOnlyPrintKeys: Boolean = false,
+            val isOnlyPrintValues: Boolean = false,
+            val isOrderByDesc: Boolean = false
+    )
 
     override fun toString(): String {
+        fun StringBuilder.appendKey(keyword: Keyword) = append(keyword.name)
+
         val builder = StringBuilder()
-        if (method == Method.SEARCH) {
-            builder.append("SEARCH ")
-            builder.appendWrapped(target)
-            builder.append(" FOR ")
-            if (targetExtra != TargetExtra.BOTH) {
-                builder.append(targetExtra)
-                builder.append(" ")
-            }
-            builder.appendWrapped(targetKeys[0])
-            if (caseSensitive) {
-                builder.append(" CASE SENSITIVE")
-            }
-            if (withValues) {
-                builder.append(" WITH VALUES")
-            }
-        } else {
-            builder.append(method)
-            builder.append(" ")
-            if (distinct) {
-                builder.append("DISTINCT ")
-            }
-            if (targetExtra != null) {
-                when (targetExtra) {
-                    TargetExtra.VALUES, TargetExtra.KEYS -> {
-                        builder.append(targetExtra)
-                    }
-                    TargetExtra.MIN, TargetExtra.MAX, TargetExtra.COUNT, TargetExtra.SUM -> {
-                        builder.append(targetExtra)
-                        builder.appendWrapped(targetKeys[0], true)
-                    }
-                    TargetExtra.SPECIFIC -> {
-                        when (targetKeys.size) {
-                            0 -> {
-                            }
-                            1 -> builder.appendWrapped(targetKeys[0])
-                            else -> targetKeys.joinTo(builder, ", ", "(", ")", transform = { '"' + it + '"' })
-                        }
-                    }
+        when (method) {
+            Method.SEARCH -> {
+                builder.appendKey(Keyword.SEARCH).append(' ')
+                if (flags.isDistinct) builder.appendKey(Keyword.DISTINCT).append(' ')
+                builder.append(target).append(' ')
+                        .appendKey(Keyword.FOR).append(' ')
+                        .append(search!!.operator).append(' ')
+                if (search.value is Value.ValueQuery) {
+                    builder.append('(')
                 }
-                if (targetExtra != TargetExtra.SPECIFIC || (targetExtra == TargetExtra.SPECIFIC && targetKeys.isNotEmpty())) {
-                    builder.append(" FROM ")
+                builder.append(search.value)
+                if (search.value is Value.ValueQuery) {
+                    builder.append(')')
                 }
+                if (flags.isCaseSensitive) builder.append(' ').appendKey(Keyword.CASE).append(' ').appendKey(Keyword.SENSITIVE)
+                if (flags.isWithValues) builder.append(' ').appendKey(Keyword.WITH).append(' ').appendKey(Keyword.VALUES)
             }
-            builder.appendWrapped(target)
-            if (where != null) {
-                builder.append(" WHERE ")
-                builder.appendWrapped(where.field)
-                builder.append(" ")
-                builder.append(where.operator.symbol[0])
-                builder.append(" ")
-                if (where.compare.toString()[0].isDigit()) {
-                    builder.append(where.compare)
-                } else {
-                    builder.appendWrapped(where.compare.toString())
-                }
-                if (caseSensitive) {
-                    builder.append(" CASE SENSITIVE")
-                }
+            Method.SELECT -> {
+                builder.appendKey(Keyword.SELECT).append(' ')
+                if (flags.isDistinct) builder.appendKey(Keyword.DISTINCT).append(' ')
+                builder.append(select!!.projection).append(' ')
+                        .appendKey(Keyword.FROM).append(' ')
+                        .append(target).append(' ')
+                if (flags.isByElement) builder.appendKey(Keyword.BY).append(' ').appendKey(Keyword.ELEMENT).append(' ')
+                if (where != null) builder.append(where)
+                if (flags.isCaseSensitive) builder.append(' ').appendKey(Keyword.CASE).append(' ').appendKey(Keyword.SENSITIVE)
+                if (select.limit != null) builder.append(' ').appendKey(Keyword.LIMIT).append(' ').append(select.limit)
+                if (select.offset != null) builder.append(' ').appendKey(Keyword.OFFSET).append(' ').append(select.offset)
+                if (flags.isWithKeys) builder.append(' ').appendKey(Keyword.WITH).append(' ').appendKey(Keyword.KEYS)
+                if (flags.isAsJson) builder.append(' ').appendKey(Keyword.AS).append(' ').appendKey(Keyword.JSON)
+                if (flags.isPrettyPrinted) builder.append(' ').appendKey(Keyword.PRETTY)
+
             }
-            if (order != null) {
-                builder.append(" ORDER BY ")
-                builder.appendWrapped(order)
-                if (desc) {
-                    builder.append(" DESC")
-                }
-            }
-            if (limit != null) {
-                builder.append(" LIMIT ")
-                builder.append(limit)
-            }
-            if (offset != null) {
-                builder.append(" OFFSET ")
-                builder.append(offset)
-            }
-            if (withKeys) {
-                builder.append(" WITH KEYS")
-            }
-            if (asJson) {
-                builder.append(" AS JSON")
-            }
-            if (pretty) {
-                builder.append(" PRETTY")
+            Method.DESCRIBE -> {
+                builder.appendKey(Keyword.DESCRIBE).append(' ')
+                if (flags.isDistinct) builder.appendKey(Keyword.DISTINCT).append(' ')
+                builder.append(describe!!.projection).append(' ')
+                        .appendKey(Keyword.FROM).append(' ')
+                        .append(target).append(' ')
+                if (where != null) builder.append(where)
+                if (flags.isCaseSensitive) builder.append(' ').append(' ').appendKey(Keyword.CASE).append(' ').appendKey(Keyword.SENSITIVE)
+                if (describe.limit != null) builder.append(' ').appendKey(Keyword.LIMIT).append(' ').append(describe.limit)
+                if (describe.offset != null) builder.append(' ').appendKey(Keyword.OFFSET).append(' ').append(describe.offset)
+                if (flags.isPrettyPrinted) builder.append(' ').appendKey(Keyword.PRETTY)
             }
         }
         return builder.toString()
     }
+}
 
-    private fun StringBuilder.appendWrapped(msg: String, brackets: Boolean = false) {
-        if (brackets) append("(")
-        append('"')
-        append(msg)
-        append('"')
-        if (brackets) append(")")
+internal data class SearchQuery(val targetRange: TargetRange, val operator: Operator, val value: Value<*>) {
+    enum class TargetRange {
+        ANY, KEY, VALUE
     }
+}
 
-    internal class Builder {
-        var method: Method? = null
-        var target: String? = null
-        var targetExtra: TargetExtra? = null
-        var targetKeys: List<String> = listOf()
-        var offset: Int? = null
-        var limit: Int? = null
-        var where: Where? = null
-        var asJson: Boolean = false
-        var desc: Boolean = false
-        var distinct: Boolean = false
-        var pretty: Boolean = false
-        var withKeys: Boolean = false
-        var withValues: Boolean = false
-        var caseSensitive: Boolean = false
-        var order: String? = null
+internal data class SelectQuery(val projection: SelectProjection?, val limit: Int?, val offset: Int?, val orderBy: ElementFieldProjection?)
 
-        fun build() = Query(method!!, target!!, targetExtra, targetKeys, offset, limit, where, asJson, desc, distinct, pretty, withKeys, withValues, caseSensitive, order)
+internal data class DescribeQuery(val projection: String?, val limit: Int?, val offset: Int?)
+
+internal data class Where(val projection: WhereProjection, val operator: Operator, val value: Value<*>)
+
+internal sealed class Value<T>(val value: T) {
+    class ValueNumber(value: Double) : Value<Double>(value)
+    class ValueString(value: String) : Value<String>(value)
+    class ValueBoolean(value: Boolean) : Value<Boolean>(value)
+    class ValueQuery(value: Query) : Value<Query>(value)
+    object ValueNull : Value<Unit>(Unit)
+
+    companion object {
+        fun build(any: Token<*>?): Value<*>? {
+            return when {
+                any.isKeyword(Keyword.NULL) -> ValueNull
+                any is Token.STRING -> Value.ValueString(any.value)
+                any is Token.NUMBER -> Value.ValueNumber(any.value)
+                any.isKeyword(Keyword.TRUE, Keyword.FALSE) -> Value.ValueBoolean(any?.value == Keyword.TRUE.name)
+                else -> null
+            }
+        }
     }
+}
+
+internal sealed class Target {
+    class TargetField(val value: String) : Target()
+    class TargetQuery(val query: Query) : Target()
+}
+
+internal sealed class ElementFieldProjection {
+    class Field(val value: String) : ElementFieldProjection()
+    object Element : ElementFieldProjection()
+
+    companion object {
+        fun build(any: Token<*>?): ElementFieldProjection? {
+            return when {
+                any is Token.STRING -> Field(any.value)
+                any.isKeyword(Keyword.ELEMENT) -> Element
+                else -> null
+            }
+        }
+    }
+}
+
+internal sealed class WhereProjection {
+    class Field(val value: String) : WhereProjection()
+    object Element : WhereProjection()
+    class Math(val expr: Keyword, val field: ElementFieldProjection) : WhereProjection()
+
+    companion object {
+        fun build(any: Token<*>?): WhereProjection? {
+            return when {
+                any is Token.STRING -> WhereProjection.Field(any.value)
+                any.isKeyword(Keyword.ELEMENT) -> WhereProjection.Element
+                else -> null
+            }
+        }
+    }
+}
+
+internal sealed class SelectProjection {
+    object All : SelectProjection()
+    class SingleField(val field: String) : SelectProjection()
+    class MultipleFields(val fields: List<String>) : SelectProjection()
+    class Math(val expr: Keyword, val field: ElementFieldProjection) : SelectProjection()
 }
