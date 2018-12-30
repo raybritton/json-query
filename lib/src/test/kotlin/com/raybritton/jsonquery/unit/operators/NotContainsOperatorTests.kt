@@ -29,7 +29,18 @@ class NotContainsOperatorTests {
     }
 
     @Test
-    fun `test contains in array`() {
+    fun `test contains other in string`() {
+        val operator = Operator.NotContains
+
+        assertTrue("number in string", operator.op("this is a 10", Value.ValueNumber(10.0), false))
+        assertTrue("number not in string", operator.op("this is a 10", Value.ValueNumber(11.0), false))
+        assertTrue("boolean in string", operator.op("this is a true", Value.ValueBoolean(true), false))
+        assertTrue("boolean not in string", operator.op("this is a false", Value.ValueBoolean(false), false))
+        assertTrue("null in string", operator.op("this is a false", Value.ValueNull, false))
+    }
+
+    @Test
+    fun `test contains string in array`() {
         val operator = Operator.NotContains
 
         assertFalse("string in array - not checking case", operator.op(JsonArray("this", "is", "string"), Value.ValueString("this"), false))
@@ -43,6 +54,11 @@ class NotContainsOperatorTests {
 
         assertTrue("string in array (diff case) - checking case", operator.op(JsonArray("this", "is", "string"), Value.ValueString("THIS"), true))
         assertTrue("string not in array (diff case) - checking case", operator.op(JsonArray("this", "is", "string"), Value.ValueString("NOT"), true))
+    }
+
+    @Test
+    fun `test contains other in array`() {
+        val operator = Operator.NotContains
 
         assertFalse("integer in array", operator.op(JsonArray(1, 2, 3), Value.ValueNumber(1.0), false))
         assertTrue("integer not in array", operator.op(JsonArray(1, 2, 3), Value.ValueNumber(4.0), false))
