@@ -4,7 +4,7 @@ import java.io.File
 import java.net.URL
 import kotlin.streams.toList
 
-internal class JsonLoader() {
+internal class JsonLoader {
     fun load(input: String): String {
         val input = input.trim()
         when {
