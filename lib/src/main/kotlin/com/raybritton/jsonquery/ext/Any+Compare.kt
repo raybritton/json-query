@@ -4,10 +4,10 @@ import com.raybritton.jsonquery.models.Value
 import java.util.*
 
 internal fun Any?.compareWith(isOrderByDesc: Boolean, isCaseSensitive: Boolean, rhs: Any?): Int {
-    if (this == null && rhs != null) {
+    if ((this == null || this is Unit) && rhs != null) {
         return if (isOrderByDesc) -1 else 1
     }
-    if (this != null && rhs == null) {
+    if (this != null && (rhs == null || rhs is Unit)) {
         return if (isOrderByDesc) 1 else -1
     }
     if (this is Boolean && rhs is Boolean) {
