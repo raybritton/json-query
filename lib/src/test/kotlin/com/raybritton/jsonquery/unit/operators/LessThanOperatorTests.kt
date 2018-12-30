@@ -20,7 +20,11 @@ class LessThanOperatorTests {
         assertFalse("number equal to string", operator.op(5, Value.ValueNumber(5.0), false))
         assertFalse("number higher than  string", operator.op(5, Value.ValueNumber(4.0), false))
         assertFalse("number to boolean", operator.op(5, Value.ValueBoolean(true), false))
+    }
 
+    @Test
+    fun `test number less than null`() {
+        val operator = Operator.LessThan
         assertTrue("positive to null", operator.op(5, Value.ValueNull, false))
         assertFalse("null to positive", operator.op(null, Value.ValueNumber(5.0), false))
 
@@ -32,7 +36,7 @@ class LessThanOperatorTests {
     }
 
     @Test
-    fun `test boolean less than`() {
+    fun `test boolean less than boolean`() {
         val operator = Operator.LessThan
 
         assertTrue("false less than true", operator.op(false, Value.ValueBoolean(true), false))
@@ -40,10 +44,23 @@ class LessThanOperatorTests {
         assertFalse("true and true", operator.op(true, Value.ValueBoolean(true), false))
         assertFalse("false and false", operator.op(false, Value.ValueBoolean(false), false))
 
+    }
+
+    @Test
+    fun `test boolean less than string`() {
+        val operator = Operator.LessThan
+
         assertFalse("true less than string (true)", operator.op(true, Value.ValueString("true"), false))
         assertFalse("true less than string (false)", operator.op(true, Value.ValueString("false"), false))
         assertFalse("false less than string (true)", operator.op(false, Value.ValueString("true"), false))
         assertFalse("false less than string (false)", operator.op(false, Value.ValueString("true"), false))
+        assertFalse("false less than string (empty)", operator.op(false, Value.ValueString(""), false))
+
+    }
+
+    @Test
+    fun `test boolean less than number`() {
+        val operator = Operator.LessThan
 
         assertFalse("true less than negative", operator.op(true, Value.ValueNumber(-1.0), false))
         assertFalse("true less than equal", operator.op(true, Value.ValueNumber(0.0), false))
@@ -53,6 +70,12 @@ class LessThanOperatorTests {
         assertFalse("false less than equal", operator.op(false, Value.ValueNumber(0.0), false))
         assertFalse("false less than positive", operator.op(false, Value.ValueNumber(1.0), false))
 
+    }
+
+    @Test
+    fun `test boolean less than null`() {
+        val operator = Operator.LessThan
+
         assertTrue("false less than null", operator.op(false, Value.ValueNull, false))
         assertTrue("true less than null", operator.op(true, Value.ValueNull, false))
 
@@ -61,7 +84,7 @@ class LessThanOperatorTests {
     }
 
     @Test
-    fun `test string less than`() {
+    fun `test string less than string`() {
         val operator = Operator.LessThan
 
         assertTrue("a less than b", operator.op("a", Value.ValueString("b"), false))
@@ -69,9 +92,13 @@ class LessThanOperatorTests {
         assertFalse("c less than b", operator.op("c", Value.ValueString("b"), false))
 
         assertTrue("ba less than bb", operator.op("ba", Value.ValueString("bb"), false))
-        assertFalse("ba less than bb", operator.op("bb", Value.ValueString("bb"), false))
+        assertFalse("bb less than bb", operator.op("bb", Value.ValueString("bb"), false))
         assertFalse("bc less than bb", operator.op("bc", Value.ValueString("bb"), false))
+    }
 
+    @Test
+    fun `test string less than other`() {
+        val operator = Operator.LessThan
         assertFalse("number less than string (word)", operator.op(10, Value.ValueString("word"), false))
         assertFalse("number less than string (lower number)", operator.op(10.1, Value.ValueString("10.5"), false))
         assertFalse("number less than string (equal number)", operator.op(10.3, Value.ValueString("10.5"), false))
