@@ -1,5 +1,6 @@
 package com.raybritton.jsonquery.parsing.tokens
 
+import com.raybritton.jsonquery.ext.compareWith
 import com.raybritton.jsonquery.ext.isSameValueAs
 import com.raybritton.jsonquery.models.JsonArray
 import com.raybritton.jsonquery.models.JsonObject
@@ -37,43 +38,25 @@ internal sealed class Operator(val symbol: String) {
 
     object LessThan : Operator("<") {
         override fun op(lhs: Any?, rhs: Value<*>, caseSensitive: Boolean): Boolean {
-            return when {
-                lhs is String && rhs is Value.ValueString -> lhs.toString() < rhs.value
-                lhs is Number && rhs is Value.ValueNumber -> lhs.toDouble() < rhs.value
-                else -> false //TODO throw?
-            }
+            return lhs.compareWith(false, caseSensitive, rhs.value) < 0
         }
     }
 
     object GreaterThan : Operator(">") {
         override fun op(lhs: Any?, rhs: Value<*>, caseSensitive: Boolean): Boolean {
-            return when {
-                lhs is String && rhs is Value.ValueString -> lhs.toString() > rhs.value
-                lhs is Number && rhs is Value.ValueNumber -> lhs.toDouble() > rhs.value
-                else -> false //TODO throw?
-            }
+            return lhs.compareWith(false, caseSensitive, rhs.value) > 0
         }
     }
 
     object LessThanOrEqual : Operator("<=") {
         override fun op(lhs: Any?, rhs: Value<*>, caseSensitive: Boolean): Boolean {
-            return when {
-                lhs is String && rhs is Value.ValueString -> lhs.toString() <= rhs.value
-                lhs is Number && rhs is Value.ValueNumber -> lhs.toDouble() <= rhs.value
-                lhs == null && rhs is Value.ValueNull -> true
-                else -> false //TODO throw?
-            }
+            return lhs.compareWith(false, caseSensitive, rhs.value) < 1
         }
     }
 
     object GreaterThanOrEqual : Operator(">=") {
         override fun op(lhs: Any?, rhs: Value<*>, caseSensitive: Boolean): Boolean {
-            return when {
-                lhs is String && rhs is Value.ValueString -> lhs.toString() >= rhs.value
-                lhs is Number && rhs is Value.ValueNumber -> lhs.toDouble() >= rhs.value
-                lhs == null && rhs is Value.ValueNull -> true
-                else -> false //TODO throw?
-            }
+            return lhs.compareWith(false, caseSensitive, rhs.value) > -1
         }
     }
 
