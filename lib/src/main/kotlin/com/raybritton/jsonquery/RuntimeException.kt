@@ -2,7 +2,7 @@ package com.raybritton.jsonquery
 
 class RuntimeException(message: String, val extraInfo: RuntimeException.ExtraInfo? = null) : IllegalStateException(message) {
 
-    enum class ExtraInfo(private val text: String) {
+    enum class ExtraInfo(val text: String) {
         NAVIGATED_NULL("""The target was null, only non null objects or arrays can be targets
         |If using a json path as the target check the spelling and escaping
         |If using a nested query try running it be itself to check the result first

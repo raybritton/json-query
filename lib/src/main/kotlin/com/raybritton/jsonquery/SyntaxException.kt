@@ -15,7 +15,7 @@ class SyntaxException(message: String, val extraInfo: ExtraInfo? = null) : Illeg
         }
     }
 
-    enum class ExtraInfo(private val text: String) {
+    enum class ExtraInfo(val text: String) {
         METHOD_NOT_SET("All JQL statements must start with SELECT, DESCRIBE or SEARCH"),
         WITH("""WITH must be followed by KEYS or VALUES.
             |WITH KEYS is only valid on SELECT and not with AS JSON, it makes the keys be printed for all values
