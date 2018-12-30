@@ -20,11 +20,11 @@ private fun JsonArray.sort(query: Query): JsonArray {
     if (order != null) {
         if (order is ElementFieldProjection.Element) {
             sortWith(Comparator { lhs, rhs ->
-                lhs.compareTo(query, rhs)
+                lhs.compareWith(query.flags.isOrderByDesc, query.flags.isCaseSensitive, rhs)
             })
         } else if (order is ElementFieldProjection.Field) {
             sortWith(Comparator { lhs, rhs ->
-                lhs?.navigateToProjection(order.value).compareTo(query, rhs?.navigateToProjection(order.value))
+                lhs?.navigateToProjection(order.value).compareWith(query.flags.isOrderByDesc, query.flags.isCaseSensitive, rhs?.navigateToProjection(order.value))
             })
         }
     }

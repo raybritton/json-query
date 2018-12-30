@@ -1,28 +1,26 @@
 package com.raybritton.jsonquery.ext
 
-import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.models.Value
 import java.util.*
 
-internal fun Any?.compareTo(query: Query, rhs: Any?): Int {
+internal fun Any?.compareWith(isOrderByDesc: Boolean, isCaseSensitive: Boolean, rhs: Any?): Int {
     if (this == null && rhs != null) {
-        return if (query.flags.isOrderByDesc) -1 else 1
+        return if (isOrderByDesc) -1 else 1
     }
     if (this != null && rhs == null) {
-        return if (query.flags.isOrderByDesc) 1 else -1
+        return if (isOrderByDesc) 1 else -1
+    }
+    if (this is Boolean && rhs is Boolean) {
+        @Suppress("USELESS_CAST") //Without both 'as Boolean' Kotlin tries to cast them to numbers see https://youtrack.jetbrains.net/issue/KT-29088
+        val result = (this as Boolean).compareTo(rhs as Boolean)
+        return if (isOrderByDesc) result * -1 else result
     }
     if (this is Number && rhs is Number) {
-        var result = this.toDouble().compareTo(rhs.toDouble())
-        if (query.flags.isOrderByDesc) {
-            result *= -1
-        }
-        return result
+        val result = this.toDouble().compareTo(rhs.toDouble())
+        return if (isOrderByDesc) result * -1 else result
     } else if (this is String && rhs is String) {
-        var result = this.compareTo(rhs, !query.flags.isCaseSensitive)
-        if (query.flags.isOrderByDesc) {
-            result *= -1
-        }
-        return result
+        val result = this.compareTo(rhs, !isCaseSensitive)
+        return if (isOrderByDesc) result * -1 else result
     }
     return 0
 }
