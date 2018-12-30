@@ -87,13 +87,13 @@ class LessThanOperatorTests {
     fun `test string less than string`() {
         val operator = Operator.LessThan
 
-        assertTrue("a less than b", operator.op("a", Value.ValueString("b"), false))
-        assertFalse("b less than b", operator.op("b", Value.ValueString("b"), false))
-        assertFalse("c less than b", operator.op("c", Value.ValueString("b"), false))
+        assertTrue("char less than char", operator.op("a", Value.ValueString("b"), false))
+        assertFalse("char equal to char", operator.op("b", Value.ValueString("b"), false))
+        assertFalse("char greater than char", operator.op("c", Value.ValueString("b"), false))
 
-        assertTrue("ba less than bb", operator.op("ba", Value.ValueString("bb"), false))
-        assertFalse("bb less than bb", operator.op("bb", Value.ValueString("bb"), false))
-        assertFalse("bc less than bb", operator.op("bc", Value.ValueString("bb"), false))
+        assertTrue("string less than string", operator.op("ba", Value.ValueString("bb"), false))
+        assertFalse("string equal to string", operator.op("bb", Value.ValueString("bb"), false))
+        assertFalse("string greater than string", operator.op("bc", Value.ValueString("bb"), false))
     }
 
     @Test

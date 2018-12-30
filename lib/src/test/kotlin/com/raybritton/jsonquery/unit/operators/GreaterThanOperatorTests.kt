@@ -85,13 +85,13 @@ class GreaterThanOperatorTests {
     fun `test string greater than string`() {
         val operator = Operator.GreaterThan
 
-        assertFalse("a greater than b", operator.op("a", Value.ValueString("b"), false))
-        assertFalse("b greater than b", operator.op("b", Value.ValueString("b"), false))
-        assertTrue("c greater than b", operator.op("c", Value.ValueString("b"), false))
+        assertFalse("char less than char", operator.op("a", Value.ValueString("b"), false))
+        assertFalse("char equal to char", operator.op("b", Value.ValueString("b"), false))
+        assertTrue("char greater than char", operator.op("c", Value.ValueString("b"), false))
 
-        assertFalse("ba greater than bb", operator.op("ba", Value.ValueString("bb"), false))
-        assertFalse("bb greater than bb", operator.op("bb", Value.ValueString("bb"), false))
-        assertTrue("bc greater than bb", operator.op("bc", Value.ValueString("bb"), false))
+        assertFalse("string less than string", operator.op("ba", Value.ValueString("bb"), false))
+        assertFalse("string equal to string", operator.op("bb", Value.ValueString("bb"), false))
+        assertTrue("string greater than string", operator.op("bc", Value.ValueString("bb"), false))
     }
 
     @Test
