@@ -39,6 +39,8 @@ internal fun Any?.isSameValueAs(rhs: Value<*>, caseSensitive: Boolean): Boolean 
         if (converted != null) {
             return rhs.value == converted
         }
+    } else if (this is Boolean && rhs is Value.ValueBoolean) {
+        return this == rhs.value
     } else if (this is Number && rhs is Value.ValueString) {
         val converted = rhs.value.toDoubleOrNull()
         if (converted != null) {
