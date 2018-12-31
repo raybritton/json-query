@@ -4,3 +4,5 @@ fun String.replaceLast(oldValue: String, newValue: String, ignoreCase: Boolean =
     val index = lastIndexOf(oldValue, ignoreCase = ignoreCase)
     return if (index < 0) this else this.replaceRange(index, index + oldValue.length, newValue)
 }
+
+fun String?.wrap() = if (this == null) "null" else "\"$this\""
