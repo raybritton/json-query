@@ -19,6 +19,10 @@ internal sealed class Token<T>(val value: T, val charIdx: Int) {
     override fun toString(): String {
         return "${javaClass.simpleName} ($value)"
     }
+
+    override fun equals(other: Any?): Boolean {
+        return this.value == (other as? Token<*>)?.value
+    }
 }
 
 internal fun Token<*>?.isKeyword(vararg keyword: Keyword): Boolean {
