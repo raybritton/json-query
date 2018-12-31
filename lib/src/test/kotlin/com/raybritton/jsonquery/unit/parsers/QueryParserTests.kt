@@ -7,8 +7,7 @@ import com.raybritton.jsonquery.parsing.tokens.Keyword
 import com.raybritton.jsonquery.parsing.tokens.Operator
 import com.raybritton.jsonquery.parsing.tokens.Token
 import com.raybritton.jsonquery.parsing.tokens.toQueryTokens
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
 import org.junit.Test
 
 class QueryParserTests {
@@ -92,5 +91,35 @@ class QueryParserTests {
         assertEquals("Where projection type", WhereProjection.Field::class.java, query.where.projection::class.java)
         assertEquals("Where projection", "person.department", (query.where.projection as WhereProjection.Field).value)
         assertEquals("Where compare", "Foobar", query.where.value.value)
+    }
+
+    @Test
+    fun `test simple nested query`() {
+        val queryStr = "SELECT \"name\" FROM (SELECT \".\" AS JSON)"
+        val tokens = queryStr.toQueryTokens()
+        val query = tokens.buildQuery(queryStr)
+
+        assertEquals("Token count", 9, tokens.size)
+        assertEquals("Original query", queryStr, query.originalString)
+        assertEquals("Parsed query", queryStr, query.toString().trim())
+        assertEquals("Method token", Token.KEYWORD(Keyword.SELECT, 0), tokens[0])
+        assertEquals("Target token", Token.STRING("name", 0), tokens[1])
+        assertEquals("Keyword(FROM)", Token.KEYWORD(Keyword.FROM, 0), tokens[2])
+        assertEquals("Inner query start", Token.PUNCTUATION('(', 0), tokens[3])
+        assertEquals("Inner Method token", Token.KEYWORD(Keyword.SELECT, 0), tokens[4])
+        assertEquals("Inner target", Token.STRING(".", 0), tokens[5])
+        assertEquals("Keyword(AS)", Token.KEYWORD(Keyword.AS, 0), tokens[6])
+        assertEquals("Keyword(JSON)", Token.KEYWORD(Keyword.JSON, 0), tokens[7])
+        assertEquals("Inner query end", Token.PUNCTUATION(')', 0), tokens[8])
+
+        val innerQuery = (query.target as Target.TargetQuery).query
+
+        assertEquals("Method", Query.Method.SELECT, query.method)
+        assertEquals("Target", innerQuery, query.target.query)
+        assertEquals("Projection", "name", (query.select!!.projection as SelectProjection.SingleField).field)
+
+        assertEquals("Inner Method", Query.Method.SELECT, innerQuery.method)
+        assertEquals("Inner target", ".", (innerQuery.target as Target.TargetField).value)
+        assertTrue("Inner as json", innerQuery.flags.isAsJson)
     }
 }
