@@ -2,9 +2,9 @@
 
 #### Json Query Language
 
-See new [syntax documentation](https://jql.dokku-ray.app/docs) 
+See the new [syntax documentation](https://jql.dokku-ray.app/docs) 
 
-JQL is designed to be used to query json so that values, objects or arrays can be extracted based on filters and limits.
+JQL is designed to be used to query json so that values, objects or arrays can be extracted based on filters.
 
 Note: all numbers are output as decimals as JSON only has one number type: double.
 
@@ -35,10 +35,11 @@ DESCRIBE
 
 <pre>
 SEARCH
+    [DISTINCT]
     target
     FOR
     [(KEY | VALUE)]
-    [LIKE]
+    operator
     searchTerm
     [CASE SENSITIVE]
     [WITH VALUES]
@@ -56,7 +57,7 @@ SEARCH
     * `MIN(ELEMENT | jsonPath)`
     * `COUNT(ELEMENT | jsonPath)`
     * `SUM(ELEMENT | jsonPath)`
-        * When using math expressison the target (the string after FROM) must be an array
+        * When using math expression the target (the string after FROM) must be an array
         * Non number values in the array are ignored
         * NaN will be returned for MIN, MAX and SUM if the array contains no numbers
 * KEYS | VALUES | field | fields | mathExpr
@@ -116,28 +117,26 @@ SEARCH
     * A string, number, 'TRUE' or 'FALSE', 'NULL'
     * Or the results of a nested SELECT
 * BY ELEMENT
-    * Splits the results by their position on the target
-    * If the json was an array of two objects both with an array of numbers inside i.e `[{numbers: [1,2,3], numbers: [5,6,10]}]` and the query was `SELECT SUM('.numbers') FROM '.'` the result would be `27` but with `BY ELEMENT` it becomes `[6,21]` 
+    * Splits the results by their position in the target
+    * If the json was an array of two objects both with an array of numbers inside i.e `[{numbers: [1,2,3], numbers: [5,6,10]}]` and the query was `SELECT SUM('numbers') FROM '.'` the result would be `27` but with `BY ELEMENT` it becomes `[6,21]` 
 
 * SEARCH
     * Search json data for a searchTerm
-* KEY | VALUE
+* KEY | VALUE | ANY
     * Search can look at just keys, values or both
 * WITH VALUES
     * Print found value with location
-* LIKE
-    * Only a partial match is needed (only works for strings)
 
-Nested SELECTs:
+Nested queries:
 
-These must be surrounded by parenthesis and for
+Only SELECTs can be used inside other queries and they must be surrounded by parenthesis and for
  
 * `target` use AS JSON
 * `searchTerm` not use AS JSON
 
 i.e.
 
-`SELECT 'name' FROM (SELECT 'person' FROM '.' WHERE ... AS JSON) ...` 
+`DESCRIBE 'name' FROM (SELECT 'person' FROM '.' WHERE ... AS JSON) ...` 
 
 #### Examples
 
@@ -166,7 +165,7 @@ Using:
 
 ###### Select everything
 
-`SELECT "."`
+`SELECT VALUES FROM "."`
 
 `[{0.0, John Smith}, {1.0, Emma Smith}, {2.0, Jane Clobber}, {3.0, Ned Turner}]`
 
@@ -174,13 +173,13 @@ Using:
 
 `SELECT "." WHERE "id" > 1`
 
-`[{2.0, Jane Clobber}, {3.0, Ned Turner}]`
+`[{id: 2.0, name: Jane Clobber}, {id: 3.0, name: Ned Turner}]`
 
 ###### Select first result whose name contains "Jane"
 
 `SELECT "." WHERE "name" # "Jane"`
 
-`{2.0, Jane Clobber}`
+`{id: 2.0, name: Jane Clobber}`
 
 ###### Select ids 
 
