@@ -59,7 +59,8 @@ internal sealed class Value<T>(val value: T) {
     override fun toString(): String {
         return when (this) {
             is ValueString -> value.wrap()
-            is ValueNull -> "null"
+            is ValueNull -> Keyword.NULL.name
+            is ValueBoolean -> if (value) Keyword.TRUE.name else Keyword.FALSE.name
             else -> value.toString()
         }
     }
@@ -78,18 +79,20 @@ internal sealed class Value<T>(val value: T) {
 }
 
 internal sealed class Target {
-    class TargetField(val value: String) : Target() {
-        override fun toString() = value.wrap()
-    }
-
-    class TargetQuery(val query: Query) : Target() {
-        override fun toString() = query.toString()
-    }
+    class TargetField(val value: String) : Target()
+    class TargetQuery(val query: Query) : Target()
 }
 
 internal sealed class ElementFieldProjection {
     class Field(val value: String) : ElementFieldProjection()
     object Element : ElementFieldProjection()
+
+    override fun toString(): String {
+        return when (this) {
+            is Element -> Keyword.ELEMENT.name
+            is Field -> this.value.wrap()
+        }
+    }
 
     companion object {
         fun build(any: Token<*>?): ElementFieldProjection? {
