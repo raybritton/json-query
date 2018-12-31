@@ -34,7 +34,7 @@ internal object QueryPrinter {
                     builder.append(printSelectProjection(query.select.projection!!))
                             .appendKey(Keyword.FROM).append(' ')
                 }
-                builder.append(printTarget(query.target)).append(' ')
+                builder.append(printTarget(query.target))
                 if (query.flags.isByElement) builder.appendKey(Keyword.BY).appendKey(Keyword.ELEMENT).append(' ')
                 if (query.where != null) builder.append(printWhere(query.where))
                 if (query.flags.isCaseSensitive) builder.appendKey(Keyword.CASE).appendKey(Keyword.SENSITIVE)
@@ -66,7 +66,7 @@ internal object QueryPrinter {
     private fun printWhere(where: Where): String {
         val builder = StringBuilder()
 
-        builder.append(Keyword.WHERE.name).append(' ')
+        builder.append(' ').append(Keyword.WHERE.name).append(' ')
 
         when (where.projection) {
             is WhereProjection.Field -> builder.append(where.projection.value.wrap())
@@ -97,7 +97,7 @@ internal object QueryPrinter {
         val builder = StringBuilder()
 
         when (selectProjection) {
-            is SelectProjection.SingleField -> builder.append(selectProjection.field)
+            is SelectProjection.SingleField -> builder.append(selectProjection.field.wrap())
             is SelectProjection.MultipleFields -> builder.append(selectProjection.fields.joinToString(", ", prefix = "(", postfix = ")", transform = { it.wrap() }))
             is SelectProjection.Math -> {
                 builder.append(selectProjection.expr)
@@ -118,7 +118,7 @@ internal object QueryPrinter {
     private fun printTarget(target: Target): String {
         return when (target) {
             is Target.TargetField -> target.value.wrap()
-            is Target.TargetQuery -> "(" + target.query.originalString + ")"
+            is Target.TargetQuery -> "(" + target.query.toString().trim() + ")"
         }
     }
 }
