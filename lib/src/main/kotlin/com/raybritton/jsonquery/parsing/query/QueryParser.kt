@@ -133,43 +133,52 @@ private fun parseSelect(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
         }
     }
 
-    val handleProjection = { token: Token<*> ->
-        when {
-            token.isKeyword(Keyword.MIN, Keyword.MAX, Keyword.SUM, Keyword.COUNT) -> {
-                val projection = parseMathField(list)
-                builder.selectProjection = SelectProjection.Math((token as Token.KEYWORD).value, projection)
-            }
-            token.isPunctuation('(') -> builder.selectProjection = parseMutlipleFields(list)
-            token.isKeyword(Keyword.KEYS) -> {
-                builder.isOnlyPrintKeys = true
-                builder.selectProjection = SelectProjection.All
-            }
-            token.isKeyword(Keyword.VALUES) -> {
-                builder.isOnlyPrintValues = true
-                builder.selectProjection = SelectProjection.All
-            }
-            token is Token.STRING -> builder.selectProjection = SelectProjection.SingleField(token.value)
-            else -> SyntaxException.throwNullable(token, "json path or multiple json paths (surrounded by parenthesis) or KEYS or VALUES or query (surrounded by parenthesis)")
-        }
-    }
 
-    if (list.peekFirst().isKeyword(Keyword.DISTINCT)) {
+    if (list.peek().isKeyword(Keyword.DISTINCT)) {
         list.poll()
         builder.isDistinct = true
     }
 
-    val targetOrProjection = list.poll()
+    val token = list.poll()
 
-    if (targetOrProjection is Token.STRING) {
-        if (list.peekFirst().isKeyword(Keyword.FROM)) {
-            handleProjection(targetOrProjection)
-            list.poll()
-            builder.target = handleTarget(targetOrProjection)
-        } else {
-            builder.target = handleTarget(targetOrProjection)
+    when {
+        token.isKeyword(Keyword.MIN, Keyword.MAX, Keyword.SUM, Keyword.COUNT) -> {
+            val projection = parseMathField(list)
+            builder.selectProjection = SelectProjection.Math((token as Token.KEYWORD).value, projection)
+            list.checkFirstElement({ it.isKeyword(Keyword.FROM) }, "FROM")
+            builder.target = handleTarget(list.poll())
         }
-    } else {
-        throw SyntaxException(targetOrProjection, "Json path")
+        token.isPunctuation('(') -> {
+            if (list.peek().isKeyword(Keyword.SELECT)) {
+                builder.target = handleTarget(token)
+            } else {
+                builder.selectProjection = parseMutlipleFields(list)
+                list.checkFirstElement({ it.isKeyword(Keyword.FROM) }, "FROM")
+                builder.target = handleTarget(list.poll())
+            }
+        }
+        token.isKeyword(Keyword.KEYS) -> {
+            builder.isOnlyPrintKeys = true
+            builder.selectProjection = SelectProjection.All
+            list.checkFirstElement({ it.isKeyword(Keyword.FROM) }, "FROM")
+            builder.target = handleTarget(list.poll())
+        }
+        token.isKeyword(Keyword.VALUES) -> {
+            builder.isOnlyPrintValues = true
+            builder.selectProjection = SelectProjection.All
+            list.checkFirstElement({ it.isKeyword(Keyword.FROM) }, "FROM")
+            builder.target = handleTarget(list.poll())
+        }
+        token is Token.STRING -> {
+            if (list.peek().isKeyword(Keyword.FROM)) {
+                builder.selectProjection = SelectProjection.SingleField(token.value)
+                list.checkFirstElement({ it.isKeyword(Keyword.FROM) }, "FROM")
+                builder.target = handleTarget(list.poll())
+            } else {
+                builder.target = handleTarget(token)
+            }
+        }
+        else -> SyntaxException.throwNullable(token, "json path or multiple json paths (surrounded by parenthesis) or KEYS or VALUES or query (surrounded by parenthesis)")
     }
 }
 
