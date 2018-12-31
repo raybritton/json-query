@@ -136,7 +136,7 @@ private fun parseSelect(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
     val handleProjection = { token: Token<*> ->
         when {
             token.isKeyword(Keyword.MIN, Keyword.MAX, Keyword.SUM, Keyword.COUNT) -> {
-                val projection = parseMath(list)
+                val projection = parseMathField(list)
                 builder.selectProjection = SelectProjection.Math((token as Token.KEYWORD).value, projection)
             }
             token.isPunctuation('(') -> builder.selectProjection = parseMutlipleFields(list)
@@ -153,20 +153,24 @@ private fun parseSelect(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
         }
     }
 
-    list.pollFirst().let {
-        when {
-            it.isKeyword(Keyword.DISTINCT) -> builder.isDistinct = true
-            else -> handleProjection(it)
+    if (list.peekFirst().isKeyword(Keyword.DISTINCT)) {
+        list.poll()
+        builder.isDistinct = true
+    }
+
+    val targetOrProjection = list.poll()
+
+    if (targetOrProjection is Token.STRING) {
+        if (list.peekFirst().isKeyword(Keyword.FROM)) {
+            handleProjection(targetOrProjection)
+            list.poll()
+            builder.target = handleTarget(targetOrProjection)
+        } else {
+            builder.target = handleTarget(targetOrProjection)
         }
+    } else {
+        throw SyntaxException(targetOrProjection, "Json path")
     }
-
-    if (builder.isDistinct == true) {
-        handleProjection(list.pollFirst())
-    }
-
-    list.checkFirstElement({ it.isKeyword(Keyword.FROM) }, "FROM")
-
-    builder.target = handleTarget(list.pollFirst())
 }
 
 private fun parseDescribe(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
@@ -284,7 +288,7 @@ private fun parseWhere(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
         var field = WhereProjection.build(it)
         if (field == null) {
             if (it.isKeyword(Keyword.MIN, Keyword.MAX, Keyword.SUM, Keyword.COUNT)) {
-                val mathProjection = parseMath(list)
+                val mathProjection = parseMathField(list)
                 field = WhereProjection.Math((it as Token.KEYWORD).value, mathProjection)
             } else {
                 SyntaxException.throwNullable(it, "json path or ELEMENT or math expression")
@@ -319,7 +323,10 @@ private fun parseOrderBy(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
     }
 }
 
-private fun parseMath(list: ArrayDeque<Token<*>>): ElementFieldProjection {
+/**
+ * Assumes math keyword has already been consumed
+ */
+private fun parseMathField(list: ArrayDeque<Token<*>>): ElementFieldProjection {
     val projection: ElementFieldProjection
     list.checkFirstElement({ it.isPunctuation('(') }, "beginning of math projection: (")
 
