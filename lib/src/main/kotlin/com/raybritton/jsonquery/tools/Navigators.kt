@@ -60,7 +60,7 @@ private fun Any.navigate(path: String, isTarget: Boolean, previouslyNavigatedPat
         val navigatedPath = (navigated + segment).joinToString(".", prefix = if (isTarget) "." else "")
         var result = when (currentJson) {
             is JsonObject -> currentJson.navigate(segment, navigatedPath, inArray)
-            is JsonArray -> currentJson.navigate(segment, segments.joinToString("."), navigatedPath)
+            is JsonArray -> currentJson.navigate(segment, navigatedPath)
             else -> this
         }
         navigated.add(segment)
@@ -92,7 +92,7 @@ private fun JsonObject.navigate(segment: String, navigatedPath: String, inArray:
     }
 }
 
-private fun JsonArray.navigate(segment: String, remainingPath: String, navigatedPath: String): Any {
+private fun JsonArray.navigate(segment: String, navigatedPath: String): Any {
     val matcher = INDEX_ACCESSOR.matcher(segment)
     return if (matcher.matches()) {
         val index = matcher.group(1).toInt()

@@ -1,79 +1,70 @@
 package com.raybritton.jsonquery.tools
 
-import com.raybritton.jsonquery.JsonArray
-import com.raybritton.jsonquery.JsonObject
-import com.raybritton.jsonquery.ext.isSameValueAs
-import com.raybritton.jsonquery.ext.isValue
-import com.raybritton.jsonquery.models.Query
+import com.raybritton.jsonquery.RuntimeException
+import com.raybritton.jsonquery.models.*
+import com.raybritton.jsonquery.parsing.tokens.Operator
 
-internal fun JsonObject.where(query: com.raybritton.jsonquery.models.Query): JsonObject {
+internal fun Any.where(query: Query): Any {
+    TODO("Implement this")
+//    if (query.where == null) return this
+//
+//    if (query.where.value is Value.ValueQuery) throw RuntimeException("Query failed to parse: ${query.originalString}", RuntimeException.ExtraInfo.WHERE_QUERY)
+//
+//    val value = when (query.where.projection) {
+//        is WhereProjection.Field -> {
+//            if (query.where.operator == Operator.Contains || query.where.operator == Operator.NotContains) {
+//                try {
+//                    this.navigateToTarget(query.where.projection.value)
+//                } catch (e: RuntimeException) {
+//                    val result = this.navigateToProjection(query.where.projection.value)
+//                    if (result is String) {
+//                        result
+//                    } else {
+//                        throw RuntimeException("Where projection was not object, array or string", RuntimeException.ExtraInfo.WHERE_INVALID)
+//                    }
+//                }
+//            } else {
+//                this.navigateToProjection(query.where.projection.value)
+//            }
+//        }
+//        WhereProjection.Element -> if (this !is JsonArray) throw RuntimeException("$this is not an array", RuntimeException.ExtraInfo.ELEMENT_WHERE_OBJECT) else Val
+//        is WhereProjection.Math -> this.math(query.where.projection.expr, query.where.projection.field)
+//    }
+//
+//    val matches = query.where.operator.op(value, query.where.value, query.flags.isCaseSensitive)
+//
+//    if (!matches) {
+//        when (this) {
+//            is JsonArray -> this.clear()
+//            is JsonObject -> this.clear()
+//        }
+//    }
+
     return this
 }
 
-internal fun JsonArray.where(query: com.raybritton.jsonquery.models.Query): JsonArray {
-    if (query.where != null) {
-        val result = kotlin.collections.mutableListOf<Any>()
-        if (query.where.field == com.raybritton.jsonquery.utils.ELEMENT) {
-            for (element in this) {
-                if (element.isValue() && element.matches(query.where, query.caseSensitive)) {
-                    result.add(element)
-                }
-            }
-        } else {
-            for (element in this) {
-                val target = element.navigate(query.where.field)
-                if (target.isValue() && target.matches(query.where, query.caseSensitive)) {
-                    result.add(element)
-                }
-            }
+private fun JsonObject.where(query: Query, value: Any?): Any {
+    val output = copy()
+
+    if (!query.where!!.operator.op(value, query.where.value, query.flags.isCaseSensitive)) {
+        val iterator = output.iterator()
+        while(iterator.hasNext()) {
+            iterator.remove()
         }
-        return ArrayList(result)
-    } else {
-        return this
     }
+
+    return output
 }
 
-private fun Any?.matches(where: Query.Where, caseSensitive: Boolean): Boolean {
-    val value = if (this is Pair<*,*>) second else this
-    when (where.operator) {
-        Query.Where.Operator.EQUAL -> {
-            if (value.isSameValueAs(where.compare, caseSensitive)) {
-                return true
-            }
-        }
-        Query.Where.Operator.NOT_EQUAL -> {
-            if (!value.isSameValueAs(where.compare, caseSensitive)) {
-                return true
-            }
-        }
-        Query.Where.Operator.LESS_THAN -> {
-            if (value is String) {
-                if (value < where.compare.toString()) {
-                    return true
-                }
-            } else if ((value.toString().toDoubleOrNull() ?: 0.0) < (where.compare.toString().toDoubleOrNull() ?: 0.0)) {
-                return true
-            }
-        }
-        Query.Where.Operator.GREATER_THAN -> {
-            if (value is String) {
-                if (value < where.compare.toString()) {
-                    return true
-                }
-            } else if ((value.toString().toDoubleOrNull() ?: 0.0) > (where.compare.toString().toDoubleOrNull() ?: 0.0)) {
-                return true
-            }
-        }
-        Query.Where.Operator.CONTAINS -> {
-            if (value != null && (value.toString()).contains(where.compare.toString())) {
-                return true
-            }
-        }
-        Query.Where.Operator.NOT_CONTAINS -> {
-            if (value == null || !(value.toString()).contains(where.compare.toString())) {
-                return true
-            }
+private fun JsonArray.where(query: Query, value: Any?): JsonArray {
+    val output = copy()
+
+    if (!query.where!!.operator.op(value, query.where.value, query.flags.isCaseSensitive)) {
+        val iterator = output.iterator()
+        while(iterator.hasNext()) {
+            iterator.remove()
         }
     }
-    return false
+
+    return output
 }
