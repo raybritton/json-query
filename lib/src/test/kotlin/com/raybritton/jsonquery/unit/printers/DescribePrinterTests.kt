@@ -14,7 +14,7 @@ class DescribePrinterTests {
         val obj = JsonObject("a" to 78, "b" to "word", "c" to true, "d" to null)
         val query = Query("", Query.Method.DESCRIBE, Target.TargetField("."), Query.Flags(), null)
 
-        val result = DescribePrinter().print(obj, query)
+        val result = DescribePrinter.print(obj, query)
 
         assertEquals("simple object", """OBJECT(NUMBER, STRING, BOOLEAN, NULL)""", result)
     }
@@ -24,7 +24,7 @@ class DescribePrinterTests {
         val obj = JsonArray(-90, 10, "foo", false, null)
         val query = Query("", Query.Method.DESCRIBE, Target.TargetField("."), Query.Flags(), null)
 
-        val result = DescribePrinter().print(obj, query)
+        val result = DescribePrinter.print(obj, query)
 
         assertEquals("simple object", """ARRAY(NUMBER[2], STRING, BOOLEAN, NULL)""", result)
     }
