@@ -68,7 +68,6 @@ private fun ArrayDeque<Token<*>>.buildQueryUntil(queryString: String, stop: Toke
                     Keyword.WITH -> {
                         val nextToken = pollFirst()
                         when {
-                            nextToken.isKeyword(Keyword.KEYS) -> builder.isWithKeys = true
                             nextToken.isKeyword(Keyword.VALUES) -> builder.isWithValues = true
                             else -> throw SyntaxException(nextToken, "KEYS or VALUES ", SyntaxException.ExtraInfo.WITH)
                         }

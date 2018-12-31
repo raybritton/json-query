@@ -164,19 +164,8 @@ internal class QueryBuilder(val queryString: String) {
             field = value
         }
 
-    var isWithKeys: Boolean? = null
-        set(value) {
-            checkIsFalse("WITH KEYS", "AS JSON", isAsJson)
-            checkIsFalse("WITH KEYS", "KEYS", isOnlyPrintKeys)
-            checkIsFalse("WITH KEYS", "VALUES", isOnlyPrintValues)
-            checkMethod("WITH KEYS", Query.Method.SELECT)
-            checkMath()
-            field = value
-        }
-
     var isAsJson: Boolean? = null
         set(value) {
-            checkIsFalse("AS JSON", "WITH KEYS", isWithKeys)
             checkIsFalse("AS JSON", "KEYS", isOnlyPrintKeys)
             checkIsFalse("AS JSON", "VALUES", isOnlyPrintValues)
             checkMethod("AS JSON", Query.Method.SELECT)
@@ -196,7 +185,6 @@ internal class QueryBuilder(val queryString: String) {
     var isOnlyPrintKeys: Boolean? = null
         set(value) {
             checkIsFalse("KEYS", "AS JSON", isAsJson)
-            checkIsFalse("KEYS", "WITH KEYS", isWithKeys)
             checkIsFalse("KEYS", "VALUES", isOnlyPrintValues)
             checkMethod("KEYS", Query.Method.SELECT)
             checkMath()
@@ -207,7 +195,6 @@ internal class QueryBuilder(val queryString: String) {
         set(value) {
             checkIsFalse("VALUES", "AS JSON", isAsJson)
             checkIsFalse("VALUES", "KEYS", isOnlyPrintKeys)
-            checkIsFalse("VALUES", "WITH KEYS", isWithKeys)
             checkMethod("VALUES", Query.Method.SELECT)
             checkMath()
             field = value
@@ -238,7 +225,6 @@ internal class QueryBuilder(val queryString: String) {
                 isOnlyPrintKeys = (isOnlyPrintKeys == true),
                 isOnlyPrintValues = (isOnlyPrintValues == true),
                 isPrettyPrinted = (isPrettyPrinted == true),
-                isWithKeys = (isWithKeys == true),
                 isWithValues = (isWithValues == true),
                 isOrderByDesc = (isOrderByDesc == true)
         )
@@ -278,9 +264,6 @@ internal class QueryBuilder(val queryString: String) {
             }
             if (orderBy != null) {
                 throw SyntaxException("Can not use ORDER BY and MIN, MAX, SUM or COUNT together")
-            }
-            if (isWithKeys != null) {
-                throw SyntaxException("Can not use WITH KEYS and MIN, MAX, SUM or COUNT together")
             }
             if (isOnlyPrintKeys != null) {
                 throw SyntaxException("Can not use KEYS and MIN, MAX, SUM or COUNT together")

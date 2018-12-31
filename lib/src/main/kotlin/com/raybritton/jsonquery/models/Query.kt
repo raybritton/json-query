@@ -25,7 +25,6 @@ internal data class Query(
             val isDistinct: Boolean = false,
             val isWithValues: Boolean = false,
             val isByElement: Boolean = false,
-            val isWithKeys: Boolean = false,
             val isAsJson: Boolean = false,
             val isPrettyPrinted: Boolean = false,
             val isOnlyPrintKeys: Boolean = false,
@@ -65,7 +64,6 @@ internal data class Query(
                 if (flags.isCaseSensitive) builder.append(' ').appendKey(Keyword.CASE).append(' ').appendKey(Keyword.SENSITIVE)
                 if (select.limit != null) builder.append(' ').appendKey(Keyword.LIMIT).append(' ').append(select.limit)
                 if (select.offset != null) builder.append(' ').appendKey(Keyword.OFFSET).append(' ').append(select.offset)
-                if (flags.isWithKeys) builder.append(' ').appendKey(Keyword.WITH).append(' ').appendKey(Keyword.KEYS)
                 if (flags.isAsJson) builder.append(' ').appendKey(Keyword.AS).append(' ').appendKey(Keyword.JSON)
                 if (flags.isPrettyPrinted) builder.append(' ').appendKey(Keyword.PRETTY)
 
