@@ -9,9 +9,9 @@ internal interface Printer {
     companion object {
         fun createPrinter(query: Query): Printer {
             return when (query.method) {
-                SELECT -> SelectPrinter()
-                DESCRIBE -> DescribePrinter()
-                SEARCH -> SearchPrinter()
+                SELECT -> SelectPrinter
+                DESCRIBE -> DescribePrinter
+                SEARCH -> SearchPrinter
             }
         }
     }

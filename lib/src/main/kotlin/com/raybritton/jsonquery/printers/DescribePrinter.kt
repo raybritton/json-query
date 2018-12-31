@@ -5,7 +5,7 @@ import com.raybritton.jsonquery.models.JsonArray
 import com.raybritton.jsonquery.models.JsonObject
 import com.raybritton.jsonquery.models.Query
 
-internal class DescribePrinter : Printer {
+internal object DescribePrinter : Printer {
     override fun print(json: Any, query: Query): String {
         return json.describe(query)
     }
@@ -72,7 +72,5 @@ internal class DescribePrinter : Printer {
         }
     }
 
-    companion object {
-        private const val TAB = "  "
-    }
+    private const val TAB = "  "
 }

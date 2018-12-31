@@ -8,7 +8,7 @@ import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.models.SelectProjection
 import com.raybritton.jsonquery.tools.navigateToProjection
 
-internal class SelectPrinter : Printer {
+internal object SelectPrinter : Printer {
     override fun print(json: Any, query: Query): String {
         return if (query.flags.isAsJson) {
             JsonPrinter().print(json, query)
@@ -110,6 +110,7 @@ private class JsonPrinter : Printer {
             if (query.flags.isPrettyPrinted) {
                 this.setPrettyPrinting()
             }
+            this.serializeNulls()
         }.create()
 
         return gson.toJson(json)
