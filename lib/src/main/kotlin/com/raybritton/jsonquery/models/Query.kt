@@ -1,9 +1,11 @@
 package com.raybritton.jsonquery.models
 
+import com.raybritton.jsonquery.ext.wrap
 import com.raybritton.jsonquery.parsing.tokens.Keyword
 import com.raybritton.jsonquery.parsing.tokens.Operator
 import com.raybritton.jsonquery.parsing.tokens.Token
 import com.raybritton.jsonquery.parsing.tokens.isKeyword
+import com.raybritton.jsonquery.printers.QueryPrinter
 
 internal data class Query(
         val originalString: String,
@@ -32,57 +34,7 @@ internal data class Query(
             val isOrderByDesc: Boolean = false
     )
 
-    override fun toString(): String {
-        fun StringBuilder.appendKey(keyword: Keyword) = append(keyword.name)
-
-        val builder = StringBuilder()
-        when (method) {
-            Method.SEARCH -> {
-                builder.appendKey(Keyword.SEARCH).append(' ')
-                if (flags.isDistinct) builder.appendKey(Keyword.DISTINCT).append(' ')
-                builder.append(target).append(' ')
-                        .appendKey(Keyword.FOR).append(' ')
-                        .append(search!!.operator).append(' ')
-                if (search.value is Value.ValueQuery) {
-                    builder.append('(')
-                }
-                builder.append(search.value)
-                if (search.value is Value.ValueQuery) {
-                    builder.append(')')
-                }
-                if (flags.isCaseSensitive) builder.append(' ').appendKey(Keyword.CASE).append(' ').appendKey(Keyword.SENSITIVE)
-                if (flags.isWithValues) builder.append(' ').appendKey(Keyword.WITH).append(' ').appendKey(Keyword.VALUES)
-            }
-            Method.SELECT -> {
-                builder.appendKey(Keyword.SELECT).append(' ')
-                if (flags.isDistinct) builder.appendKey(Keyword.DISTINCT).append(' ')
-                builder.append(select!!.projection).append(' ')
-                        .appendKey(Keyword.FROM).append(' ')
-                        .append(target).append(' ')
-                if (flags.isByElement) builder.appendKey(Keyword.BY).append(' ').appendKey(Keyword.ELEMENT).append(' ')
-                if (where != null) builder.append(where)
-                if (flags.isCaseSensitive) builder.append(' ').appendKey(Keyword.CASE).append(' ').appendKey(Keyword.SENSITIVE)
-                if (select.limit != null) builder.append(' ').appendKey(Keyword.LIMIT).append(' ').append(select.limit)
-                if (select.offset != null) builder.append(' ').appendKey(Keyword.OFFSET).append(' ').append(select.offset)
-                if (flags.isAsJson) builder.append(' ').appendKey(Keyword.AS).append(' ').appendKey(Keyword.JSON)
-                if (flags.isPrettyPrinted) builder.append(' ').appendKey(Keyword.PRETTY)
-
-            }
-            Method.DESCRIBE -> {
-                builder.appendKey(Keyword.DESCRIBE).append(' ')
-                if (flags.isDistinct) builder.appendKey(Keyword.DISTINCT).append(' ')
-                builder.append(describe!!.projection).append(' ')
-                        .appendKey(Keyword.FROM).append(' ')
-                        .append(target).append(' ')
-                if (where != null) builder.append(where)
-                if (flags.isCaseSensitive) builder.append(' ').append(' ').appendKey(Keyword.CASE).append(' ').appendKey(Keyword.SENSITIVE)
-                if (describe.limit != null) builder.append(' ').appendKey(Keyword.LIMIT).append(' ').append(describe.limit)
-                if (describe.offset != null) builder.append(' ').appendKey(Keyword.OFFSET).append(' ').append(describe.offset)
-                if (flags.isPrettyPrinted) builder.append(' ').appendKey(Keyword.PRETTY)
-            }
-        }
-        return builder.toString()
-    }
+    override fun toString() = QueryPrinter.print(this)
 }
 
 internal data class SearchQuery(val targetRange: TargetRange, val operator: Operator, val value: Value<*>) {
@@ -104,6 +56,14 @@ internal sealed class Value<T>(val value: T) {
     class ValueQuery(value: Query) : Value<Query>(value)
     object ValueNull : Value<Unit>(Unit)
 
+    override fun toString(): String {
+        return when (this) {
+            is ValueString -> value.wrap()
+            is ValueNull -> "null"
+            else -> value.toString()
+        }
+    }
+
     companion object {
         fun build(any: Token<*>?): Value<*>? {
             return when {
@@ -118,8 +78,13 @@ internal sealed class Value<T>(val value: T) {
 }
 
 internal sealed class Target {
-    class TargetField(val value: String) : Target()
-    class TargetQuery(val query: Query) : Target()
+    class TargetField(val value: String) : Target() {
+        override fun toString() = value.wrap()
+    }
+
+    class TargetQuery(val query: Query) : Target() {
+        override fun toString() = query.toString()
+    }
 }
 
 internal sealed class ElementFieldProjection {
