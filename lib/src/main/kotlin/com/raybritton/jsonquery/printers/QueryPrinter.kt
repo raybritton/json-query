@@ -2,6 +2,7 @@ package com.raybritton.jsonquery.printers
 
 import com.raybritton.jsonquery.ext.wrap
 import com.raybritton.jsonquery.models.*
+import com.raybritton.jsonquery.models.Target
 import com.raybritton.jsonquery.parsing.tokens.Keyword
 
 internal object QueryPrinter {
@@ -13,7 +14,7 @@ internal object QueryPrinter {
             Query.Method.SEARCH -> {
                 builder.appendKey(Keyword.SEARCH).append(' ')
                 if (query.flags.isDistinct) builder.appendKey(Keyword.DISTINCT).append(' ')
-                builder.append(query.target).append(' ')
+                builder.append(printTarget(query.target)).append(' ')
                         .appendKey(Keyword.FOR).append(' ')
                         .append(query.search!!.operator.symbol).append(' ')
                 if (query.search.value is Value.ValueQuery) {
@@ -33,12 +34,13 @@ internal object QueryPrinter {
                     builder.append(printSelectProjection(query.select.projection!!))
                             .appendKey(Keyword.FROM).append(' ')
                 }
-                builder.append(query.target).append(' ')
+                builder.append(printTarget(query.target)).append(' ')
                 if (query.flags.isByElement) builder.appendKey(Keyword.BY).appendKey(Keyword.ELEMENT).append(' ')
                 if (query.where != null) builder.append(printWhere(query.where))
                 if (query.flags.isCaseSensitive) builder.appendKey(Keyword.CASE).appendKey(Keyword.SENSITIVE)
                 if (query.select.limit != null) builder.appendKey(Keyword.LIMIT).append(' ').append(query.select.limit)
                 if (query.select.offset != null) builder.appendKey(Keyword.OFFSET).append(' ').append(query.select.offset)
+                if (query.select.orderBy != null) builder.appendKey(Keyword.ORDER).appendKey(Keyword.BY).append(' ').append(query.select.orderBy)
                 if (query.flags.isAsJson) builder.appendKey(Keyword.AS).appendKey(Keyword.JSON)
                 if (query.flags.isPrettyPrinted) builder.appendKey(Keyword.PRETTY)
 
@@ -50,7 +52,7 @@ internal object QueryPrinter {
                     builder.append(query.describe.projection.wrap())
                             .appendKey(Keyword.FROM).append(' ')
                 }
-                builder.append(query.target).append(' ')
+                builder.append(printTarget(query.target)).append(' ')
                 if (query.where != null) builder.append(printWhere(query.where))
                 if (query.flags.isCaseSensitive) builder.append(' ').appendKey(Keyword.CASE).appendKey(Keyword.SENSITIVE)
                 if (query.describe.limit != null) builder.appendKey(Keyword.LIMIT).append(' ').append(query.describe.limit)
@@ -63,6 +65,8 @@ internal object QueryPrinter {
 
     private fun printWhere(where: Where): String {
         val builder = StringBuilder()
+
+        builder.append(Keyword.WHERE.name).append(' ')
 
         when (where.projection) {
             is WhereProjection.Field -> builder.append(where.projection.value.wrap())
@@ -84,7 +88,7 @@ internal object QueryPrinter {
 
         builder.append(' ')
 
-        builder.append(where.value.value)
+        builder.append(where.value)
 
         return builder.toString()
     }
@@ -94,7 +98,7 @@ internal object QueryPrinter {
 
         when (selectProjection) {
             is SelectProjection.SingleField -> builder.append(selectProjection.field)
-            is SelectProjection.MultipleFields -> builder.append(selectProjection.fields.joinToString(", ", prefix = "(", postfix = ")"))
+            is SelectProjection.MultipleFields -> builder.append(selectProjection.fields.joinToString(", ", prefix = "(", postfix = ")", transform = { it.wrap() }))
             is SelectProjection.Math -> {
                 builder.append(selectProjection.expr)
                 builder.append('(')
@@ -109,5 +113,12 @@ internal object QueryPrinter {
         }
 
         return builder.toString()
+    }
+
+    private fun printTarget(target: Target): String {
+        return when (target) {
+            is Target.TargetField -> target.value.wrap()
+            is Target.TargetQuery -> "(" + target.query.originalString + ")"
+        }
     }
 }
