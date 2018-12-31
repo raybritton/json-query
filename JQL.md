@@ -18,7 +18,6 @@ SELECT
     [LIMIT value]
     [OFFSET value]
     [ORDER BY field [DESC]]
-    [WITH KEYS]
     [AS JSON]
     [PRETTY]
 </pre>
@@ -100,9 +99,6 @@ SEARCH
     * This only is used if the target is an array
     * This is the number of results that will be skipped
     * value must be a positive integer
-* WITH KEYS
-    * By default only the values are returned, this caused the key to be returned as well
-    * This only works with SELECT
 * AS JSON
     * This will return the filtered data in the JSON format
     * This only works with SELECT

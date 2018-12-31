@@ -2,7 +2,7 @@ Statement						::= ( Select | Describe | Search )
 
 /* Statements */
 
-Select							::= 'SELECT' 'DISTINCT'? ( SelectProjection 'FROM' )? Target 'BY ELEMENT'? Where? Limit? Offset? OrderBy? 'WITH KEYS'? ( 'AS JSON' 'PRETTY'? )?
+Select							::= 'SELECT' 'DISTINCT'? ( SelectProjection 'FROM' )? Target 'BY ELEMENT'? Where? Limit? Offset? OrderBy? ( 'AS JSON' 'PRETTY'? )?
 Describe						::= 'DESCRIBE' 'DISTINCT'? ( DescribeProjection 'FROM' )? Target Where? Limit? Offset? 'PRETTY'?
 Search							::= 'SEARCH' 'DISTINCT'? Target 'FOR' ( 'ANY' | 'KEY' | 'VALUE' ) Operator Value 'CASE SENSITIVE'? 'WITH VALUES'?
 
