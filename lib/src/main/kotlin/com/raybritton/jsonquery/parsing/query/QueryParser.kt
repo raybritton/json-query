@@ -74,7 +74,6 @@ private fun ArrayDeque<Token<*>>.buildQueryUntil(queryString: String, stop: Toke
                     }
                     Keyword.ORDER -> {
                         checkMultipartFlag(token, pollFirst(), Keyword.BY)
-                        pop()
                         parseOrderBy(this, builder)
                     }
                     Keyword.CASE -> {
