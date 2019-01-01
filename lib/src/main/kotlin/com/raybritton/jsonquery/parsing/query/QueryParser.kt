@@ -50,27 +50,21 @@ private fun ArrayDeque<Token<*>>.buildQueryUntil(queryString: String, stop: Toke
                     }
                     Keyword.OFFSET -> {
                         builder.offset = pollFirst().readInt(Keyword.OFFSET)
-                        pop()
                     }
                     Keyword.BY -> {
                         checkMultipartFlag(token, pollFirst(), Keyword.ELEMENT)
-                        pop()
                         builder.isByElement = true
                     }
                     Keyword.AS -> {
                         checkMultipartFlag(token, pollFirst(), Keyword.JSON)
-                        pop()
                         builder.isAsJson = true
                     }
                     Keyword.PRETTY -> {
                         builder.isPrettyPrinted = true
                     }
                     Keyword.WITH -> {
-                        val nextToken = pollFirst()
-                        when {
-                            nextToken.isKeyword(Keyword.VALUES) -> builder.isWithValues = true
-                            else -> throw SyntaxException(nextToken, "KEYS or VALUES ", SyntaxException.ExtraInfo.WITH)
-                        }
+                        checkMultipartFlag(token, pollFirst(), Keyword.VALUES)
+                        builder.isWithValues = true
                     }
                     Keyword.ORDER -> {
                         checkMultipartFlag(token, pollFirst(), Keyword.BY)
@@ -78,7 +72,6 @@ private fun ArrayDeque<Token<*>>.buildQueryUntil(queryString: String, stop: Toke
                     }
                     Keyword.CASE -> {
                         checkMultipartFlag(token, pollFirst(), Keyword.SENSITIVE)
-                        pop()
                         @Suppress("NON_EXHAUSTIVE_WHEN") //not needed as SEARCH doesn't need checking
                         when (builder.method) {
                             Query.Method.DESCRIBE, Query.Method.SELECT -> {
@@ -104,7 +97,7 @@ private fun ArrayDeque<Token<*>>.buildQueryUntil(queryString: String, stop: Toke
 }
 
 private fun checkMultipartFlag(token: Token<*>, nextToken: Token<*>?, nextKeyword: Keyword) {
-    if (nextToken is Token.KEYWORD && nextToken.value == nextKeyword) {
+    if (nextToken.isKeyword(nextKeyword)) {
         return
     } else {
         if (nextToken == null) {
