@@ -17,8 +17,7 @@ class SyntaxException(message: String, val extraInfo: ExtraInfo? = null) : Illeg
 
     enum class ExtraInfo(val text: String) {
         METHOD_NOT_SET("All JQL statements must start with SELECT, DESCRIBE or SEARCH"),
-        WITH("""WITH must be followed by KEYS or VALUES.
-            |WITH KEYS is only valid on SELECT and not with AS JSON, it makes the keys be printed for all values
+        WITH("""WITH must be followed by VALUES.
             |WITH VALUES is only valid on SEARCH and it makes the values be printed for all keys
         """.trimMargin()),
         JSON_TARGET("""
@@ -60,8 +59,8 @@ class SyntaxException(message: String, val extraInfo: ExtraInfo? = null) : Illeg
 
             Invalid:
             bar. -> A path must not end with a period
-            ..foo -> Blank fields are not allowed
-            . -> This is not allowed. To select all elements in an array write ELEMENT i.e. SELECT '.' WHERE ELEMENT == 'foo'
+            ..foo -> Blank fields are not allowed (if the name of the field is '.foo' use a backslash to escape the period)
+            . -> This is not allowed. To select all elements in an array use ELEMENT e.g. SELECT '.' WHERE ELEMENT == 'foo'
         """.trimIndent())
     }
 }
