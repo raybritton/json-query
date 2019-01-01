@@ -8,7 +8,7 @@ internal sealed class Token<T>(val value: T, val charIdx: Int) {
     class KEYWORD(value: Keyword, charIdx: Int) : Token<Keyword>(value, charIdx)
     class STRING(value: String, charIdx: Int) : Token<String>(value, charIdx)
     class NUMBER(value: Double, charIdx: Int) : Token<Double>(value, charIdx) {
-        val isInteger = (value % 1.0 != 0.0)
+        val isInteger = (value % 1.0 == 0.0)
         fun asInteger() = value.toInt()
     }
 
