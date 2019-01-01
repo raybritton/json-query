@@ -12,9 +12,9 @@ internal object QueryPrinter {
         val builder = StringBuilder()
         when (query.method) {
             Query.Method.SEARCH -> {
-                builder.appendKey(Keyword.SEARCH).append(' ')
-                if (query.flags.isDistinct) builder.appendKey(Keyword.DISTINCT).append(' ')
-                builder.append(printTarget(query.target)).append(' ')
+                builder.appendKey(Keyword.SEARCH)
+                if (query.flags.isDistinct) builder.appendKey(Keyword.DISTINCT)
+                builder.append(' ').append(printTarget(query.target)).append(' ')
                         .appendKey(Keyword.FOR).append(' ')
                         .append(query.search!!.operator.symbol).append(' ')
                 if (query.search.value is Value.ValueQuery) {
@@ -28,14 +28,14 @@ internal object QueryPrinter {
                 if (query.flags.isWithValues) builder.appendKey(Keyword.WITH).appendKey(Keyword.VALUES)
             }
             Query.Method.SELECT -> {
-                builder.appendKey(Keyword.SELECT).append(' ')
-                if (query.flags.isDistinct) builder.appendKey(Keyword.DISTINCT).append(' ')
+                builder.appendKey(Keyword.SELECT)
+                if (query.flags.isDistinct) builder.appendKey(Keyword.DISTINCT)
                 if (query.select!!.projection != null && query.select.projection !is SelectProjection.All) {
-                    builder.append(printSelectProjection(query.select.projection!!))
-                            .appendKey(Keyword.FROM).append(' ')
+                    builder.append(' ').append(printSelectProjection(query.select.projection!!))
+                            .appendKey(Keyword.FROM)
                 }
-                builder.append(printTarget(query.target))
-                if (query.flags.isByElement) builder.appendKey(Keyword.BY).appendKey(Keyword.ELEMENT).append(' ')
+                builder.append(' ').append(printTarget(query.target))
+                if (query.flags.isByElement) builder.appendKey(Keyword.BY).appendKey(Keyword.ELEMENT)
                 if (query.where != null) builder.append(printWhere(query.where))
                 if (query.flags.isCaseSensitive) builder.appendKey(Keyword.CASE).appendKey(Keyword.SENSITIVE)
                 if (query.select.limit != null) builder.appendKey(Keyword.LIMIT).append(' ').append(query.select.limit)
@@ -46,13 +46,13 @@ internal object QueryPrinter {
 
             }
             Query.Method.DESCRIBE -> {
-                builder.appendKey(Keyword.DESCRIBE).append(' ')
-                if (query.flags.isDistinct) builder.appendKey(Keyword.DISTINCT).append(' ')
+                builder.appendKey(Keyword.DESCRIBE)
+                if (query.flags.isDistinct) builder.appendKey(Keyword.DISTINCT)
                 if (query.describe!!.projection != null) {
-                    builder.append(query.describe.projection.wrap())
+                    builder.append(' ').append(query.describe.projection.wrap())
                             .appendKey(Keyword.FROM).append(' ')
                 }
-                builder.append(printTarget(query.target)).append(' ')
+                builder.append(printTarget(query.target))
                 if (query.where != null) builder.append(printWhere(query.where))
                 if (query.flags.isCaseSensitive) builder.append(' ').appendKey(Keyword.CASE).appendKey(Keyword.SENSITIVE)
                 if (query.describe.limit != null) builder.appendKey(Keyword.LIMIT).append(' ').append(query.describe.limit)

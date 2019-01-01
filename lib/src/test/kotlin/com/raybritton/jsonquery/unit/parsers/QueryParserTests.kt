@@ -122,4 +122,23 @@ class QueryParserTests {
         assertEquals("Inner target", ".", (innerQuery.target as Target.TargetField).value)
         assertTrue("Inner as json", innerQuery.flags.isAsJson)
     }
+
+    @Test
+    fun `check every keyword for select`() {
+        val queryStr = """SELECT DISTINCT "test" FROM "." BY ELEMENT WHERE "x" == "y" LIMIT 10 OFFSET 20 ORDER BY "id" AS JSON PRETTY"""
+        val tokens = queryStr.toQueryTokens()
+        val query = tokens.buildQuery(queryStr)
+
+        assertEquals("Token count", 21, tokens.size)
+        assertEquals("Original query", queryStr, query.originalString)
+        assertEquals("Parsed query", queryStr, query.toString().trim())
+
+        assertTrue("distinct", query.flags.isDistinct)
+        assertTrue("as json", query.flags.isAsJson)
+        assertTrue("pretty", query.flags.isPrettyPrinted)
+        assertTrue("by element", query.flags.isByElement)
+        assertEquals("limit", 10, query.select!!.limit)
+        assertEquals("offset", 20, query.select.offset)
+        assertEquals("order by", "id", (query.select.orderBy as ElementFieldProjection.Field).value)
+    }
 }
