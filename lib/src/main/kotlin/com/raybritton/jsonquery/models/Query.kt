@@ -1,5 +1,6 @@
 package com.raybritton.jsonquery.models
 
+import com.raybritton.jsonquery.SyntaxException
 import com.raybritton.jsonquery.ext.wrap
 import com.raybritton.jsonquery.parsing.tokens.Keyword
 import com.raybritton.jsonquery.parsing.tokens.Operator
@@ -69,9 +70,19 @@ internal sealed class Value<T>(val value: T) {
         fun build(any: Token<*>?): Value<*>? {
             return when {
                 any.isKeyword(Keyword.NULL) -> ValueNull
-                any is Token.STRING -> Value.ValueString(any.value)
-                any is Token.NUMBER -> Value.ValueNumber(any.value)
-                any.isKeyword(Keyword.TRUE, Keyword.FALSE) -> Value.ValueBoolean(any?.value == Keyword.TRUE.name)
+                any is Token.STRING -> {
+                    if (any.value.isEmpty()) {
+                        throw SyntaxException("String value is empty at ${any.charIdx}", SyntaxException.ExtraInfo.VALUE_INVALID)
+                    }
+                    Value.ValueString(any.value)
+                }
+                any is Token.NUMBER -> {
+                    if (any.value.isNaN() || any.value.isInfinite()) {
+                        throw SyntaxException("Number value is invalid at ${any.charIdx}", SyntaxException.ExtraInfo.VALUE_INVALID)
+                    }
+                    Value.ValueNumber(any.value)
+                }
+                any.isKeyword(Keyword.TRUE, Keyword.FALSE) -> Value.ValueBoolean(any?.value == Keyword.TRUE)
                 else -> null
             }
         }
