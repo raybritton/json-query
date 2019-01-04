@@ -61,6 +61,11 @@ class SyntaxException(message: String, val extraInfo: ExtraInfo? = null) : Illeg
             bar. -> A path must not end with a period
             ..foo -> Blank fields are not allowed (if the name of the field is '.foo' use a backslash to escape the period)
             . -> This is not allowed. To select all elements in an array use ELEMENT e.g. SELECT '.' WHERE ELEMENT == 'foo'
+        """.trimIndent()),
+        VALUE_INVALID("""
+            Values for WHERE and SEARCH must be valid:
+            Strings must have at least one character
+            Numbers must not be NaN or infinite
         """.trimIndent())
     }
 }
