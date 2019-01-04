@@ -106,7 +106,7 @@ class InvalidNavigationTests {
     }
 
     @Test
-    fun `test navigating to object in in object in root object`() {
+    fun `test navigating to object in object in root object`() {
         exceptionRule.expect(RuntimeException::class.java)
         exceptionRule.expectMessage("Path '.foo.bar' resulted in an object or array")
 

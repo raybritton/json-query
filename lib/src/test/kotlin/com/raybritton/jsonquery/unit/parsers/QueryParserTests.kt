@@ -141,4 +141,17 @@ class QueryParserTests {
         assertEquals("offset", 20, query.select.offset)
         assertEquals("order by", "id", (query.select.orderBy as ElementFieldProjection.Field).value)
     }
+
+    @Test
+    fun `test known bad query`() {
+        val queryStr = "SELECT \".\" WHERE \"foo\" == TRUE"
+        val tokens = queryStr.toQueryTokens()
+        val query = tokens.buildQuery(queryStr)
+
+        assertEquals("Token count", 6, tokens.size)
+        assertEquals("Original query", queryStr, query.originalString)
+        assertEquals("Parsed query", queryStr, query.toString().trim())
+
+        assertEquals("where value", true, (query.where?.value as Value.ValueBoolean).value)
+    }
 }

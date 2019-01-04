@@ -25,6 +25,8 @@ class ContainsOperatorTests {
         assertTrue("string in string (diff case) - not checking case", operator.op("this is a string", Value.ValueString("THIS"), false))
         assertFalse("string not in string (diff case) - not checking case", operator.op("this is a string", Value.ValueString("NOT"), false))
 
+        assertTrue("empty string in string", operator.op("this is a string", Value.ValueString(""), false))
+
         assertTrue("whole string match", operator.op("string", Value.ValueString("string"), false))
     }
 
