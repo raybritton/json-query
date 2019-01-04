@@ -2,69 +2,73 @@ package com.raybritton.jsonquery.tools
 
 import com.raybritton.jsonquery.RuntimeException
 import com.raybritton.jsonquery.models.*
-import com.raybritton.jsonquery.parsing.tokens.Operator
 
-internal fun Any.where(query: Query): Any {
-    TODO("Implement this")
-//    if (query.where == null) return this
-//
-//    if (query.where.value is Value.ValueQuery) throw RuntimeException("Query failed to parse: ${query.originalString}", RuntimeException.ExtraInfo.WHERE_QUERY)
-//
-//    val value = when (query.where.projection) {
-//        is WhereProjection.Field -> {
-//            if (query.where.operator == Operator.Contains || query.where.operator == Operator.NotContains) {
-//                try {
-//                    this.navigateToTarget(query.where.projection.value)
-//                } catch (e: RuntimeException) {
-//                    val result = this.navigateToProjection(query.where.projection.value)
-//                    if (result is String) {
-//                        result
-//                    } else {
-//                        throw RuntimeException("Where projection was not object, array or string", RuntimeException.ExtraInfo.WHERE_INVALID)
-//                    }
-//                }
-//            } else {
-//                this.navigateToProjection(query.where.projection.value)
-//            }
-//        }
-//        WhereProjection.Element -> if (this !is JsonArray) throw RuntimeException("$this is not an array", RuntimeException.ExtraInfo.ELEMENT_WHERE_OBJECT) else Val
-//        is WhereProjection.Math -> this.math(query.where.projection.expr, query.where.projection.field)
-//    }
-//
-//    val matches = query.where.operator.op(value, query.where.value, query.flags.isCaseSensitive)
-//
-//    if (!matches) {
-//        when (this) {
-//            is JsonArray -> this.clear()
-//            is JsonObject -> this.clear()
-//        }
-//    }
+/**
+ * Given a json structure
+ * Removes parts that do not match query
+ */
+internal fun Any.where(where: Where, caseSensitive: Boolean, offset: Int?): Any {
+    return when (this) {
+        is JsonObject -> this.where(where, caseSensitive, offset)
+        is JsonArray -> this.where(where, caseSensitive, offset)
+        else -> throw RuntimeException("Tried to run where on ${this.javaClass}")
+    }
+}
 
+private fun JsonObject.where(where: Where, caseSensitive: Boolean, offset: Int?): JsonObject {
+    when (where.projection) {
+        is WhereProjection.Element -> throw RuntimeException("ELEMENT can not be used with an object", RuntimeException.ExtraInfo.ELEMENT_WHERE_OBJECT)
+        is WhereProjection.Field -> {
+            if (!where.operator.op(this.navigateToTargetOrProjection(where.projection.value), where.value, caseSensitive)) {
+                clear()
+            }
+        }
+        is WhereProjection.Math -> {
+            val field = (where.projection.field as ElementFieldProjection.Field).value
+            val result = (this.navigateToTargetOrProjection(field) as? JsonArray)?.math(where.projection.expr, ElementFieldProjection.Element)
+            val matches = if (result != null) {
+                where.operator.op(result, where.value, caseSensitive)
+            } else {
+                false
+            }
+            if (!matches) {
+                clear()
+            }
+        }
+    }
     return this
 }
 
-private fun JsonObject.where(query: Query, value: Any?): Any {
-    val output = copy()
-
-    if (!query.where!!.operator.op(value, query.where.value, query.flags.isCaseSensitive)) {
-        val iterator = output.iterator()
-        while(iterator.hasNext()) {
-            iterator.remove()
+private fun JsonArray.where(where: Where, caseSensitive: Boolean, offset: Int?): JsonArray {
+    when (where.projection) {
+        is WhereProjection.Element -> {
+            return filterUntilSize(offset) { where.operator.op(it, where.value, caseSensitive) }.toJsonArray()
+        }
+        is WhereProjection.Field -> {
+            return filterUntilSize(offset) { where.operator.op(it.navigateToTargetOrProjection(where.projection.value), where.value, caseSensitive) }.toJsonArray()
+        }
+        is WhereProjection.Math -> {
+            return filterUntilSize(offset) { element ->
+                val field = (where.projection.field as ElementFieldProjection.Field).value
+                val result = (element.navigateToTargetOrProjection(field) as? JsonArray)?.math(where.projection.expr, ElementFieldProjection.Element)
+                if (result != null) {
+                    where.operator.op(result, where.value, caseSensitive)
+                } else {
+                    false
+                }
+            }.toJsonArray()
         }
     }
-
-    return output
 }
 
-private fun JsonArray.where(query: Query, value: Any?): JsonArray {
-    val output = copy()
-
-    if (!query.where!!.operator.op(value, query.where.value, query.flags.isCaseSensitive)) {
-        val iterator = output.iterator()
-        while(iterator.hasNext()) {
-            iterator.remove()
+private fun JsonArray.filterUntilSize(size: Int?, predicate: (Any?) -> Boolean): JsonArray {
+    val output = JsonArray()
+    val iterator = iterator()
+    while (iterator.hasNext() && (size == null || (output.size < size))) {
+        val element = iterator.next()
+        if (predicate(element)) {
+            output.add(element)
         }
     }
-
     return output
 }

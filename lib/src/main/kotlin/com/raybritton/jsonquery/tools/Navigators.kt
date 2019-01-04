@@ -13,8 +13,9 @@ private val INDEX_ACCESSOR = "^\\[(\\d+)\\]$".toPattern()
 /**
  * Navigate to anything in a json object/array
  */
-internal fun Any.navigateToTargetOrProjection(path: String): Any? {
-    return this.navigate(path, false)
+internal fun Any?.navigateToTargetOrProjection(path: String): Any? {
+    if (this == null) return null
+    return this.navigate(path, false, inArray = true)
 }
 
 /**
