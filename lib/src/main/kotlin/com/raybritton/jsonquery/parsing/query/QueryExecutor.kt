@@ -44,7 +44,7 @@ internal class QueryExecutor {
         }
 
         //FILTER
-        var workingJson: Any? = targetJson.where(updatedQuery)
+        var workingJson: Any? = if (updatedQuery.where != null) targetJson.where(updatedQuery.where!!, updatedQuery.flags.isCaseSensitive, query.select?.offset) else targetJson
 
         if (workingJson == null) throw RuntimeException("Where returned null")
 
