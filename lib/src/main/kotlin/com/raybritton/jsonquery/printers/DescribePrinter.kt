@@ -15,6 +15,13 @@ internal object DescribePrinter : Printer {
             return "NULL"
         }
         return when (this) {
+            is Pair<*, *> -> {
+                if (query.flags.isWithKeys && this.first != null) {
+                    "${this.first}: ${this.second.describe(query, tabCount)}"
+                } else {
+                    this.second.describe(query, tabCount)
+                }
+            }
             is Int -> "NUMBER"
             is Long -> "NUMBER"
             is Float -> "NUMBER"
@@ -29,17 +36,17 @@ internal object DescribePrinter : Printer {
 
     private fun JsonObject.describe(query: Query, tabCount: Int = 0): String {
         val builder = StringBuilder("OBJECT(")
-        values.toList().describe(query, builder, tabCount + 1)
+        toList().describe(query, builder, tabCount + 1)
         return builder.append(")").toString()
     }
 
     private fun JsonArray.describe(query: Query, tabCount: Int = 0): String {
         val builder = StringBuilder("ARRAY(")
-        describe(query, builder, tabCount + 1)
+        map { null to it }.describe(query, builder, tabCount + 1)
         return builder.append(")").toString()
     }
 
-    private fun List<*>.describe(query: Query, builder: StringBuilder, tabCount: Int = 0) {
+    private fun List<Pair<String?, *>>.describe(query: Query, builder: StringBuilder, tabCount: Int = 0) {
         val map = mutableMapOf<String, Int>()
         for (i in 0 until size) {
             val desc = this[i].describe(query, tabCount)

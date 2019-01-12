@@ -63,8 +63,14 @@ private fun ArrayDeque<Token<*>>.buildQueryUntil(queryString: String, stop: Toke
                         builder.isPrettyPrinted = true
                     }
                     Keyword.WITH -> {
-                        checkMultipartFlag(token, pollFirst(), Keyword.VALUES)
-                        builder.isWithValues = true
+                        val nextToken = pollFirst()
+                        if (nextToken.isKeyword(Keyword.VALUES)) {
+                            builder.isWithValues = true
+                        } else if (nextToken.isKeyword(Keyword.KEYS)) {
+                            builder.isWithKeys = true
+                        } else {
+                            throw SyntaxException.throwNullable(nextToken, "VALUES or KEYS")
+                        }
                     }
                     Keyword.ORDER -> {
                         checkMultipartFlag(token, pollFirst(), Keyword.BY)

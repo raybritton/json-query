@@ -158,6 +158,12 @@ internal class QueryBuilder(val queryString: String) {
             field = value
         }
 
+    var isWithKeys: Boolean? = null
+        set(value) {
+            checkMethod("WITH KEYS", Query.Method.DESCRIBE)
+            field = value
+        }
+
     var isByElement: Boolean? = null
         set(value) {
             checkMethod("BY ELEMENT", Query.Method.SELECT)
@@ -225,6 +231,7 @@ internal class QueryBuilder(val queryString: String) {
                 isOnlyPrintKeys = (isOnlyPrintKeys == true),
                 isOnlyPrintValues = (isOnlyPrintValues == true),
                 isPrettyPrinted = (isPrettyPrinted == true),
+                isWithKeys = (isWithKeys == true),
                 isWithValues = (isWithValues == true),
                 isOrderByDesc = (isOrderByDesc == true)
         )

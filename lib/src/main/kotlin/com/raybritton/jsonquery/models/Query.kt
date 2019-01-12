@@ -27,6 +27,7 @@ internal data class Query(
             val isCaseSensitive: Boolean = false,
             val isDistinct: Boolean = false,
             val isWithValues: Boolean = false,
+            val isWithKeys: Boolean = false,
             val isByElement: Boolean = false,
             val isAsJson: Boolean = false,
             val isPrettyPrinted: Boolean = false,
