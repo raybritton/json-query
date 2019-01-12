@@ -242,28 +242,6 @@ class ArrayElementTests {
     }
 
     @Test
-    fun `test null array matching (has null)`() {
-        val json = JsonArray(1, "a", null)
-
-        val where = Where(WhereProjection.Element, Operator.Equal, Value.ValueNull)
-
-        val result = json.where(where, false, null)
-
-        assertEquals(JsonArray(null), result)
-    }
-
-    @Test
-    fun `test null array matching (no nulls)`() {
-        val json = JsonArray(1, "a")
-
-        val where = Where(WhereProjection.Element, Operator.Equal, Value.ValueNull)
-
-        val result = json.where(where, false, null)
-
-        assertEquals(JsonArray(), result)
-    }
-
-    @Test
     fun `test number array with string value`() {
         val json = JsonArray(10, 20)
 

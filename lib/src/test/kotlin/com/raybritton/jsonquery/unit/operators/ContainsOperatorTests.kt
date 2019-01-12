@@ -38,7 +38,6 @@ class ContainsOperatorTests {
         assertFalse("number not in string", operator.op("this is a 10", Value.ValueNumber(11.0), false))
         assertFalse("boolean in string", operator.op("this is a true", Value.ValueBoolean(true), false))
         assertFalse("boolean not in string", operator.op("this is a false", Value.ValueBoolean(false), false))
-        assertFalse("null in string", operator.op("this is a false", Value.ValueNull, false))
     }
 
     @Test
@@ -70,9 +69,6 @@ class ContainsOperatorTests {
 
         assertTrue("boolean in array", operator.op(JsonArray(true, false), Value.ValueBoolean(true), false))
         assertFalse("boolean not in array", operator.op(JsonArray(true), Value.ValueBoolean(false), false))
-
-        assertTrue("null in array", operator.op(JsonArray(true, null), Value.ValueNull, false))
-        assertFalse("null not in array", operator.op(JsonArray("not null"), Value.ValueNull, false))
     }
 
     @Test

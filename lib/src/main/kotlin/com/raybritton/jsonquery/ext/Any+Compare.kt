@@ -29,9 +29,7 @@ internal fun Any?.compareWith(isOrderByDesc: Boolean, isCaseSensitive: Boolean, 
 }
 
 internal fun Any?.isSameValueAs(rhs: Value<*>, caseSensitive: Boolean): Boolean {
-    if (rhs is Value.ValueNull && this == null) {
-        return true
-    } else if (this is Number && rhs is Value.ValueNumber) {
+    if (this is Number && rhs is Value.ValueNumber) {
         return this.toDouble() == rhs.value
     } else if (this is String && rhs is Value.ValueString) {
         return this.equals(rhs.value, !caseSensitive)

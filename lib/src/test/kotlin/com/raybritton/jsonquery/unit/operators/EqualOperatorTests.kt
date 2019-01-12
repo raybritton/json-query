@@ -27,8 +27,6 @@ class EqualOperatorTests {
 
         assertFalse("number and boolean (true)", operator.op(1, Value.ValueBoolean(true), false))
         assertFalse("number and boolean (false)", operator.op(1, Value.ValueBoolean(false), false))
-
-        assertFalse("number and null", operator.op(1, Value.ValueNull, false))
     }
 
     @Test
@@ -57,9 +55,6 @@ class EqualOperatorTests {
 
         assertFalse("string and not matching integer", operator.op("74", Value.ValueNumber(78.0), false))
         assertFalse("string and not matching double", operator.op("74.0", Value.ValueNumber(78.0), false))
-
-        assertFalse("string and null", operator.op("a string", Value.ValueNull, false))
-        assertFalse("string ('null') and null", operator.op("null", Value.ValueNull, false))
     }
 
     @Test
@@ -76,8 +71,6 @@ class EqualOperatorTests {
         assertFalse("boolean and not matching string", operator.op(true, Value.ValueString("false"), false))
 
         assertFalse("boolean and number", operator.op(true, Value.ValueNumber(54.0), false))
-
-        assertFalse("boolean and null", operator.op(true, Value.ValueNull, false))
     }
 
     @Test
@@ -87,7 +80,5 @@ class EqualOperatorTests {
         assertFalse("null and string", operator.op(null, Value.ValueString("anything"), false))
         assertFalse("null and number", operator.op(null, Value.ValueNumber(98572.24), false))
         assertFalse("null and boolean", operator.op(null, Value.ValueBoolean(false), false))
-
-        assertTrue("null and null", operator.op(null, Value.ValueNull, false))
     }
 }

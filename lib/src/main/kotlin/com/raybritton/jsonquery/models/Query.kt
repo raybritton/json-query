@@ -55,12 +55,12 @@ internal sealed class Value<T>(val value: T) {
     class ValueString(value: String) : Value<String>(value)
     class ValueBoolean(value: Boolean) : Value<Boolean>(value)
     class ValueQuery(value: Query) : Value<Query>(value)
-    object ValueNull : Value<Unit>(Unit)
+    class ValueType(value: Keyword) : Value<Keyword>(value)
 
     override fun toString(): String {
         return when (this) {
+            is ValueType -> value.name
             is ValueString -> value.wrap()
-            is ValueNull -> Keyword.NULL.name
             is ValueBoolean -> if (value) Keyword.TRUE.name else Keyword.FALSE.name
             else -> value.toString()
         }
@@ -69,7 +69,6 @@ internal sealed class Value<T>(val value: T) {
     companion object {
         fun build(any: Token<*>?): Value<*>? {
             return when {
-                any.isKeyword(Keyword.NULL) -> ValueNull
                 any is Token.STRING -> {
                     if (any.value.isEmpty()) {
                         throw SyntaxException("String value is empty at ${any.charIdx}", SyntaxException.ExtraInfo.VALUE_INVALID)
@@ -83,6 +82,7 @@ internal sealed class Value<T>(val value: T) {
                     Value.ValueNumber(any.value)
                 }
                 any.isKeyword(Keyword.TRUE, Keyword.FALSE) -> Value.ValueBoolean(any?.value == Keyword.TRUE)
+                any.isKeyword(Keyword.ARRAY, Keyword.OBJECT, Keyword.BOOLEAN, Keyword.STRING, Keyword.NUMBER, Keyword.NULL) -> Value.ValueType((any as Token.KEYWORD).value)
                 else -> null
             }
         }

@@ -60,5 +60,32 @@ internal sealed class Operator(val symbol: String) {
         }
     }
 
+    object TypeEqual : Operator("IS") {
+        override fun op(lhs: Any?, rhs: Value<*>, caseSensitive: Boolean): Boolean {
+            return when {
+                lhs is Number && rhs.value == Keyword.NUMBER -> true
+                lhs is String && rhs.value == Keyword.STRING -> true
+                lhs is Boolean && rhs.value == Keyword.BOOLEAN -> true
+                lhs is JsonObject && rhs.value == Keyword.OBJECT -> true
+                lhs is JsonArray && rhs.value == Keyword.ARRAY -> true
+                lhs == null && rhs.value == Keyword.NULL -> true
+                else -> false
+            }
+        }
+    }
+
+    object TypeNotEqual : Operator("IS NOT") {
+        override fun op(lhs: Any?, rhs: Value<*>, caseSensitive: Boolean): Boolean {
+            return when {
+                lhs is Number && rhs.value != Keyword.NUMBER -> true
+                lhs is String && rhs.value != Keyword.STRING -> true
+                lhs is Boolean && rhs.value != Keyword.BOOLEAN -> true
+                lhs is JsonObject && rhs.value != Keyword.OBJECT -> true
+                lhs is JsonArray && rhs.value != Keyword.ARRAY -> true
+                lhs == null && rhs.value != Keyword.NULL -> true
+                else -> false
+            }
+        }
+    }
 }
 

@@ -25,13 +25,10 @@ class GreaterThanOrEqualOperatorTests {
     @Test
     fun `test number greater than or equal null`() {
         val operator = Operator.GreaterThanOrEqual
-        assertFalse("positive to null", operator.op(5, Value.ValueNull, false))
         assertTrue("null to positive", operator.op(null, Value.ValueNumber(5.0), false))
 
-        assertFalse("equal to null", operator.op(0, Value.ValueNull, false))
         assertTrue("null to equal", operator.op(null, Value.ValueNumber(0.0), false))
 
-        assertFalse("negative to null", operator.op(-5, Value.ValueNull, false))
         assertTrue("null to negative", operator.op(null, Value.ValueNumber(-5.0), false))
     }
 
@@ -74,9 +71,6 @@ class GreaterThanOrEqualOperatorTests {
     fun `test boolean greater than or equal null`() {
         val operator = Operator.GreaterThanOrEqual
 
-        assertFalse("false greater than null", operator.op(false, Value.ValueNull, false))
-        assertFalse("true greater than null", operator.op(true, Value.ValueNull, false))
-
         assertTrue("null greater than false", operator.op(null, Value.ValueBoolean(false), false))
         assertTrue("null greater than true", operator.op(null, Value.ValueBoolean(true), false))
     }
@@ -102,14 +96,6 @@ class GreaterThanOrEqualOperatorTests {
         assertTrue("number greater than or equal string (equal number)", operator.op(10.3, Value.ValueString("10.5"), false))
         assertTrue("number greater than or equal string (higher number)", operator.op(10.5, Value.ValueString("10.5"), false))
 
-        assertFalse("string greater than or equal null", operator.op("not null", Value.ValueNull, false))
         assertTrue("null greater than or equal string", operator.op(null, Value.ValueString("not null"), false))
-    }
-
-    @Test
-    fun `test null greater than or equal null`() {
-        val operator = Operator.GreaterThanOrEqual
-
-        assertTrue("null greater than null", operator.op(null, Value.ValueNull, false))
     }
 }

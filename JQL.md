@@ -14,7 +14,7 @@ SELECT
     [(KEYS|VALUES|field|fields|mathExpr) FROM]
     target
     [BY ELEMENT]
-    [WHERE field operator value [CASE SENSITIVE]]
+    [WHERE field operator searchTerm [CASE SENSITIVE]]
     [LIMIT value]
     [OFFSET value]
     [ORDER BY field [DESC]]
@@ -27,7 +27,7 @@ DESCRIBE
     [DISTINCT]
     [(field|fields) FROM]
     searchTerm
-    [WHERE field operator value [CASE SENSITIVE]]
+    [WHERE field operator searchTerm [CASE SENSITIVE]]
     [LIMIT value]
     [OFFSET value]
     [PRETTY]
@@ -92,6 +92,8 @@ SEARCH
         * `!#` Not contains (array, object, or string)
         
         (with objects contains checks for keys existence (`"key": null` counts as existing))
+    * operator:
+        * `IS` type checking: may be followed by NOT then must be followed by STRING, NUMBER, BOOLEAN, OBJECT, ARRAY or NULL
 * LIMIT
     * This only is used if the target is an array
     * This is the maximum number of results
@@ -114,7 +116,7 @@ SEARCH
 * CASE SENSITIVE
     * Equals, contains and search are case insensitive by default, adding this makes them case sensitive
 * searchTerm
-    * A string, number, 'TRUE' or 'FALSE', 'NULL'
+    * A string, number, 'TRUE' or 'FALSE'
     * Or the results of a nested SELECT
 * BY ELEMENT
     * Splits the results by their position in the target

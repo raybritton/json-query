@@ -39,7 +39,14 @@ internal enum class Keyword {
     WITH,
     DESCRIBE,
     PRETTY,
-    NULL;
+    NULL,
+    IS,
+    NOT,
+    NUMBER,
+    STRING,
+    BOOLEAN,
+    ARRAY,
+    OBJECT;
 
     fun isMath() = (this == MIN || this == MAX || this == SUM || this == COUNT)
 

@@ -144,7 +144,7 @@ private fun parseSelect(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
             if (list.peek().isKeyword(Keyword.SELECT)) {
                 builder.target = handleTarget(token)
             } else {
-                builder.selectProjection = parseMutlipleFields(list)
+                builder.selectProjection = parseMultipleFields(list)
                 list.checkFirstElement({ it.isKeyword(Keyword.FROM) }, "FROM")
                 builder.target = handleTarget(list.poll())
             }
@@ -214,7 +214,7 @@ private fun parseDescribe(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
     builder.target = handleTarget(list.pollFirst())
 }
 
-private fun parseMutlipleFields(list: ArrayDeque<Token<*>>): SelectProjection.MultipleFields {
+private fun parseMultipleFields(list: ArrayDeque<Token<*>>): SelectProjection.MultipleFields {
     val fields = mutableListOf<String>()
     var token = list.pollFirst()
     while (token != null && !token.isPunctuation(')')) {
@@ -299,10 +299,17 @@ private fun parseWhere(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
     }
 
     list.pollFirst().let {
-        if (it is Token.OPERATOR) {
-            operator = it.value
-        } else {
-            SyntaxException.throwNullable(it, "operator")
+        when {
+            it is Token.OPERATOR -> operator = it.value
+            it.isKeyword(Keyword.IS) -> {
+                if (list.peek().isKeyword(Keyword.NOT)) {
+                    list.pollFirst()
+                    operator = Operator.TypeNotEqual
+                } else {
+                    operator = Operator.TypeEqual
+                }
+            }
+            else -> SyntaxException.throwNullable(it, "operator or IS")
         }
     }
 
@@ -348,7 +355,11 @@ private fun parseValue(list: ArrayDeque<Token<*>>, builder: QueryBuilder): Value
             val query = list.buildQueryUntil(builder.queryString, Token.PUNCTUATION(')', 0))
             compare = Value.ValueQuery(query)
         } else {
-            SyntaxException.throwNullable(token, "number or string or boolean or query (surrounded by parenthesis)")
+            if (builder.searchOperator == Operator.TypeEqual || builder.searchOperator == Operator.TypeNotEqual) {
+                SyntaxException.throwNullable(token, "STRING, NUMBER, OBJECT, BOOLEAN, ARRAY or NULL")
+            } else {
+                SyntaxException.throwNullable(token, "number or string or boolean or query (surrounded by parenthesis)")
+            }
         }
     }
     return compare

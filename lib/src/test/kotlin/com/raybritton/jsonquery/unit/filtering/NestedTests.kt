@@ -58,16 +58,6 @@ class NestedTests {
     }
 
     @Test
-    fun `test fields nested in objects in array some matching`() {
-        val json = JsonArray(JsonObject("foo" to JsonObject("bar" to true)), JsonObject("foo" to JsonObject("bar" to false)), JsonObject("foo" to JsonObject("bar" to null)))
-        val where = Where(WhereProjection.Field("foo.bar"), Operator.NotEqual, Value.ValueNull)
-
-        val result = json.where(where, false, null)
-
-        assertEquals(JsonArray(JsonObject("foo" to JsonObject("bar" to true)), JsonObject("foo" to JsonObject("bar" to false))), result)
-    }
-
-    @Test
     fun `test fields nested in objects in array one matching`() {
         val json = JsonArray(JsonObject("foo" to JsonObject("bar" to true)), JsonObject("foo" to JsonObject("bar" to false)), JsonObject("foo" to JsonObject("bar" to null)))
         val where = Where(WhereProjection.Field("foo.bar"), Operator.Equal, Value.ValueBoolean(true))
