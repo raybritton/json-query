@@ -31,6 +31,7 @@ DESCRIBE
     [LIMIT value]
     [OFFSET value]
     [PRETTY]
+    [WITH KEYS]
 </pre>
 
 <pre>
@@ -120,7 +121,11 @@ SEARCH
     * Or the results of a nested SELECT
 * BY ELEMENT
     * Splits the results by their position in the target
-    * If the json was an array of two objects both with an array of numbers inside i.e `[{numbers: [1,2,3], numbers: [5,6,10]}]` and the query was `SELECT SUM('numbers') FROM '.'` the result would be `27` but with `BY ELEMENT` it becomes `[6,21]` 
+    * If the json was an array of two objects both with an array of numbers inside i.e `[{numbers: [1,2,3], numbers: [5,6,10]}]` and the query was `SELECT SUM('numbers') FROM '.'` the result would be `27` but with `BY ELEMENT` it becomes `[6,21]`
+    
+* WITH KEYS
+    * Includes the keys with the types
+    * This only works with DESCRIBE     
 
 * SEARCH
     * Search json data for a searchTerm
