@@ -13,4 +13,25 @@ class FullJson1Tests {
 
         assertEquals("""{false, false, 877994.0}""", result)
     }
+
+    @Test
+    fun `select field in nested object and array`() {
+        val result = JsonQuery(json).query("SELECT 'user.entities.url.urls.url' FROM '.'")
+
+        assertEquals("\"http://t.co/cCH13gqeUK\"", result)
+    }
+
+    @Test
+    fun `describe object in object`() {
+        val result = JsonQuery(json).query("DESCRIBE (SELECT 'user.entities.url.urls.url' FROM '.' AS JSON) ")
+
+        assertEquals("ARRAY(OBJECT(OBJECT(OBJECT(OBJECT(ARRAY(OBJECT(STRING)))))))", result)
+    }
+
+    @Test
+    fun `describe renamed field in object in object`() {
+        val result = JsonQuery(json).query("DESCRIBE (SELECT 'user.entities.url.urls.url' AS 'foo' FROM '.' AS JSON) ")
+
+        assertEquals("ARRAY(OBJECT(STRING))", result)
+    }
 }
