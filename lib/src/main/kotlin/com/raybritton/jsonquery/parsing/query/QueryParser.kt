@@ -220,20 +220,33 @@ private fun parseDescribe(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
         }
     }
 
-    list.pollFirst().let {
+    list.peek().let {
         when {
-            it.isKeyword(Keyword.DISTINCT) -> builder.isDistinct = true
-            else -> handleProjection(it)
+            it.isKeyword(Keyword.DISTINCT) -> {
+                list.poll()
+                builder.isDistinct = true
+                handleProjection(it)
+            }
+            else -> {
+                if (list.peek() is Token.STRING) {
+                    val string = list.poll()
+                    if (list.peek().isKeyword(Keyword.FROM)) {
+                        handleProjection(string)
+                        list.checkFirstElement({ it.isKeyword(Keyword.FROM) }, "FROM")
+                        builder.target = handleTarget(list.pollFirst())
+                    } else {
+                        builder.target = handleTarget(string)
+                    }
+                } else if (list.peek().isPunctuation('(')) {
+                    builder.target = handleTarget(list.pollFirst())
+                }
+            }
         }
     }
 
-    if (builder.isDistinct == true) {
-        handleProjection(list.pollFirst())
-    }
 
-    list.checkFirstElement({ it.isKeyword(Keyword.FROM) }, "FROM")
 
-    builder.target = handleTarget(list.pollFirst())
+
 }
 
 private fun parseMultipleFields(list: ArrayDeque<Token<*>>): SelectProjection.MultipleFields {
