@@ -50,9 +50,9 @@ internal object QueryPrinter {
                 if (query.flags.isDistinct) builder.appendKey(Keyword.DISTINCT)
                 if (query.describe!!.projection != null) {
                     builder.append(' ').append(query.describe.projection.wrap())
-                            .appendKey(Keyword.FROM).append(' ')
+                            .appendKey(Keyword.FROM)
                 }
-                builder.append(printTarget(query.target))
+                builder.append(' ').append(printTarget(query.target))
                 if (query.where != null) builder.append(printWhere(query.where))
                 if (query.flags.isCaseSensitive) builder.append(' ').appendKey(Keyword.CASE).appendKey(Keyword.SENSITIVE)
                 if (query.describe.limit != null) builder.appendKey(Keyword.LIMIT).append(' ').append(query.describe.limit)
