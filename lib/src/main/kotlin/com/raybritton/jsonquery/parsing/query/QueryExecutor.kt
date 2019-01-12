@@ -4,6 +4,7 @@ import com.raybritton.jsonquery.RuntimeException
 import com.raybritton.jsonquery.ext.sort
 import com.raybritton.jsonquery.models.*
 import com.raybritton.jsonquery.models.Target
+import com.raybritton.jsonquery.tools.filterToProjection
 import com.raybritton.jsonquery.tools.math
 import com.raybritton.jsonquery.tools.navigateToTarget
 import com.raybritton.jsonquery.tools.where
@@ -65,6 +66,8 @@ internal class QueryExecutor {
         if (updatedQuery.select?.orderBy != null) {
             workingJson = workingJson.sort(updatedQuery)
         }
+
+        workingJson = workingJson?.filterToProjection(query)
 
         return workingJson!!
     }

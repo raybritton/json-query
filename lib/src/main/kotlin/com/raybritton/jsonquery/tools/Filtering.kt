@@ -31,44 +31,32 @@ internal fun Any.filterToProjection(query: Query): Any {
     }
 }
 
-internal fun JsonObject.filterToProjection(paths: List<String>): JsonObject {
-    val output = copy()
+private fun JsonObject.filterToProjection(paths: List<String>): JsonObject {
     val fields = mutableListOf<String>()
     val nested = mutableMapOf<String, MutableList<String>>()
 
     paths.forEach {
         val segments = it.toSegments()
         if (segments.size > 1) {
-            val path = segments.subList(1, segments.size).joinToString(".")
             if (nested.containsKey(segments[0])) {
-                nested[segments[0]]!!.add(path)
+                nested[segments[0]]!!.add(it)
             } else {
-                nested[segments[0]] = mutableListOf(path)
+                nested[segments[0]] = mutableListOf(it)
             }
         } else {
             fields.add(it)
         }
     }
 
-    for (path in nested) {
-        output[path.key] = when (val any = output[path.key]) {
-            is JsonObject -> {
-                any.filterToProjection(path.value)
-            }
-            is JsonArray -> {
-                any.filterToProjection(path.value)
-            }
-            else -> {
-                throw RuntimeException("Non object/array has path: ${path.value[0]}")
-            }
-        }
+    val output = JsonObject()
+
+    for (field in fields) {
+        output[field] = this[field]
     }
 
-    val iterator = iterator()
-    while (iterator.hasNext()) {
-        val (key, _) = iterator.next()
-        if (!fields.contains(key)) {
-            output.remove(key)
+    for (container in nested) {
+        for (path in container.value) {
+            output[path.toSegments().last()] = this.navigateToProjection(path)
         }
     }
 
@@ -80,7 +68,7 @@ internal fun JsonObject.filterToProjection(paths: List<String>): JsonObject {
  *
  * i.e. for [{x: 12}] the projection 'x' will return 12
  */
-internal fun JsonArray.filterToProjection(paths: List<String>): JsonArray {
+private fun JsonArray.filterToProjection(paths: List<String>): JsonArray {
     return copy().map {
         when (it) {
             is JsonArray -> it.filterToProjection(paths)
