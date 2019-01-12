@@ -86,12 +86,14 @@ private fun Any.move(old: List<String>, new: List<String>) {
         is JsonObject -> {
             val value = oldContainer.remove(key)
             if (oldContainer.isEmpty()) {
-                val parent = this.navigateToTarget(oldSegments.copyWithoutLast().toPath())
-                when (parent) {
-                    is JsonObject -> parent.remove(oldSegments.last())
-                    is JsonArray -> {
+                if (oldSegments.isNotEmpty()) {
+                    val parent = this.navigateToTarget(oldSegments.copyWithoutLast().toPath())
+                    when (parent) {
+                        is JsonObject -> parent.remove(oldSegments.last())
+                        is JsonArray -> {
+                        }
+                        else -> throw IllegalStateException("Parent was a value?!?: $parent (${parent.javaClass})")
                     }
-                    else -> throw IllegalStateException("Parent was a value?!?: $parent (${parent.javaClass})")
                 }
             }
             this.createPath(new)
