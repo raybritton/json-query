@@ -117,10 +117,6 @@ internal object QueryPrinter {
                     ElementFieldProjection.Element -> builder.append(Keyword.ELEMENT.name)
                 }
                 builder.append(')')
-                if (selectProjection.newName != null) {
-                    builder.append(" ").append(Keyword.AS.name).append(" ")
-                    builder.append(selectProjection.newName.wrap())
-                }
             }
             else -> {
             }

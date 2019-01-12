@@ -142,16 +142,7 @@ private fun parseSelect(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
     when {
         token.isKeyword(Keyword.MIN, Keyword.MAX, Keyword.SUM, Keyword.COUNT) -> {
             val projection = parseMathField(list)
-            val nextToken = list.peek()
-            val newName = if (nextToken.isKeyword(Keyword.AS)) {
-                when (nextToken) {
-                    is Token.STRING -> nextToken.value
-                    else -> throw SyntaxException(nextToken, "alias name for field")
-                }
-            } else {
-                null
-            }
-            builder.selectProjection = SelectProjection.Math((token as Token.KEYWORD).value, projection, newName)
+            builder.selectProjection = SelectProjection.Math((token as Token.KEYWORD).value, projection)
             list.checkFirstElement({ it.isKeyword(Keyword.FROM) }, "FROM")
             builder.target = handleTarget(list.poll())
         }
