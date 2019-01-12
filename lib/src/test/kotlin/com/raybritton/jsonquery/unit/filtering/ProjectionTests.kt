@@ -64,6 +64,6 @@ class ProjectionTests {
 
         val result = json.filterToProjection(query)
 
-        assertEquals(JsonObject("foo" to 1, "bar" to 2), result)
+        assertEquals(JsonArray(JsonObject("foo" to 1, "bar" to 2)), result)
     }
 }
