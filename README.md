@@ -1,4 +1,5 @@
 # Json Query Language (JQL)
+[![Build Status](https://travis-ci.org/raybritton/json-query.svg?branch=master)](https://travis-ci.org/raybritton/json-query)
 
 This is a work in progress
 
