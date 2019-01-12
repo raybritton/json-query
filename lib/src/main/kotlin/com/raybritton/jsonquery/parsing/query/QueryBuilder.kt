@@ -57,7 +57,7 @@ internal class QueryBuilder(val queryString: String) {
             checkMath()
             when (value) {
                 is SelectProjection.SingleField -> checkJsonPathIsValid(value.field, "SELECT")
-                is SelectProjection.MultipleFields -> value.fields.forEach { checkJsonPathIsValid(it, "SELECT") }
+                is SelectProjection.MultipleFields -> value.fields.forEach { checkJsonPathIsValid(it.first, "SELECT") }
             }
 
             field = value

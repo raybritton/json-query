@@ -84,7 +84,7 @@ class QueryParserTests {
         assertNotNull("Where", query.where)
         assertNotNull("Select", query.select)
         assertEquals("Projection type", SelectProjection.MultipleFields::class.java, query.select!!.projection!!::class.java)
-        assertEquals("Projection", listOf("person.firstName", "person.lastName"), (query.select.projection as SelectProjection.MultipleFields).fields)
+        assertEquals("Projection", listOf("person.firstName" to null, "person.lastName" to null), (query.select.projection as SelectProjection.MultipleFields).fields)
         assertEquals("Order by type", ElementFieldProjection.Field::class.java, query.select.orderBy!!::class.java)
         assertEquals("Order by", "person.id", (query.select.orderBy as ElementFieldProjection.Field).value)
         assertEquals("Where operator", Operator.Contains, query.where!!.operator)
@@ -153,5 +153,28 @@ class QueryParserTests {
         assertEquals("Parsed query", queryStr, query.toString().trim())
 
         assertEquals("where value", true, (query.where?.value as Value.ValueBoolean).value)
+    }
+
+    @Test
+    fun `test projection with rename`() {
+        val queryStr = "SELECT \"x\" AS \"y\" FROM \".\""
+        val tokens = queryStr.toQueryTokens()
+        val query = tokens.buildQuery(queryStr)
+
+        assertEquals("Token count", 6, tokens.size)
+        assertEquals("Method token", Token.KEYWORD(Keyword.SELECT, 0), tokens[0])
+        assertEquals("Projection", Token.STRING("x", 0), tokens[1])
+        assertEquals("Keyword(AS)", Token.KEYWORD(Keyword.AS, 0), tokens[2])
+        assertEquals("Alias name", Token.STRING("y", 0), tokens[3])
+        assertEquals("Keyword(FROM)", Token.KEYWORD(Keyword.FROM, 0), tokens[4])
+        assertEquals("String token", Token.STRING(".", 0), tokens[5])
+        assertNotNull("Select", query.select)
+        assertEquals("Original query", queryStr, query.originalString)
+        assertEquals("Parsed query", queryStr, query.toString().trim())
+        assertEquals("Method", Query.Method.SELECT, query.method)
+        assertEquals("Projection field", "x", (query.select!!.projection as SelectProjection.SingleField).field)
+        assertEquals("Projection alias name", "y", (query.select.projection as SelectProjection.SingleField).newName)
+        assertEquals("Target type", Target.TargetField::class.java, query.target::class.java)
+        assertEquals("Target", ".", (query.target as Target.TargetField).value)
     }
 }

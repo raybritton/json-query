@@ -142,7 +142,16 @@ private fun parseSelect(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
     when {
         token.isKeyword(Keyword.MIN, Keyword.MAX, Keyword.SUM, Keyword.COUNT) -> {
             val projection = parseMathField(list)
-            builder.selectProjection = SelectProjection.Math((token as Token.KEYWORD).value, projection)
+            val nextToken = list.peek()
+            val newName = if (nextToken.isKeyword(Keyword.AS)) {
+                when (nextToken) {
+                    is Token.STRING -> nextToken.value
+                    else -> throw SyntaxException(nextToken, "alias name for field")
+                }
+            } else {
+                null
+            }
+            builder.selectProjection = SelectProjection.Math((token as Token.KEYWORD).value, projection, newName)
             list.checkFirstElement({ it.isKeyword(Keyword.FROM) }, "FROM")
             builder.target = handleTarget(list.poll())
         }
@@ -168,13 +177,29 @@ private fun parseSelect(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
             builder.target = handleTarget(list.poll())
         }
         token is Token.STRING -> {
-            if (list.peek().isKeyword(Keyword.FROM)) {
-                builder.selectProjection = SelectProjection.SingleField(token.value)
-                list.checkFirstElement({ it.isKeyword(Keyword.FROM) }, "FROM")
+            if (list.peek().isKeyword(Keyword.AS)) {
+                list.checkFirstElement({ it.isKeyword(Keyword.AS) }, "AS or FROM")
+                if (list.peek().isKeyword(Keyword.JSON)) {
+                    list.checkFirstElement({ it.isKeyword(Keyword.JSON) }, "JSON or alias name for field")
+                    builder.isAsJson = true
+                    builder.target = handleTarget(token)
+                } else {
+                    val projection = token.value
+
+                    val nextToken = list.poll()
+                    val newName = when (nextToken) {
+                        is Token.STRING -> nextToken.value
+                        else -> throw SyntaxException(nextToken, "alias name for field")
+                    }
+                    builder.selectProjection = SelectProjection.SingleField(projection, newName)
+                    list.checkFirstElement({ it.isKeyword(Keyword.FROM) }, "FROM")
+                    builder.target = handleTarget(list.poll())
+                }
+            } else if (list.peek().isKeyword(Keyword.FROM)) {
+                builder.selectProjection = SelectProjection.SingleField(token.value, null)
+                list.checkFirstElement({ it.isKeyword(Keyword.FROM) }, "AS or FROM")
                 builder.target = handleTarget(list.poll())
-            } else {
-                builder.target = handleTarget(token)
-            }
+            } else builder.target = handleTarget(token)
         }
         else -> SyntaxException.throwNullable(token, "json path or multiple json paths (surrounded by parenthesis) or KEYS or VALUES or query (surrounded by parenthesis)")
     }
@@ -221,11 +246,22 @@ private fun parseDescribe(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
 }
 
 private fun parseMultipleFields(list: ArrayDeque<Token<*>>): SelectProjection.MultipleFields {
-    val fields = mutableListOf<String>()
+    val fields = mutableListOf<Pair<String, String?>>()
     var token = list.pollFirst()
     while (token != null && !token.isPunctuation(')')) {
         when {
-            token is Token.STRING -> fields.add(token.value)
+            token is Token.STRING -> {
+                if (list.peek().isKeyword(Keyword.AS)) {
+                    list.checkFirstElement({ it.isKeyword(Keyword.AS) }, "AS")
+                    if (list.peek() is Token.STRING) {
+                        fields.add(token.value to (list.poll() as Token.STRING).value)
+                    } else {
+                        throw SyntaxException(list.poll(), "alias name for field")
+                    }
+                } else {
+                    fields.add(token.value to null)
+                }
+            }
             token.isPunctuation(',') -> {
             }
             else -> SyntaxException.throwNullable(token, "json path or , or )")

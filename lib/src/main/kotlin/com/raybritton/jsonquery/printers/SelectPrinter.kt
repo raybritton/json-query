@@ -79,7 +79,7 @@ internal object SelectPrinter : Printer {
                 is SelectProjection.MultipleFields -> {
                     builder.append("{")
                     for (key in (query.select.projection as SelectProjection.MultipleFields).fields) {
-                        val output = element?.navigateToProjection(key).printSelect(query)
+                        val output = element?.navigateToProjection(key.first).printSelect(query)
                         if (output.isNotBlank()) {
                             builder.append(output)
                             builder.append(", ")

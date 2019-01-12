@@ -96,9 +96,19 @@ internal object QueryPrinter {
     private fun printSelectProjection(selectProjection: SelectProjection): String {
         val builder = StringBuilder()
 
+        val fieldPrinter = { field: String, aliasName: String? ->
+            val internalBuilder = StringBuilder()
+            internalBuilder.append(field.wrap())
+            if (aliasName != null) {
+                internalBuilder.append(" ").append(Keyword.AS.name).append(" ")
+                internalBuilder.append(aliasName.wrap())
+            }
+            internalBuilder.toString()
+        }
+
         when (selectProjection) {
-            is SelectProjection.SingleField -> builder.append(selectProjection.field.wrap())
-            is SelectProjection.MultipleFields -> builder.append(selectProjection.fields.joinToString(", ", prefix = "(", postfix = ")", transform = { it.wrap() }))
+            is SelectProjection.SingleField -> builder.append(fieldPrinter(selectProjection.field, selectProjection.newName))
+            is SelectProjection.MultipleFields -> builder.append(selectProjection.fields.joinToString(", ", prefix = "(", postfix = ")", transform = { fieldPrinter(it.first, it.second) }))
             is SelectProjection.Math -> {
                 builder.append(selectProjection.expr)
                 builder.append('(')
@@ -107,6 +117,10 @@ internal object QueryPrinter {
                     ElementFieldProjection.Element -> builder.append(Keyword.ELEMENT.name)
                 }
                 builder.append(')')
+                if (selectProjection.newName != null) {
+                    builder.append(" ").append(Keyword.AS.name).append(" ")
+                    builder.append(selectProjection.newName.wrap())
+                }
             }
             else -> {
             }

@@ -135,7 +135,7 @@ internal sealed class WhereProjection {
 
 internal sealed class SelectProjection {
     object All : SelectProjection()
-    class SingleField(val field: String) : SelectProjection()
-    class MultipleFields(val fields: List<String>) : SelectProjection()
-    class Math(val expr: Keyword, val field: ElementFieldProjection) : SelectProjection()
+    class SingleField(val field: String, val newName: String?) : SelectProjection()
+    class MultipleFields(val fields: List<Pair<String, String?>>) : SelectProjection()
+    class Math(val expr: Keyword, val field: ElementFieldProjection, val newName: String?) : SelectProjection()
 }
