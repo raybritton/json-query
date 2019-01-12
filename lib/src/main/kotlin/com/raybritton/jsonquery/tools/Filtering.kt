@@ -13,12 +13,12 @@ internal fun JsonArray.offset(offset: Int): JsonArray {
 
 internal fun Any.filterToProjection(query: Query): Any {
     val paths: List<String>? = when {
-        query.select != null -> when (val projection = query.select.projection) {
+        query.select?.projection != null -> when (val projection = query.select.projection) {
             is SelectProjection.SingleField -> listOf(projection.field)
             is SelectProjection.MultipleFields -> projection.fields.map { it.first }
             else -> null
         }
-        query.describe != null -> listOf(query.describe.projection!!)
+        query.describe?.projection != null -> listOf(query.describe.projection)
         else -> null
     }
 
