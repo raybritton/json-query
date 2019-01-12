@@ -4,10 +4,7 @@ import com.raybritton.jsonquery.RuntimeException
 import com.raybritton.jsonquery.ext.sort
 import com.raybritton.jsonquery.models.*
 import com.raybritton.jsonquery.models.Target
-import com.raybritton.jsonquery.tools.filterToProjection
-import com.raybritton.jsonquery.tools.math
-import com.raybritton.jsonquery.tools.navigateToTarget
-import com.raybritton.jsonquery.tools.where
+import com.raybritton.jsonquery.tools.*
 
 /**
  * This class runs all the queries in order (deepest first) so the parent queries has the values needed
@@ -67,7 +64,9 @@ internal class QueryExecutor {
             workingJson = workingJson.sort(updatedQuery)
         }
 
-        workingJson = workingJson?.filterToProjection(query)
+        workingJson = workingJson?.filterToProjection(updatedQuery)
+
+        workingJson.rewrite(updatedQuery)
 
         return workingJson!!
     }
