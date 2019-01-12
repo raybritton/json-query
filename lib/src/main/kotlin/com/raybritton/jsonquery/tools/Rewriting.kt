@@ -156,10 +156,12 @@ private fun Any?.removeEmpties() {
             while (iterator.hasNext()) {
                 val key = iterator.next()
                 if (isEmpty(this[key])) {
+                    iterator.remove() //also call iterator.remove() to stop ConcurrentModificationException
                     this.remove(key)
                 } else {
                     this[key].removeEmpties()
                     if (isEmpty(this[key])) {
+                        iterator.remove()
                         this.remove(key)
                     }
                 }
