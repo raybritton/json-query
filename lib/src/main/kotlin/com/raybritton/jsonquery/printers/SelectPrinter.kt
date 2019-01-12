@@ -1,28 +1,66 @@
 package com.raybritton.jsonquery.printers
 
 import com.google.gson.GsonBuilder
+import com.raybritton.jsonquery.RuntimeException
 import com.raybritton.jsonquery.ext.sort
+import com.raybritton.jsonquery.ext.toSegments
 import com.raybritton.jsonquery.models.JsonArray
 import com.raybritton.jsonquery.models.JsonObject
 import com.raybritton.jsonquery.models.Query
 import com.raybritton.jsonquery.models.SelectProjection
 import com.raybritton.jsonquery.tools.navigateToProjection
+import com.raybritton.jsonquery.tools.navigateToTarget
 
 internal object SelectPrinter : Printer {
     override fun print(json: Any, query: Query): String {
         return if (query.flags.isAsJson) {
             JsonPrinter().print(json, query)
         } else {
+            updateFieldNames(json, query)
             json.printSelect(query)
         }
     }
 
     private fun Any?.printSelect(query: Query): String {
         if (this == null) return "null"
+
         return when (this) {
             is JsonArray -> this.print(query)
             is JsonObject -> this.print(query)
             else -> this.wrap()
+        }
+    }
+
+    private fun updateFieldNames(json: Any, query: Query) {
+        val rename: (String, String) -> Unit = { field, newName ->
+            val segments = field.toSegments()
+            val key = segments.last()
+            val path = segments.subList(0, segments.size - 1)
+            val container = json.navigateToTarget(path.joinToString("."))
+            if (container is JsonObject) {
+                container[newName] = container[key]
+                container.remove(key)
+            } else {
+                throw RuntimeException("Aliasing $key to $newName is not possible as $key is not in an object")
+            }
+        }
+
+        if (query.select?.projection == null) return
+
+        val projection = query.select.projection
+        when (projection) {
+            is SelectProjection.SingleField -> {
+                if (projection.newName != null) {
+                    rename(projection.field, projection.newName)
+                }
+            }
+            is SelectProjection.MultipleFields -> {
+                projection.fields.forEach {
+                    if (it.second != null) {
+                        rename(it.first, it.second!!)
+                    }
+                }
+            }
         }
     }
 

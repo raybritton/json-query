@@ -45,7 +45,7 @@ internal fun Any?.navigateToProjection(path: String): Any? {
 }
 
 private fun Any.navigate(path: String, isTarget: Boolean, previouslyNavigatedPath: String? = null, inArray: Boolean = false): Any? {
-    if (path == ".") {
+    if (path == "." || path.isEmpty()) {
         return this
     }
 

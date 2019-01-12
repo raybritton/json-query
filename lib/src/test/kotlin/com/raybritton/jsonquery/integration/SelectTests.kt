@@ -40,4 +40,13 @@ class SelectTests {
 
         assertEquals("""bar: false""", result)
     }
+
+    @Test
+    fun `test selecting field with rename`() {
+        val json = """{"foo": true, "bar": false, "baz": 123}"""
+
+        val result = JsonQuery(json).query("SELECT 'bar' AS 'new' FROM '.'")
+
+        assertEquals("""new: false""", result)
+    }
 }
