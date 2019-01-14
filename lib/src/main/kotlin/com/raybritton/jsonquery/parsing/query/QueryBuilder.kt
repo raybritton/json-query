@@ -74,7 +74,6 @@ internal class QueryBuilder(val queryString: String) {
 
     var searchOperator: Operator? = null
         set(value) {
-            // TODO what's the correct error? (this only valid in search (unless the user malforms a where in select?)
             if (field != null) {
                 throw SyntaxException("Search operator already set: $field")
             }
@@ -92,7 +91,6 @@ internal class QueryBuilder(val queryString: String) {
 
     var searchValue: Value<*>? = null
         set(value) {
-            // TODO what's the correct error? (this only valid in search (unless the user malforms a where in select?)
             if (field != null) {
                 throw SyntaxException("Search value already set: $field")
             }

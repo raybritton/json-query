@@ -6,7 +6,7 @@ import com.raybritton.jsonquery.models.ElementFieldProjection
 import com.raybritton.jsonquery.models.JsonArray
 import com.raybritton.jsonquery.parsing.tokens.Keyword
 
-internal fun Any.math(expr: Keyword, field: ElementFieldProjection): Double {
+internal fun Any.math(expr: Keyword, field: ElementFieldProjection, isByElement: Boolean): Any {
     if (!expr.isMath()) {
         throw SyntaxException("$expr is not a math function")
     }
@@ -20,13 +20,28 @@ internal fun Any.math(expr: Keyword, field: ElementFieldProjection): Double {
         throw RuntimeException("$expr target must be an array")
     }
 
-    val numbers by lazy { json.filter { it is Number }.map { (it as Number).toDouble() } }
+    if (json.isEmpty()) return 0.0
 
+    if (json[0] is JsonArray && expr != Keyword.COUNT) {
+        if (isByElement) {
+            return JsonArray(json.mapNotNull { (it as? JsonArray)?.math(expr) })
+        } else {
+            val values = JsonArray(json.mapNotNull { it as? JsonArray }.flatten())
+            return values.math(expr)
+        }
+    } else {
+        return json.math(expr)
+    }
+}
+
+private fun JsonArray.toNumbers() = this.mapNotNull { (it as? Number)?.toDouble() }
+
+private fun JsonArray.math(expr: Keyword): Double {
     return when (expr) {
-        Keyword.SUM -> numbers.sum()
-        Keyword.MIN -> numbers.min() ?: Double.NaN
-        Keyword.MAX -> numbers.max() ?: Double.NaN
-        Keyword.COUNT -> json.size.toDouble()
+        Keyword.SUM -> this.toNumbers().sum()
+        Keyword.MIN -> this.toNumbers().min() ?: Double.NaN
+        Keyword.MAX -> this.toNumbers().max() ?: Double.NaN
+        Keyword.COUNT -> this.size.toDouble()
         else -> Double.NaN
     }
 }

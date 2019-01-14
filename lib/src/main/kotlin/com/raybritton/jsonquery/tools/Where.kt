@@ -25,7 +25,7 @@ private fun JsonObject.where(where: Where, caseSensitive: Boolean, offset: Int?)
         }
         is WhereProjection.Math -> {
             val field = (where.projection.field as ElementFieldProjection.Field).value
-            val result = (this.navigateToTargetOrProjection(field) as? JsonArray)?.math(where.projection.expr, ElementFieldProjection.Element)
+            val result = (this.navigateToTargetOrProjection(field) as? JsonArray)?.math(where.projection.expr, ElementFieldProjection.Element, false)
             val matches = if (result != null) {
                 where.operator.op(result, where.value, caseSensitive)
             } else {
@@ -50,7 +50,7 @@ private fun JsonArray.where(where: Where, caseSensitive: Boolean, offset: Int?):
         is WhereProjection.Math -> {
             return filterUntilSize(offset) { element ->
                 val field = (where.projection.field as ElementFieldProjection.Field).value
-                val result = (element.navigateToTargetOrProjection(field) as? JsonArray)?.math(where.projection.expr, ElementFieldProjection.Element)
+                val result = (element.navigateToTargetOrProjection(field) as? JsonArray)?.math(where.projection.expr, ElementFieldProjection.Element, false)
                 if (result != null) {
                     where.operator.op(result, where.value, caseSensitive)
                 } else {

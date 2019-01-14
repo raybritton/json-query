@@ -50,7 +50,7 @@ internal class QueryExecutor {
 
         //MATH
         (updatedQuery.select?.projection as? SelectProjection.Math)?.let {
-            return workingJson!!.math(it.expr, it.field)
+            return workingJson!!.math(it.expr, it.field, updatedQuery.flags.isByElement)
         }
 
         //OUTPUT

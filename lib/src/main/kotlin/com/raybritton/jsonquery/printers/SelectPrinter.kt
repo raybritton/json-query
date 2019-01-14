@@ -89,6 +89,9 @@ internal object SelectPrinter : Printer {
                     builder.setLength(builder.length - 2)
                     builder.append("}")
                 }
+                is SelectProjection.Math -> {
+                    builder.append(element)
+                }
                 is SelectProjection.All -> builder.append(element.printSelect(query))
             }
             if (builder.length > startingLength) {
