@@ -92,7 +92,7 @@ private fun Any.move(old: List<String>, new: List<String>) {
                         is JsonObject -> parent.remove(oldSegments.last())
                         is JsonArray -> {
                         }
-                        else -> throw IllegalStateException("Parent was a value?!?: $parent (${parent.javaClass})")
+                        else -> throw IllegalStateException("Parent was a value: $parent (${parent.javaClass})")
                     }
                 }
             }
@@ -125,6 +125,8 @@ private fun Any.move(old: List<String>, new: List<String>) {
                 }
             } else if (this is JsonObject) {
                 this[new.last()] = JsonArray(values)
+//                this.createPath(new)
+//                (this.navigateToTarget(new.copyWithoutLast().toPath()) as JsonObject)[new.last()] = JsonArray(values)
             }
 
             this.removeEmpties()
@@ -158,7 +160,7 @@ private fun Any?.removeEmpties() {
             while (iterator.hasNext()) {
                 val key = iterator.next()
                 if (isEmpty(this[key])) {
-                    iterator.remove() //also call iterator.remove() to stop ConcurrentModificationException
+                    iterator.remove() //call iterator.remove() before to stop ConcurrentModificationException
                     this.remove(key)
                 } else {
                     this[key].removeEmpties()
