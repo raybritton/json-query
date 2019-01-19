@@ -2,41 +2,48 @@
 
 #### Json Query Language
 
-JQL is designed to be used to query json so that values, objects or arrays can be extracted based on filters and limits.
+See the new [syntax documentation](https://jql.dokku-ray.app/docs) 
+
+JQL is designed to be used to query json so that values, objects or arrays can be extracted based on filters.
 
 Note: all numbers are output as decimals as JSON only has one number type: double.
 
 <pre>
 SELECT
     [DISTINCT]
-    [[KEYS|VALUES|column|columns|mathExpr] FROM]
-    jsonPath
-    [WHERE column operator value]
+    [(KEYS|VALUES|field|fields|mathExpr) FROM]
+    target
+    [BY ELEMENT]
+    [WHERE field operator searchTerm [CASE SENSITIVE]]
     [LIMIT value]
     [OFFSET value]
-    [WITH KEYS]
+    [ORDER BY field [DESC]]
     [AS JSON]
     [PRETTY]
-    [ORDER BY column [DESC]]
 </pre>
 
 <pre>
 DESCRIBE
     [DISTINCT]
-    [[column|columns] FROM]
-    jsonPath
-    [WHERE column operator value]
+    [(field|fields) FROM]
+    searchTerm
+    [WHERE field operator searchTerm [CASE SENSITIVE]]
     [LIMIT value]
     [OFFSET value]
     [PRETTY]
+    [WITH KEYS]
 </pre>
 
 <pre>
 SEARCH
-    jsonPath
+    [DISTINCT]
+    target
     FOR
-    KEY | VALUE
-    value
+    [(KEY | VALUE)]
+    operator
+    searchTerm
+    [CASE SENSITIVE]
+    [WITH VALUES]
 </pre>
 
 #### Components
@@ -47,16 +54,22 @@ SEARCH
 * DISTINCT
     * This is used to only allow distinct values to be returned
 * mathExpr 
-    * `MAX(ELEMENT|column)`
-    * `MIN(ELEMENT|column)`
-    * `COUNT(ELEMENT|column)`
-    * `SUM(ELEMENT|column)`
-* KEYS | VALUES | column | columns | mathExpr
+    * `MAX(ELEMENT | jsonPath)`
+    * `MIN(ELEMENT | jsonPath)`
+    * `COUNT(ELEMENT | jsonPath)`
+    * `SUM(ELEMENT | jsonPath)`
+        * When using math expression the target (the string after FROM) must be an array
+        * Non number values in the array are ignored
+        * NaN will be returned for MIN, MAX and SUM if the array contains no numbers
+* KEYS | VALUES | field | fields | mathExpr
     * `KEYS` only returns the keys from an object
     * `VALUES` only returns the values from an object
-    * column should be written as `"id"`
-    * columns should be written as `("id", "name")`
+    * field must be written as `"id"`
+    * fields must be written as `("id", "name")`
     * All of these be followed by `FROM`
+* target
+    * jsonPath 
+    * Or the results of a nested SELECT
 * jsonPath
     * Parts of the json can be specified using a path
     * Each segment should be separated by a `.` (Fullstop/Period)
@@ -67,16 +80,21 @@ SEARCH
         * `".ids[0]"` The first object in the ids array
         * `".items.id"` The id object or array in the items object
 * WHERE
-    * column should be written as `"id"`
+    * field should be written as `"id"`
         * To refer to list element use `ELEMENT`
     * operator:
         * `==` Equal
         * `!=` Not equal
         * `>` Greater than
         * `<` Less than
-        * `#` Contains
-        * `!#` Not contains
-    * value should be written as `1` or `"a"`
+        * `>=` Greater than or equal
+        * `<=` Less than or equal
+        * `#` Contains (array, object, or string) 
+        * `!#` Not contains (array, object, or string)
+        
+        (with objects contains checks for keys existence (`"key": null` counts as existing))
+    * operator:
+        * `IS` type checking: may be followed by NOT then must be followed by STRING, NUMBER, BOOLEAN, OBJECT, ARRAY or NULL
 * LIMIT
     * This only is used if the target is an array
     * This is the maximum number of results
@@ -85,19 +103,47 @@ SEARCH
     * This only is used if the target is an array
     * This is the number of results that will be skipped
     * value must be a positive integer
-* WITH KEYS
-    * By default only the values are returned, this caused the key to be returned as well
-    * This only works with SELECT
 * AS JSON
     * This will return the filtered data in the JSON format
     * This only works with SELECT
 * PRETTY
     * By default the JSON (from AS JSON) is returned on a single line, this causes it to be pretty printed
-    * This also works with DESCRIBE
+    * This works with SELECT OR DESCRIBE
 * ORDER BY
-    * column should be written as `"id"`
+    * field should be written as `"id"`
         * To refer to list element use `ELEMENT`
     * DESC reverses the sort order
+    * This only works with SELECT
+* CASE SENSITIVE
+    * Equals, contains and search are case insensitive by default, adding this makes them case sensitive
+* searchTerm
+    * A string, number, 'TRUE' or 'FALSE'
+    * Or the results of a nested SELECT
+* BY ELEMENT
+    * Splits the results by their position in the target
+    * If the json was an array of two objects both with an array of numbers inside i.e `[{numbers: [1,2,3], numbers: [5,6,10]}]` and the query was `SELECT SUM('numbers') FROM '.'` the result would be `27` but with `BY ELEMENT` it becomes `[6,21]`
+    
+* WITH KEYS
+    * Includes the keys with the types
+    * This only works with DESCRIBE     
+
+* SEARCH
+    * Search json data for a searchTerm
+* KEY | VALUE | ANY
+    * Search can look at just keys, values or both
+* WITH VALUES
+    * Print found value with location
+
+Nested queries:
+
+Only SELECTs can be used inside other queries and they must be surrounded by parenthesis and for
+ 
+* `target` use AS JSON
+* `searchTerm` not use AS JSON
+
+i.e.
+
+`DESCRIBE 'name' FROM (SELECT 'person' FROM '.' WHERE ... AS JSON) ...` 
 
 #### Examples
 
@@ -126,7 +172,7 @@ Using:
 
 ###### Select everything
 
-`SELECT "."`
+`SELECT VALUES FROM "."`
 
 `[{0.0, John Smith}, {1.0, Emma Smith}, {2.0, Jane Clobber}, {3.0, Ned Turner}]`
 
@@ -134,13 +180,13 @@ Using:
 
 `SELECT "." WHERE "id" > 1`
 
-`[{2.0, Jane Clobber}, {3.0, Ned Turner}]`
+`[{id: 2.0, name: Jane Clobber}, {id: 3.0, name: Ned Turner}]`
 
 ###### Select first result whose name contains "Jane"
 
 `SELECT "." WHERE "name" # "Jane"`
 
-`{2.0, Jane Clobber}`
+`{id: 2.0, name: Jane Clobber}`
 
 ###### Select ids 
 

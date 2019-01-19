@@ -1,52 +1,54 @@
 package com.raybritton.jsonquery
 
-import com.google.gson.GsonBuilder
-import com.raybritton.jsonquery.ext.sort
+import com.google.gson.Gson
+import com.google.gson.internal.LinkedTreeMap
+import com.raybritton.jsonquery.models.JsonArray
+import com.raybritton.jsonquery.models.JsonObject
 import com.raybritton.jsonquery.models.Query
-import com.raybritton.jsonquery.printer.describe
-import com.raybritton.jsonquery.tools.filter
-import com.raybritton.jsonquery.printer.list
-import com.raybritton.jsonquery.tools.filterToKeys
-import com.raybritton.jsonquery.tools.navigate
-import com.raybritton.jsonquery.tools.search
-import com.raybritton.jsonquery.tools.toQuery
+import com.raybritton.jsonquery.parsing.query.QueryExecutor
+import com.raybritton.jsonquery.parsing.query.buildQuery
+import com.raybritton.jsonquery.parsing.tokens.toQueryTokens
+import com.raybritton.jsonquery.printers.Printer
 
-class JsonQuery {
-    private lateinit var json: String
-    private val gsonBuilderProvider: () -> GsonBuilder = { GsonBuilder() }
-
-    fun loadJson(path: String) {
-        json = JsonLoader().load(path)
-    }
+class JsonQuery(private val json: String) {
 
     fun query(queryStr: String): String {
-        val query = queryStr.toQuery()
+        JQLogger.debug("Input: $queryStr")
+        val tokens = queryStr.toQueryTokens()
+        JQLogger.debug("Tokens: " + tokens.joinToString())
+        val query = tokens.buildQuery(queryStr)
+        JQLogger.debug("Parsed as $query")
         return query(query)
     }
 
-    fun query(query: Query): String {
-        val gson = gsonBuilderProvider().let {
-            if (query.pretty) {
-                it.setPrettyPrinting()
-            }
-            it.create()
-        }
+    private fun query(query: Query): String {
+        var jsonObj = Gson().fromJson(json, Any::class.java)
 
-        @Suppress("UNCHECKED_CAST") //This is ok as long as Gson doesn't change it's implementation
-        val jsonObj = gson.fromJson(json, Any::class.java)
+        jsonObj = jsonObj.convertToInternalFormat()
 
-        val filtered = jsonObj.navigate(query.target).filter(query)
+        val result = QueryExecutor().execute(jsonObj, query)
+        val printer = Printer.createPrinter(query)
 
-        when (query.method) {
-            Query.Method.DESCRIBE -> return filtered.describe(query)
-            Query.Method.SELECT -> {
-                if (query.asJson) {
-                    return gson.toJson(filtered.sort(query).filterToKeys(query))
-                } else {
-                    return filtered.list(query)
+        return printer.print(result, query)
+    }
+
+    private fun Any?.convertToInternalFormat(): Any? {
+        return when (this) {
+            is LinkedTreeMap<*, *> -> {
+                val obj = JsonObject.fromLinkedTreeMap(this)
+                for (key in obj.keys) {
+                    obj[key] = obj[key].convertToInternalFormat()
                 }
+                obj
             }
-            Query.Method.SEARCH -> { return filtered.search(query, query.target).joinToString("\n") }
+            is ArrayList<*> -> {
+                val list = JsonArray(this)
+                (0 until list.size).forEach { idx ->
+                    list[idx] = list[idx].convertToInternalFormat()
+                }
+                list
+            }
+            else -> this
         }
     }
 }

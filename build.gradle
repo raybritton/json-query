@@ -1,17 +1,16 @@
 buildscript {
-    ext.kotlin_version = '1.1.51'
+    ext.kotlin_version = '1.3.11'
 
     repositories {
         jcenter()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.github.rholder:gradle-one-jar:1.0.4'
     }
 }
 
 allprojects {
-    ext.jqVer = '0.12.6'
+    ext.jqVer = '0.13.0'
 
     repositories {
         jcenter()
@@ -23,7 +22,7 @@ task clean(type: Delete) {
 }
 
 
-ext.gson_version = '2.8.1'
+ext.gson_version = '2.8.5'
 
 
 

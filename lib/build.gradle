@@ -1,18 +1,17 @@
 plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm'
     id "com.jfrog.bintray" version "1.7.1"
     id "com.github.dcendents.android-maven" version "1.5"
 }
-
-apply plugin: 'kotlin'
 
 group 'com.raybritton.jsonquery'
 version ext.jqVer
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile group: 'com.google.code.gson', name: 'gson', version: gson_version
-    testCompile group: 'com.google.code.gson', name: 'gson', version: gson_version
-    testCompile 'junit:junit:4.12'
+    testCompile("junit:junit:4.12")
 }
 
 ext {
@@ -38,4 +37,3 @@ ext {
 }
 
 apply from: '../bintray.gradle'
-apply from: '../ktlint.gradle'

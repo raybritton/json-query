@@ -1,0 +1,40 @@
+Statement						::= ( Select | Describe | Search )
+
+/* Statements */
+
+Select							::= 'SELECT' 'DISTINCT'? ( SelectProjection 'FROM' )? Target 'BY ELEMENT'? Where? Limit? Offset? OrderBy? ( 'AS JSON' 'PRETTY'? )?
+Describe						::= 'DESCRIBE' 'DISTINCT'? ( DescribeProjection 'FROM' )? Target Where? Limit? Offset? 'PRETTY' 'WITH KEYS'?
+Search							::= 'SEARCH' 'DISTINCT'? Target 'FOR' ( 'ANY' | 'KEY' | 'VALUE' ) SearchFields 'WITH VALUES'?
+
+/* Keywords */
+
+SearchFields                    ::= ( Operator Value 'CASE SENSITIVE'? | 'IS' 'NOT'? ( 'OBJECT' | 'ARRAY' | 'NUMBER' | 'STRING' | 'BOOLEAN' | 'NULL' ) )
+Where							::= 'WHERE' ( JsonKey | 'ELEMENT' | ( MathExpr '(' MathProjection ')' ) ) SearchFields
+Limit							::= 'LIMIT' Integer
+Offset							::= 'OFFSET' Integer
+OrderBy							::= 'ORDER BY' ( JsonKey | 'ELEMENT' ) 'DESC'?
+
+/* Parts */
+
+Target							::= ( FullJsonPath | '(' Select ')' )
+Operator						::= ( '==' | '!=' | '#' | '!#' | '<' | '>' | '<=' | '>=' )
+Value 							::= ( Number | String | 'TRUE' | 'FALSE' | '(' Select ')' )
+DescribeProjection				::= ( JsonKey )
+SelectProjection				::= ( JsonKey | '(' JsonKey (',' JsonKey)* ') ' | ( MathExpr '(' MathProjection ')' ) | 'KEYS' | 'VALUES' )
+MathExpr						::= ( 'SUM' | 'MIN' | 'MAX' | 'COUNT' )
+MathProjection					::= ( 'ELEMENT' | JsonKey )
+FullJsonPath					::= ( '"' '.' JsonPath '"'  | "'" '.' JsonPath "'" )
+JsonKey							::= ( '"' JsonPath '"' | "'" JsonPath "'" )
+JsonPath 						::= PathSegment ('.' PathSegment)*
+PathSegment						::= ( Character+( '[' Integer ']' )? )+
+
+/* Fundamentals */
+
+Integer							::= Digit+
+Number							::= '-'? Digit+ ( '.' Digit+ )?
+String							::= ( "'" ( Character )+ "'" | '"' ( Character )+ '"' )
+Digit							::= [0-9]
+Character						::= .
+
+/* Generate at: http://www.bottlecaps.de/rr/ui */
+/* Colour: #E5F6FF */
