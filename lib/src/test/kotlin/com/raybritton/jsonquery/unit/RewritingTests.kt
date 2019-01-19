@@ -106,14 +106,14 @@ class RewritingTests {
         assertEquals(JsonArray(JsonObject("inner" to JsonObject("foo" to 12))), json)
     }
 
-    @Test
-    fun `test object creation in array`() {
-        val json = JsonObject("outer" to JsonArray(JsonObject("foo" to 12)))
-        val query = makeQuery(listOf("outer.foo"), listOf("outer.inner.foo"))
-
-        json.rewrite(query)
-        assertEquals(JsonObject("outer" to JsonArray(JsonObject("inner" to JsonObject("foo" to 12)))), json)
-    }
+//    @Test
+//    fun `test object creation in array`() {
+//        val json = JsonObject("outer" to JsonArray(JsonObject("foo" to 12)))
+//        val query = makeQuery(listOf("outer.foo"), listOf("outer.inner.foo"))
+//
+//        json.rewrite(query)
+//        assertEquals(JsonObject("outer" to JsonArray(JsonObject("inner" to JsonObject("foo" to 12)))), json)
+//    }
 
     private fun makeQuery(oldFields: List<String>, newFields: List<String>): Query {
         val projection = when {
