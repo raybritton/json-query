@@ -13,7 +13,7 @@ dependencies {
 task fatJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': 'JsonQuery CLI',
-                'Implementation-Version': '0.13.1',
+                'Implementation-Version': '0.13.2',
                 'Main-Class': 'com.raybritton.jsonquery.MainKt'
     }
     baseName = "jq-0.13.1"

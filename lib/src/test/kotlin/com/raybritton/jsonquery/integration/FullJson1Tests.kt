@@ -34,4 +34,22 @@ class FullJson1Tests {
 
         assertEquals("ARRAY(OBJECT(STRING))", result)
     }
+
+    @Test
+    fun `search for string match`() {
+        val result = JsonQuery(json).query("SEARCH '.' FOR ANY # 'Creat'")
+
+        assertEquals(""".[0].created_at
+.[0].text
+.[0].user.created_at""", result)
+    }
+
+    @Test
+    fun `search for string match with values`() {
+        val result = JsonQuery(json).query("SEARCH '.' FOR KEY == 'url' WITH VALUES CASE SENSITIVE")
+
+        assertEquals(""".[0].entities.urls.[0].url: https://t.co/xFox78juL1
+.[0].user.url: http://t.co/cCH13gqeUK
+.[0].user.entities.url.urls.[0].url: http://t.co/cCH13gqeUK""", result)
+    }
 }

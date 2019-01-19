@@ -1,5 +1,7 @@
 package com.raybritton.jsonquery.parsing.tokens
 
+import org.jetbrains.annotations.Contract
+
 /**
  * Represents a logical unit in the query such as SELECT or "hello"
  */

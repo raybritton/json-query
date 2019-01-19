@@ -20,7 +20,7 @@ See [JQL](https://github.com/raybritton/json-query/blob/master/JQL.md) or these 
 * -q query
 * -i input file, json or url
 
-`java -jar jq-0.13.1.jar -i "example.json" -q "LIST \"id\" from \".people\""`
+`java -jar jq-0.13.2.jar -i "example.json" -q "LIST \"id\" from \".people\""`
 
 ## Usage
 
@@ -29,7 +29,7 @@ To use JQL go to https://jql-website.pending
 This isn't designed to be used as a library for programs but it can be added as a gradle dependency with:
 
 ```groovy
-compile 'com.raybritton.jsonquery:lib:0.13.1'
+compile 'com.raybritton.jsonquery:lib:0.13.2'
 ```
 
 ## License
