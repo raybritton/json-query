@@ -117,12 +117,12 @@ private fun checkMultipartFlag(token: Token<*>, nextToken: Token<*>?, nextKeywor
 private fun parseSelect(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
     builder.method = Query.Method.SELECT
 
-    val handleTarget = { token: Token<*> ->
+    val handleTarget = { token: Token<*>? ->
         when {
             token.isPunctuation('(') -> {
                 val result = list.buildQueryUntil(builder.queryString, Token.PUNCTUATION(')', 0))
                 if (!result.flags.isAsJson) {
-                    throw SyntaxException("Nested query starting at ${token.charIdx} is a target, it must use AS JSON")
+                    throw SyntaxException("Nested query starting at ${token!!.charIdx} is a target, it must use AS JSON")
                 }
                 Target.TargetQuery(result)
             }
@@ -130,7 +130,6 @@ private fun parseSelect(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
             else -> SyntaxException.throwNullable(token, "json path or query (surrounded by parenthesis)")
         }
     }
-
 
     if (list.peek().isKeyword(Keyword.DISTINCT)) {
         list.poll()
@@ -288,9 +287,9 @@ private fun parseSearch(list: ArrayDeque<Token<*>>, builder: QueryBuilder) {
                 if (!result.flags.isAsJson) {
                     throw SyntaxException("Nested query starting at ${token.charIdx} is a target, it must use AS JSON")
                 }
-                Target.TargetQuery(result)
+                builder.target = Target.TargetQuery(result)
             }
-            token is Token.STRING -> Target.TargetField(token.value)
+            token is Token.STRING -> builder.target = Target.TargetField(token.value)
             else -> SyntaxException.throwNullable(token, "json path or query (surrounded by parenthesis)")
         }
     }

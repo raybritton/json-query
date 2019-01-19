@@ -4,6 +4,7 @@ import com.raybritton.jsonquery.RuntimeException
 import com.raybritton.jsonquery.models.JsonArray
 import com.raybritton.jsonquery.models.JsonObject
 import com.raybritton.jsonquery.models.Query
+import com.raybritton.jsonquery.models.SearchQuery
 
 internal object SearchPrinter : Printer {
     override fun print(json: Any, query: Query): String {
@@ -16,7 +17,7 @@ internal object SearchPrinter : Printer {
         }
         return when (this) {
             is JsonObject -> this.print(query, "")
-            is JsonArray -> this.print(query)
+            is JsonArray -> this.print(query, "")
             else -> throw RuntimeException("${this.javaClass} encountered when printing search results")
         }
     }
@@ -28,11 +29,34 @@ internal object SearchPrinter : Printer {
                 is JsonObject -> result += value.print(query, "$path.$key")
                 is JsonArray -> result += value.print(query, "$path.$key")
                 else -> {
-                    if (query.search!!.operator.op(value, query.search.value, query.flags.isCaseSensitive)) {
-                        if (query.flags.isWithValues) {
-                            result += "$path.$key: $value"
-                        } else {
-                            result += "$path.$key"
+                    when(query.search!!.targetRange) {
+                        SearchQuery.TargetRange.ANY -> {
+                            if (query.search.operator.op(key, query.search.value, query.flags.isCaseSensitive) ||
+                                    query.search.operator.op(value, query.search.value, query.flags.isCaseSensitive)) {
+                                if (query.flags.isWithValues) {
+                                    result += "$path.$key: $value"
+                                } else {
+                                    result += "$path.$key"
+                                }
+                            }
+                        }
+                        SearchQuery.TargetRange.KEY -> {
+                            if (query.search.operator.op(key, query.search.value, query.flags.isCaseSensitive)) {
+                                if (query.flags.isWithValues) {
+                                    result += "$path.$key: $value"
+                                } else {
+                                    result += "$path.$key"
+                                }
+                            }
+                        }
+                        SearchQuery.TargetRange.VALUE -> {
+                            if (query.search.operator.op(value, query.search.value, query.flags.isCaseSensitive)) {
+                                if (query.flags.isWithValues) {
+                                    result += "$path.$key: $value"
+                                } else {
+                                    result += "$path.$key"
+                                }
+                            }
                         }
                     }
                 }
