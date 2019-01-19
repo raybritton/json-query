@@ -1,1 +1,1 @@
-gradlew.bat clean check assemble lib:install lib:bintrayUpload
+gradlew.bat clean check assemble lib:install lib:bintrayUpload cli:fatJar
