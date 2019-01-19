@@ -24,7 +24,7 @@ See [JQL](https://github.com/raybritton/json-query/blob/master/JQL.md) or these 
 
 ## Usage
 
-To use JQL go to https://jql-website.pending
+To use JQL go to https://jql.dokku-ray.app
 
 This isn't designed to be used as a library for programs but it can be added as a gradle dependency with:
 
