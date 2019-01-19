@@ -3,7 +3,8 @@ package com.raybritton.jsonquery
 data class ProgArgs(val input: String,
                     val output: String?,
                     val query: String,
-                    val debug: Boolean) {
+                    val debug: Boolean,
+                    val forApi: Boolean) {
 
     companion object {
         fun build(args: Array<String>): ProgArgs {
@@ -11,9 +12,10 @@ data class ProgArgs(val input: String,
             var input: String? = null
             var output: String? = null
             var debug = false
+            var forApi = false
 
             var i = 0
-            while (i < args.size - 1) {
+            while (i < args.size) {
                 when (args[i]) {
                     "-q" -> {
                         query = args[i + 1]
@@ -30,6 +32,9 @@ data class ProgArgs(val input: String,
                     "-d" -> {
                         debug = true
                     }
+                    "-api" -> {
+                        forApi = true
+                    }
                 }
                 i++
             }
@@ -42,7 +47,7 @@ data class ProgArgs(val input: String,
                 throw IllegalStateException("A input file must be provided")
             }
 
-            return ProgArgs(input, output, query, debug)
+            return ProgArgs(input, output, query, debug, forApi)
         }
     }
 }
