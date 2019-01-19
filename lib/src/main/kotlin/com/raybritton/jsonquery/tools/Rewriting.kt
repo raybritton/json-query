@@ -174,7 +174,6 @@ private fun Any?.removeEmpties() {
     }
 }
 
-
 private fun Any.update(field: String, newName: String) {
     val currentPath = field.toSegments()
     val newPath = newName.toSegments()
