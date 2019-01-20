@@ -1,6 +1,7 @@
 package com.raybritton.jsonquery.printers
 
 import com.google.gson.GsonBuilder
+import com.raybritton.jsonquery.ext.isValue
 import com.raybritton.jsonquery.ext.sort
 import com.raybritton.jsonquery.models.JsonArray
 import com.raybritton.jsonquery.models.JsonObject
@@ -46,8 +47,10 @@ internal object SelectPrinter : Printer {
                     query.flags.isOnlyPrintKeys -> builder.append(key)
                     query.flags.isOnlyPrintValues -> builder.append(output)
                     else -> {
-                        builder.append(key)
-                        builder.append(": ")
+                        if (get(key).isValue() || (query.select?.projection == SelectProjection.All)) {
+                            builder.append(key)
+                            builder.append(": ")
+                        }
                         builder.append(output)
                     }
                 }
@@ -70,30 +73,7 @@ internal object SelectPrinter : Printer {
         val builder = StringBuilder(if (showMarkers) "[" else "")
         for (element in this) {
             val startingLength = builder.length
-            when (query.select!!.projection) {
-                is SelectProjection.SingleField -> {
-                    val output = element?.navigateToProjection((query.select.projection as SelectProjection.SingleField).field).printSelect(query)
-                    if (output.isNotBlank()) {
-                        builder.append(output)
-                    }
-                }
-                is SelectProjection.MultipleFields -> {
-                    builder.append("{")
-                    for (key in (query.select.projection as SelectProjection.MultipleFields).fields) {
-                        val output = element?.navigateToProjection(key.first).printSelect(query)
-                        if (output.isNotBlank()) {
-                            builder.append(output)
-                            builder.append(", ")
-                        }
-                    }
-                    builder.setLength(builder.length - 2)
-                    builder.append("}")
-                }
-                is SelectProjection.Math -> {
-                    builder.append(element)
-                }
-                is SelectProjection.All -> builder.append(element.printSelect(query))
-            }
+            builder.append(element.printSelect(query))
             if (builder.length > startingLength) {
                 builder.append(", ")
             }

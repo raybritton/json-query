@@ -1,5 +1,6 @@
 package com.raybritton.jsonquery.unit.filtering
 
+import com.raybritton.jsonquery.JsonQuery
 import com.raybritton.jsonquery.models.JsonArray
 import com.raybritton.jsonquery.models.Value
 import com.raybritton.jsonquery.models.Where
@@ -278,7 +279,54 @@ class ArrayElementTests {
         assertEquals(JsonArray(10), result2)
         assertEquals(JsonArray(10, 20, 30), result3)
         assertEquals(JsonArray(10, 20, 30, 40), result4)
+    }
 
+    @Test
+    fun `test selecting one element`() {
+        val json = """[1,2]"""
+        val result = JsonQuery(json).query("""SELECT '[0]' FROM '.'""")
 
+        assertEquals("1.0", result)
+    }
+
+    @Test
+    fun `test selecting one element as JSON`() {
+        val json = """[1,2]"""
+        val result = JsonQuery(json).query("""SELECT '[0]' FROM '.' AS JSON""")
+
+        assertEquals("[1.0]", result)
+    }
+
+    @Test
+    fun `nested selection`() {
+        val json = """
+            [
+                {
+                    "name": "foo"
+                }, {
+                    "name": "bar"
+                }
+            ]
+        """.trimIndent()
+        val result = JsonQuery(json).query("""SELECT "[1].name" FROM '.' """)
+
+        assertEquals("name: \"bar\"", result)
+    }
+
+    @Test
+    fun `complex selection`() {
+        val json = """
+            [
+                {
+                    "name": "foo"
+                }, {
+                    "name": "bar"
+                }
+            ]
+        """.trimIndent()
+        val result = JsonQuery(json).query("""SELECT ("[0]", "name", "[1].name") FROM '.' """)
+
+//        assertEquals("""[{name: "foo"}, [name: "foo", name: "bar"], name: "bar"]""", result) //probably should be this
+        assertEquals("""[name: "foo", name: "bar"]""", result)
     }
 }

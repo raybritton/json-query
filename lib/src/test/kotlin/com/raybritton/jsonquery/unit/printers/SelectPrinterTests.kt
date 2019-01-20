@@ -120,7 +120,7 @@ class SelectPrinterTests {
     @Test
     fun `test nested objects`() {
         val obj = JsonObject("number" to 100, "inner" to JsonObject("foo" to true, "bar" to false))
-        val query = Query("", Query.Method.SELECT, Target.TargetField(""), Query.Flags(), null, select = SelectQuery(SelectProjection.All, null, null, null))
+        val query = Query("", Query.Method.SELECT, Target.TargetField("."), Query.Flags(), null, select = SelectQuery(SelectProjection.All, null, null, null))
 
         val result = SelectPrinter.print(obj, query)
 
