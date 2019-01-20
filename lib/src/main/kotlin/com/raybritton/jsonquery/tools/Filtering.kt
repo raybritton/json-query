@@ -4,6 +4,9 @@ import com.raybritton.jsonquery.RuntimeException
 import com.raybritton.jsonquery.ext.toSegments
 import com.raybritton.jsonquery.models.*
 
+private val INDEX_ACCESSOR = "\\[([0-9])+\\]".toPattern()
+private val INDEX_ACCESSOR_PREFIX = "\\[([0-9])+\\].(.+)".toPattern()
+
 internal fun JsonArray.offset(offset: Int): JsonArray {
     if (offset > size) {
         throw RuntimeException("Offset is out of bounds of JsonArray")
@@ -31,7 +34,7 @@ internal fun Any.filterToProjection(query: Query): Any {
     }
 }
 
-internal fun JsonObject.filterToProjection(paths: List<String>): JsonObject {
+private fun JsonObject.filterToProjection(paths: List<String>): JsonObject {
     val fields = mutableListOf<String>()
     val nested = mutableMapOf<String, MutableList<String>>()
 
@@ -77,7 +80,63 @@ internal fun JsonObject.filterToProjection(paths: List<String>): JsonObject {
  *
  * i.e. for [{x: 12}] the projection 'x' will return 12
  */
-internal fun JsonArray.filterToProjection(paths: List<String>): JsonArray {
+private fun JsonArray.filterToProjection(paths: List<String>): JsonArray {
+    val indexes = mutableListOf<Int>()
+    val paths = paths.toMutableList()
+    var iterator = paths.listIterator()
+    while (iterator.hasNext()) {
+        INDEX_ACCESSOR.matcher(iterator.next()).let {
+            if (it.matches()) {
+                indexes.add(it.group(1).toInt())
+                iterator.remove()
+            }
+        }
+    }
+
+    val copy = JsonArray()
+
+    for (idx in indexes.reversed()) {
+        if (idx > this.size) {
+            throw RuntimeException("Index access $idx outside of array", RuntimeException.ExtraInfo.INDEX_TOO_HIGH)
+        }
+        copy.add(0, this[idx])
+    }
+
+    if (paths.isEmpty()) {
+        return copy
+    }
+
+    val indexedPaths = mutableMapOf<Int, MutableList<String>>()
+    iterator = paths.listIterator()
+    while (iterator.hasNext()) {
+        INDEX_ACCESSOR_PREFIX.matcher(iterator.next()).let {
+            if (it.matches()) {
+                val index = it.group(1).toInt()
+                if (indexedPaths[index] == null) {
+                    indexedPaths[index] = mutableListOf<String>()
+                }
+                indexedPaths[index]!!.add(it.group(2))
+                iterator.remove()
+            }
+        }
+    }
+
+    for (idx in indexedPaths.keys.reversed()) {
+        if (idx > this.size) {
+            throw RuntimeException("Index access $idx outside of array", RuntimeException.ExtraInfo.INDEX_TOO_HIGH)
+        }
+        val element = this[idx]
+        when (element) {
+            is JsonArray -> copy.add(element.filterToProjection(indexedPaths[idx]!!))
+            is JsonObject -> copy.add(element.filterToProjection(indexedPaths[idx]!!))
+            else -> throw RuntimeException("Index access $idx on value", RuntimeException.ExtraInfo.NAVIGATED_VALUE)
+        }
+    }
+
+    if (paths.isEmpty()) {
+        return copy
+    }
+
     return copy().map {
         when (it) {
             is JsonArray -> it.filterToProjection(paths)
@@ -86,3 +145,4 @@ internal fun JsonArray.filterToProjection(paths: List<String>): JsonArray {
         }
     }.toJsonArray()
 }
+

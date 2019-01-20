@@ -13,23 +13,23 @@ For example:
 * To list person object from a list of people name contains "Dr"
     * `SELECT ELEMENT FROM ".people" WHERE "full_name" # "Dr"`
     
-See [JQL](https://github.com/raybritton/json-query/blob/master/JQL.md) or these [syntax diagrams](https://jql.dokku-ray.app/docs) for more information
+See [JQL](https://github.com/raybritton/json-query/blob/master/JQL.md) or these [syntax diagrams](https://jql.raybritton.co.uk/docs) for more information
 
 ### CLI
 
 * -q query
 * -i input file, json or url
 
-`java -jar jq-0.13.2.jar -i "example.json" -q "LIST \"id\" from \".people\""`
+`java -jar jq-0.13.3.jar -i "example.json" -q "LIST \"id\" from \".people\""`
 
 ## Usage
 
-To use JQL go to https://jql.dokku-ray.app
+To use JQL go to https://jql.raybritton.co.uk
 
 This isn't designed to be used as a library for programs but it can be added as a gradle dependency with:
 
 ```groovy
-compile 'com.raybritton.jsonquery:lib:0.13.2'
+compile 'com.raybritton.jsonquery:lib:0.13.3'
 ```
 
 ## License

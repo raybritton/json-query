@@ -11,14 +11,21 @@ class FullJson1Tests {
     fun `select field from nested objects`() {
         val result = JsonQuery(json).query(""" SELECT ('truncated','user.protected', 'id') from '.' """)
 
-        assertEquals("""{false, false, 877994.0}""", result)
+        assertEquals("""{truncated: false, id: 877994.0, protected: false}""", result)
+    }
+
+    @Test
+    fun `select field from nested objects values only`() {
+        val result = JsonQuery(json).query(""" SELECT VALUES FROM (SELECT ('truncated','user.protected', 'id') from '.' AS JSON)""")
+
+        assertEquals("""{false, 877994.0, false}""", result)
     }
 
     @Test
     fun `select field in nested object and array`() {
         val result = JsonQuery(json).query("SELECT 'user.entities.url.urls.url' FROM '.'")
 
-        assertEquals("\"http://t.co/cCH13gqeUK\"", result)
+        assertEquals("url: \"http://t.co/cCH13gqeUK\"", result)
     }
 
     @Test
