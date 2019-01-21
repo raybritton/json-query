@@ -11,7 +11,7 @@ For example:
 * To list names from a list of people older than 20
     * `SELECT "full_name" FROM ".people" WHERE "age" > 20`
 * To list person object from a list of people name contains "Dr"
-    * `SELECT ELEMENT FROM ".people" WHERE "full_name" # "Dr"`
+    * `SELECT ".people" WHERE "full_name" # "Dr"
     
 See [JQL](https://github.com/raybritton/json-query/blob/master/JQL.md) or these [syntax diagrams](https://jql.raybritton.co.uk/docs) for more information
 
