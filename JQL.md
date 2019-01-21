@@ -70,6 +70,7 @@ SEARCH
 * target
     * jsonPath 
     * Or the results of a nested SELECT
+    * All paths are relative to this, any sibling or parent of the target are not accessible in the query
 * jsonPath
     * Parts of the json can be specified using a path
     * Each segment should be separated by a `.` (Fullstop/Period)
