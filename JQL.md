@@ -111,6 +111,7 @@ SEARCH
     * By default the JSON (from AS JSON) is returned on a single line, this causes it to be pretty printed
     * This works with SELECT OR DESCRIBE
 * ORDER BY
+    * This only works on arrays containing the same data type, mixed data types result in an essentially random order
     * field should be written as `"id"`
         * To refer to list element use `ELEMENT`
     * DESC reverses the sort order
