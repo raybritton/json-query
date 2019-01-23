@@ -30,9 +30,16 @@ internal object QueryPrinter {
             Query.Method.SELECT -> {
                 builder.appendKey(Keyword.SELECT)
                 if (query.flags.isDistinct) builder.appendKey(Keyword.DISTINCT)
-                if (query.select!!.projection != null && query.select.projection !is SelectProjection.All) {
-                    builder.append(' ').append(printSelectProjection(query.select.projection!!))
-                            .appendKey(Keyword.FROM)
+                if (query.select!!.projection != null) {
+                    if (query.select.projection !is SelectProjection.All) {
+                        builder.append(' ').append(printSelectProjection(query.select.projection!!))
+                                .appendKey(Keyword.FROM)
+                    } else {
+                        when {
+                            query.flags.isOnlyPrintValues -> builder.appendKey(Keyword.VALUES).appendKey(Keyword.FROM)
+                            query.flags.isOnlyPrintKeys -> builder.appendKey(Keyword.KEYS).appendKey(Keyword.FROM)
+                        }
+                    }
                 }
                 builder.append(' ').append(printTarget(query.target))
                 if (query.flags.isByElement) builder.appendKey(Keyword.BY).appendKey(Keyword.ELEMENT)

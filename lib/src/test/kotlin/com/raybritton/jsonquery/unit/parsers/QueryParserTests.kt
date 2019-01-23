@@ -156,6 +156,22 @@ class QueryParserTests {
     }
 
     @Test
+    fun `test known bad query using distinct`() {
+        val queryStr = """SELECT DISTINCT KEYS FROM (SELECT "date" FROM "." WHERE "date" < "2019-05-05" AS JSON)"""
+        val tokens = queryStr.toQueryTokens()
+        val query = tokens.buildQuery(queryStr)
+
+        assertEquals("Token count", 16, tokens.size)
+        assertEquals("Original query", queryStr, query.originalString)
+        assertEquals("Parsed query", queryStr, query.toString().trim())
+
+        assertEquals("is distinct", true, query.flags.isDistinct)
+        assertEquals("is keys only", true, query.flags.isOnlyPrintKeys)
+        assertEquals("where value", "2019-05-05", ((query.target as Target.TargetQuery).query.where?.value as Value.ValueString).value)
+        assertEquals("where value", Operator.LessThan, query.target.query.where?.operator)
+    }
+
+    @Test
     fun `test projection with rename`() {
         val queryStr = "SELECT \"x\" AS \"y\" FROM \".\""
         val tokens = queryStr.toQueryTokens()
