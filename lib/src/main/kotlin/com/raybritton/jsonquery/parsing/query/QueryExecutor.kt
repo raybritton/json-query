@@ -54,11 +54,6 @@ internal class QueryExecutor {
         }
 
         //OUTPUT
-        if (updatedQuery.flags.isDistinct) {
-            if (workingJson is JsonArray) {
-                workingJson = workingJson.distinct()
-            }
-        }
 
         if (updatedQuery.select?.orderBy != null) {
             workingJson = workingJson.sort(updatedQuery)
@@ -67,6 +62,12 @@ internal class QueryExecutor {
         workingJson = workingJson?.filterToProjection(updatedQuery)
 
         workingJson.rewrite(updatedQuery)
+
+        if (updatedQuery.flags.isDistinct) {
+            if (workingJson is JsonArray) {
+                workingJson = workingJson.distinct()
+            }
+        }
 
         return workingJson!!
     }
